@@ -5,9 +5,9 @@
 #include "utils.h"
 
 // JNI-C++访问Android APP资源的方法
-unsigned char *LoadFileContent(AAssetManager *assetManager, const char *path, int &filesize)
+char *LoadFileContent(AAssetManager *assetManager, const char *path, int &filesize)
 {
-    unsigned char *fileContent = nullptr;
+    char *fileContent = nullptr;
     filesize = 0;
 
     if (nullptr == assetManager)
@@ -23,7 +23,7 @@ unsigned char *LoadFileContent(AAssetManager *assetManager, const char *path, in
     }
 
     filesize = AAsset_getLength(asset);
-    fileContent = new unsigned char[filesize + 1];
+    fileContent = new char[filesize + 1];
 
     // 读文件
     AAsset_read(asset, fileContent, filesize);

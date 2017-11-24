@@ -14,7 +14,7 @@ extern "C" JNIEXPORT void Java_co_pacific_gldemo_Native_InitAssetManager(JNIEnv 
 
 extern "C" JNIEXPORT void Java_co_pacific_gldemo_Native_InitOpenGL(JNIEnv *env, jobject obj)
 {
-    InitGL();
+    InitGL(sAssetManager);
 }
 
 extern "C" JNIEXPORT void Java_co_pacific_gldemo_Native_OnViewportChanged(JNIEnv *env, jobject obj, jfloat w, jfloat h)
