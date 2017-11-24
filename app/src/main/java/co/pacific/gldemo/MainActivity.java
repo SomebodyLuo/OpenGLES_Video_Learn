@@ -13,20 +13,23 @@ class MyGLRender implements GLSurfaceView.Renderer{
     //视口被创建时
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        gl.glClearColor(0.8f, 0.4f, 0.6f, 1.0f);
+//        gl.glClearColor(0.8f, 0.4f, 0.6f, 1.0f);
+        Native.InitOpenGL();    //替换成C++函数
     }
 
     //视口改变大小时，比如左右旋转屏幕时
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
 
-        gl.glViewport(0, 0, width, height); //修改视口映射
+//        gl.glViewport(0, 0, width, height); //修改视口映射
+        Native.OnViewportChanged(width, height);    //替换成C++函数
     }
 
     //刷新View
     @Override
     public void onDrawFrame(GL10 gl) {
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT);
+//        gl.glClear(gl.GL_COLOR_BUFFER_BIT);
+        Native.RenderOneFrame();    //替换成C++函数
     }
 }
 
@@ -51,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // 将资源读取器传入C++层
+        Native.InitAssetManager(getAssets());
+
         super.onCreate(savedInstanceState);
 
         mGLView = new MyGLSurfaceView(getApplication());
