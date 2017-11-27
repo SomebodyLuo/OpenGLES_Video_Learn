@@ -14,4 +14,6 @@ GLuint CompileShader(GLenum shaderType, const char *shaderCode);
 // vs--Vertex Shader; fs--Fragment Shader
 GLuint CreateProgram(GLuint vsShader, GLuint fsShader);
 
+float GetFrameTime();
+
 #endif //GLDEMO_UTILS_H

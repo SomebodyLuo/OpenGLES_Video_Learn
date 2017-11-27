@@ -21,6 +21,7 @@ GLuint positionLocation, modelMatrixLocation, viewMatrixLocation, projectionMatr
 // 矩阵默认是单位矩阵
 glm::mat4 modelMaxtrix, viewMatrix, projectionMatrix;
 
+
 void InitGL(AAssetManager *assetManager)
 {
     LOGI("------InitGL-------");
@@ -30,9 +31,9 @@ void InitGL(AAssetManager *assetManager)
     }
 
     float data[] = {
-            -0.2f, -0.2f, -0.6f, 1.0f,
-            0.2f, -0.2f, -0.6f, 1.0f,
-            0.0f, 0.2f, -0.6f, 1.0f,
+            -0.2f, -0.2f, 0.6f, 1.0f,
+            0.2f, -0.2f, 0.6f, 1.0f,
+            0.0f, 0.2f, 0.6f, 1.0f,
     };
 
     //向显卡申请一块VBO内存
@@ -54,12 +55,14 @@ void InitGL(AAssetManager *assetManager)
     char *shaderCode = LoadFileContent(assetManager, "Res/test.vs", filesize);
     if (nullptr == shaderCode)
     {
+        LOGD("1 nullptr == shaderCode");
         return;
     }
     GLuint  vsShader = CompileShader(GL_VERTEX_SHADER, shaderCode);
     delete shaderCode;
     if (0 == vsShader)
     {
+        LOGD("0 == vsShader");
         return;
     }
 
@@ -67,6 +70,7 @@ void InitGL(AAssetManager *assetManager)
     shaderCode = LoadFileContent(assetManager, "Res/test.fs", filesize);
     if (nullptr == shaderCode)
     {
+        LOGD("2 nullptr == shaderCode");
         glDeleteShader(vsShader);
         return;
     }
@@ -74,6 +78,7 @@ void InitGL(AAssetManager *assetManager)
     delete shaderCode;
     if (0 == fsShader)
     {
+        LOGD("0 == fsShader");
         glDeleteShader(vsShader);
         return;
     }
@@ -83,6 +88,7 @@ void InitGL(AAssetManager *assetManager)
     program = CreateProgram(vsShader, fsShader);
     if (0 == program)
     {
+        LOGD("0 == program");
         glDeleteShader(vsShader);
         glDeleteShader(fsShader);
         return;
@@ -102,20 +108,25 @@ void InitGL(AAssetManager *assetManager)
     modelMatrixLocation = glGetUniformLocation(program, "ModelMatrix");
     viewMatrixLocation = glGetUniformLocation(program, "ViewMatrix");
     projectionMatrixLocation = glGetUniformLocation(program, "ProjectionMatrix");
+
+    // 给model一个偏移矩阵，也就是ModelMatrix
+    modelMaxtrix = glm::translate(modelMaxtrix,  glm::vec3(0.0f, 0.0f, -0.6f));
 }
 
 void SetViewportSize(float width, float height)
 {
-    LOGI("------SetViewportSize-------");
+    LOGI("------SetViewportSize-------width = %f; height = %f", width, height);
     // 设置投影矩阵
     projectionMatrix = glm::perspective(60.0f, width / height, 0.1f, 1000.0f);
 }
 
 void DrawGL()
 {
-    LOGI("------DrawGL-------");
+    float frameTime = GetFrameTime();
+
+    LOGI("------DrawGL------- %f s", frameTime);
     // 擦除背景颜色
-    glClearColor(1.0f, 0.6f, 0.4f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     //设置颜色缓冲区和深度缓冲区
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

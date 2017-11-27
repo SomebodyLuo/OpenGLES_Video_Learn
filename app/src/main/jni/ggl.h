@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <sys/time.h>
 #include <android/log.h>
 
 #include <string>
