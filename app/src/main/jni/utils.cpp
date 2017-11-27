@@ -12,6 +12,7 @@ char *LoadFileContent(AAssetManager *assetManager, const char *path, int &filesi
 
     if (nullptr == assetManager)
     {
+        LOGD("nullptr == assetManager");
         return nullptr;
     }
 
@@ -19,6 +20,7 @@ char *LoadFileContent(AAssetManager *assetManager, const char *path, int &filesi
     AAsset *asset = AAssetManager_open(assetManager, path, AASSET_MODE_UNKNOWN);
     if (nullptr == asset)
     {
+        LOGD("AAssetManager_open failed!");
         return nullptr;
     }
 
