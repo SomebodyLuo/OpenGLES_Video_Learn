@@ -20,11 +20,20 @@ GLuint ebo = 0;     //顶点数据索引缓存！！！
 
 
 // 申明插槽C++变量
-GLuint positionLocation, modelMatrixLocation, viewMatrixLocation, projectionMatrixLocation;
+GLint positionLocation, modelMatrixLocation, viewMatrixLocation, projectionMatrixLocation;
 
 // 矩阵默认是单位矩阵
 glm::mat4 modelMaxtrix, viewMatrix, projectionMatrix;
 
+#define COODS_PER_VERTEX 4
+float trianglecoordinates[] = {
+        -0.2f, -0.2f, -1.6f, 1.0f,
+        0.2f, -0.2f, -1.6f, 1.0f,
+        0.0f, 0.2f, -1.6f, 1.0f,
+};
+
+int vertexStride = sizeof(trianglecoordinates[0]) * COODS_PER_VERTEX;
+int vertexCounts = sizeof(trianglecoordinates) / sizeof(trianglecoordinates[0]) / COODS_PER_VERTEX;
 
 void InitGL(AAssetManager *assetManager)
 {
@@ -34,11 +43,7 @@ void InitGL(AAssetManager *assetManager)
         return;
     }
 
-    float data[] = {
-            -1.2f, -0.2f, 0.6f, 1.0f,
-            1.2f, -0.2f, 0.6f, 1.0f,
-            1.0f, 0.2f, 0.6f, 1.0f,
-    };
+
 
     //------------------------- VBO ----------------------------
     vbo = 0;
@@ -50,25 +55,25 @@ void InitGL(AAssetManager *assetManager)
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
     // 将数据传入GPU内存，然后CPU内的数据就可以删除了
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*12, data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(trianglecoordinates), trianglecoordinates, GL_STATIC_DRAW);
 
     // 解除当前的VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //------------------------- EBO ----------------------------
-    ebo = 0;
-    unsigned short indices[] = {0, 1, 2};
-    glGenBuffers(1, &ebo);
-    LOGI("ebo = %u", ebo);      //2
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    // 将索引缓存数据传入GPU内存，然后CPU内的数据就可以删除了
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * 3, indices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//    ebo = 0;
+//    unsigned short indices[] = {0, 1, 2};
+//    glGenBuffers(1, &ebo);
+//    LOGI("ebo = %u", ebo);      //2
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+//    // 将索引缓存数据传入GPU内存，然后CPU内的数据就可以删除了
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * 3, indices, GL_STATIC_DRAW);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     //------------------------- shader program -------------------------
     int filesize = 0;
     // vsShader
-    char *shaderCode = LoadFileContent(assetManager, "Res/test.vertexshader", filesize);
+    char *shaderCode = LoadFileContent(assetManager, "Res/test.vs", filesize);
     if (nullptr == shaderCode)
     {
         LOGD("1 nullptr == vs shaderCode");
@@ -83,7 +88,7 @@ void InitGL(AAssetManager *assetManager)
     }
 
     // fsShader
-    shaderCode = LoadFileContent(assetManager, "Res/test.fragmentshader", filesize);
+    shaderCode = LoadFileContent(assetManager, "Res/test.fs", filesize);
     if (nullptr == shaderCode)
     {
         LOGD("2 nullptr == fs shaderCode");
@@ -125,6 +130,7 @@ void InitGL(AAssetManager *assetManager)
     modelMatrixLocation = glGetUniformLocation(program, "ModelMatrix");
     viewMatrixLocation = glGetUniformLocation(program, "ViewMatrix");
     projectionMatrixLocation = glGetUniformLocation(program, "ProjectionMatrix");
+    LOGI("------program: positionLocation = %d; modelMatrixLocation = %d; viewMatrixLocation = %d; projectionMatrixLocation = %d", positionLocation, modelMatrixLocation, viewMatrixLocation, projectionMatrixLocation);
 
     // 给model一个偏移矩阵，也就是ModelMatrix
 //    modelMaxtrix = glm::translate(modelMaxtrix,  glm::vec3(0.0f, 0.0f, -0.6f));
@@ -135,7 +141,7 @@ void SetViewportSize(float width, float height)
     //------SetViewportSize-------width = 720.000000; height = 1132.000000
     LOGI("------SetViewportSize-------width = %f; height = %f", width, height);
     // 设置投影矩阵
-    projectionMatrix = glm::perspective(60.0f, width / height, 0.1f, 1000.0f);
+    projectionMatrix = glm::perspective(45.0f, width / height, 0.1f, 1000.0f);
 }
 
 void DrawGL()
@@ -144,7 +150,7 @@ void DrawGL()
 
     LOGI("------DrawGL------- %f s", frameTime);
     // 擦除背景颜色
-    glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
+    glClearColor(0.0f, 0.2f, 0.0f, 1.0f);
 
     //设置颜色缓冲区和深度缓冲区
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -178,20 +184,22 @@ void DrawGL()
         //param5: 紧挨着的2个点，地址相距的间隔，也就是数据数组的行大小
         //param6: 顶点信息从VBO中哪里开始取值
         // 告诉GPU如何去遍历VBO内存块上面的数据
-        glVertexAttribPointer(positionLocation, 4, GL_FLOAT, GL_FALSE, sizeof(float)*4, 0);
+        glVertexAttribPointer(positionLocation, COODS_PER_VERTEX, GL_FLOAT, GL_FALSE, vertexStride, 0);
 
         //param1: 绘制三角形
         //param2: 第几个顶点开始绘制
         //param3: 总共绘制几个点
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, vertexCounts);
+
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+//        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
+//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+        // 解除插槽
+        glDisableVertexAttribArray(positionLocation);
 
         // 解除设置
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
 
         // 解除选择
         glUseProgram(0);

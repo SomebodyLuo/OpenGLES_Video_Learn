@@ -11,7 +11,7 @@ public class Native {
 
     public static native void InitOpenGL();
 
-    public static native void OnViewportChanged(float w, float h);
+    public static native void OnViewportChanged(float width,float height);
 
     public static native void RenderOneFrame();
 
