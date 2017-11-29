@@ -59,7 +59,7 @@ GLuint CompileShader(GLenum shaderType, const char *shaderCode)
         glGetShaderInfoLog(shader, 1024, &logLen, szLog);
         printf("Compile Shader fail error log : %s \nshader code :\n%s\n", szLog, shaderCode);
 
-        // 既然编译失败了就释放吧！
+        // shader既然编译失败了就释放吧！
         glDeleteShader(shader);
         shader = 0;
     }
@@ -97,7 +97,7 @@ GLuint CreateProgram(GLuint vsShader, GLuint fsShader)
 
         printf("create GPU program failed, link error : %s \n", log);
 
-        // 有问题，删除
+        // program有问题，删除
         glDeleteProgram(program);
 
         program = 0;

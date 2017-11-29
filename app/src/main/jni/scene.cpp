@@ -12,11 +12,11 @@
 // 顶点数据只在CPU，处理效率很低。数据量大，就很难搞
 // 由于数据已经到了显卡上，无法使用C语言来操作数据，因此就要依赖VBO--Vertex Buffer Object。
 
-GLuint vbo = 0;     //顶点数据缓存！！！
+GLuint vbo = 0;     //vertex buffer object, 顶点数据缓存！！！
 GLuint program = 0;
 
 //指导组织VBO的数据去绘制图元
-GLuint ebo = 0;     //顶点数据索引缓存！！！
+GLuint ebo = 0;     //element buffer object, 顶点数据索引缓存！！！
 
 
 // 申明插槽C++变量
@@ -27,13 +27,14 @@ glm::mat4 modelMaxtrix, viewMatrix, projectionMatrix;
 
 #define COODS_PER_VERTEX 4
 float trianglecoordinates[] = {
-        -0.2f, -0.2f, -1.6f, 1.0f,
-        0.2f, -0.2f, -1.6f, 1.0f,
-        0.0f, 0.2f, -1.6f, 1.0f,
+        -0.0f, -0.2f, -0.6f, 1.0f,
+        0.2f, -0.1f, -0.6f, 1.0f,
+        0.0f, 0.2f, -0.6f, 1.0f,
 };
 
 int vertexStride = sizeof(trianglecoordinates[0]) * COODS_PER_VERTEX;
 int vertexCounts = sizeof(trianglecoordinates) / sizeof(trianglecoordinates[0]) / COODS_PER_VERTEX;
+
 
 void InitGL(AAssetManager *assetManager)
 {
@@ -42,9 +43,6 @@ void InitGL(AAssetManager *assetManager)
     {
         return;
     }
-
-
-
     //------------------------- VBO ----------------------------
     vbo = 0;
     //向显卡申请一块VBO内存
@@ -61,14 +59,14 @@ void InitGL(AAssetManager *assetManager)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //------------------------- EBO ----------------------------
-//    ebo = 0;
-//    unsigned short indices[] = {0, 1, 2};
-//    glGenBuffers(1, &ebo);
-//    LOGI("ebo = %u", ebo);      //2
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-//    // 将索引缓存数据传入GPU内存，然后CPU内的数据就可以删除了
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * 3, indices, GL_STATIC_DRAW);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    ebo = 0;
+    unsigned short indices[] = {0, 1, 2};
+    glGenBuffers(1, &ebo);
+    LOGI("ebo = %u", ebo);      //2
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    // 将索引缓存数据传入GPU内存，然后CPU内的数据就可以删除了
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     //------------------------- shader program -------------------------
     int filesize = 0;
@@ -132,8 +130,11 @@ void InitGL(AAssetManager *assetManager)
     projectionMatrixLocation = glGetUniformLocation(program, "ProjectionMatrix");
     LOGI("------program: positionLocation = %d; modelMatrixLocation = %d; viewMatrixLocation = %d; projectionMatrixLocation = %d", positionLocation, modelMatrixLocation, viewMatrixLocation, projectionMatrixLocation);
 
-    // 给model一个偏移矩阵，也就是ModelMatrix
+    // 给model一个偏移矩阵，也就是 modelMaxtrix
 //    modelMaxtrix = glm::translate(modelMaxtrix,  glm::vec3(0.0f, 0.0f, -0.6f));
+
+    // 给camera一个偏移矩阵，也就是 viewMatrix
+//    viewMatrix = glm::translate(viewMatrix,  glm::vec3(0.0f, 0.0f, -1.0f));
 }
 
 void SetViewportSize(float width, float height)
@@ -178,7 +179,7 @@ void DrawGL()
         glEnableVertexAttribArray(positionLocation);
 
         //param1: 插槽位置（序号）
-        //param2: 插槽中数据有几个分量，我们这里的数据有x/y/z/w 4个分量
+        //param2: 插槽中每个顶点数据有几个分量，我们这里的数据有x/y/z/w 4个分量
         //param3: 每个分量是什么类型
         //param4: 是否要进行归一化。如果传入的是RGB数据（0-255），就要映射到0.0-1.0
         //param5: 紧挨着的2个点，地址相距的间隔，也就是数据数组的行大小
@@ -189,11 +190,12 @@ void DrawGL()
         //param1: 绘制三角形
         //param2: 第几个顶点开始绘制
         //param3: 总共绘制几个点
-        glDrawArrays(GL_TRIANGLES, 0, vertexCounts);
+//        glDrawArrays(GL_TRIANGLES, 0, vertexCounts);
 
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-//        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        //注意EBO代码的位置，必须在glDisableVertexAttribArray / glBindBuffer之前，也就是VBO使能期间
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
         // 解除插槽
         glDisableVertexAttribArray(positionLocation);
