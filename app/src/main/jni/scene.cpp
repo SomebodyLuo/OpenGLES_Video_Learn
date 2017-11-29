@@ -20,20 +20,17 @@ GLuint ebo = 0;     //element buffer object, 顶点数据索引缓存！！！
 
 
 // 申明插槽C++变量
-GLint positionLocation, modelMatrixLocation, viewMatrixLocation, projectionMatrixLocation;
+GLint positionLocation, modelMatrixLocation, viewMatrixLocation, projectionMatrixLocation, colorLocation;
 
 // 矩阵默认是单位矩阵
 glm::mat4 modelMaxtrix, viewMatrix, projectionMatrix;
 
-#define COODS_PER_VERTEX 4
 float trianglecoordinates[] = {
-        -0.0f, -0.2f, -0.6f, 1.0f,
-        0.2f, -0.1f, -0.6f, 1.0f,
-        0.0f, 0.2f, -0.6f, 1.0f,
+        /*顶点数据*/-0.0f, -0.2f, -0.6f, 1.0f, /*颜色数据*/1.0f, 1.0f, 1.0f, 1.0f,
+        /*顶点数据*/0.2f, -0.1f, -0.6f, 1.0f, /*颜色数据*/0.0f, 1.0f, 0.0f, 1.0f,
+        /*顶点数据*/0.0f, 0.2f, -0.6f, 1.0f, /*颜色数据*/1.0f, 0.0f, 0.0f, 1.0f,
 };
 
-int vertexStride = sizeof(trianglecoordinates[0]) * COODS_PER_VERTEX;
-int vertexCounts = sizeof(trianglecoordinates) / sizeof(trianglecoordinates[0]) / COODS_PER_VERTEX;
 
 
 void InitGL(AAssetManager *assetManager)
@@ -125,6 +122,7 @@ void InitGL(AAssetManager *assetManager)
     // 那么我们只要告诉GPU，哪个插槽应该放哪个数据即可。
     // 获取到shader变量对应的插槽：
     positionLocation = glGetAttribLocation(program, "position");
+    colorLocation = glGetAttribLocation(program, "color");
     modelMatrixLocation = glGetUniformLocation(program, "ModelMatrix");
     viewMatrixLocation = glGetUniformLocation(program, "ViewMatrix");
     projectionMatrixLocation = glGetUniformLocation(program, "ProjectionMatrix");
@@ -185,7 +183,7 @@ void DrawGL()
         //param5: 紧挨着的2个点，地址相距的间隔，也就是数据数组的行大小
         //param6: 顶点信息从VBO中哪里开始取值
         // 告诉GPU如何去遍历VBO内存块上面的数据
-        glVertexAttribPointer(positionLocation, COODS_PER_VERTEX, GL_FLOAT, GL_FALSE, vertexStride, 0);
+        glVertexAttribPointer(positionLocation, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void *)0);
 
         //param1: 绘制三角形
         //param2: 第几个顶点开始绘制
@@ -196,6 +194,10 @@ void DrawGL()
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+        // 颜色
+        glEnableVertexAttribArray(colorLocation);
+        glVertexAttribPointer(colorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void *)(sizeof(float) * 4));    //注意最后一个参数，代表颜色数据的起始位置偏移量
 
         // 解除插槽
         glDisableVertexAttribArray(positionLocation);
