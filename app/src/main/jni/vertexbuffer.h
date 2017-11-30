@@ -26,6 +26,8 @@ public:
     void SetTexcoord(int index, float x, float y);
     void SetNormal(int index, float x, float y, float z);
 
+    int GetByteSize();
+
 };
 
 #endif //GLDEMO_VERTEXBUFFER_H

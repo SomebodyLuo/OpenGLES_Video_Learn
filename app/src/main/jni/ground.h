@@ -10,7 +10,7 @@
 
 class Ground
 {
-
+    VertexBuffer *mVertexBuffer;
     GLuint mVBO;
 
 public:

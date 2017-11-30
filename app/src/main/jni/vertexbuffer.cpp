@@ -46,7 +46,8 @@ void VertexBuffer::SetTexcoord(int index, float x, float y) {
     mVertexes[index].Texcoord[1] = y;
 }
 
-void VertexBuffer::SetNormal(int index, float x, float y, float z) {
+void VertexBuffer::SetNormal(int index, float x, float y, float z)
+{
     if (index < 0 || index >= mVertexCount)
     {
         return;
@@ -55,4 +56,9 @@ void VertexBuffer::SetNormal(int index, float x, float y, float z) {
     mVertexes[index].Normal[0] = x;
     mVertexes[index].Normal[1] = y;
     mVertexes[index].Normal[2] = z;
+}
+
+int VertexBuffer::GetByteSize()
+{
+    return (sizeof(Vertex) * mVertexCount);
 }
