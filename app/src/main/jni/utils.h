@@ -22,4 +22,6 @@ GLuint CreateTexture2D(unsigned char*pixelData, int width, int height, GLenum ty
 
 GLuint CreateTexture2DFromBMP(AAssetManager *assetManager, const char*bmpPath);
 
+GLuint CreateBufferObject(GLenum bufferType, GLsizeiptr size, GLenum usage, void *data /*= nullptr*/);
+
 #endif //GLDEMO_UTILS_H

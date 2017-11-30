@@ -197,5 +197,27 @@ GLuint CreateTexture2DFromBMP(AAssetManager *assetManager, const char*bmpPath)
     return texture;
 }
 
+/**
+ *
+ * @param bufferType
+ * @param size
+ * @param usage
+ * @param data
+ * @return
+ */
+GLuint CreateBufferObject(GLenum bufferType, GLsizeiptr size, GLenum usage, void *data /*= nullptr*/)
+{
+    GLuint object;
+    glGenBuffers(1, &object);
+
+    glBindBuffer(bufferType, object);
+
+    glBufferData(bufferType, size, data, usage);
+
+    glBindBuffer(bufferType, 0);
+
+    return object;
+}
+
 
 

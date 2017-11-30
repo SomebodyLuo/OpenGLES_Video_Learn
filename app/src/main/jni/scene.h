@@ -7,6 +7,7 @@
 
 #include "ggl.h"
 
+/
 void InitGL(AAssetManager *assetManager);
 
 void SetViewportSize(float width, float height);
