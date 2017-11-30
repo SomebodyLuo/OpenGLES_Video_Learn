@@ -4,8 +4,20 @@
 
 #include "ground.h"
 
-void Ground::Init()
+Ground::Ground()
 {
+    mVertexBuffer = nullptr;
+    mShader = nullptr;
+    mVBO = 0;
+}
+
+void Ground::Init(AAssetManager *assetManager)
+{
+    if(nullptr == assetManager)
+    {
+        return;
+    }
+
     mVertexBuffer = new VertexBuffer;
     mVertexBuffer->SetSize(1600);
 
@@ -41,8 +53,13 @@ void Ground::Init()
                 mVertexBuffer->SetColor(offset + 3, 0.8f, 0.8f, 0.8f);
             }
         }
-
     }
 
     mVBO = CreateBufferObject(GL_ARRAY_BUFFER, mVertexBuffer->GetByteSize(), GL_STATIC_DRAW, mVertexBuffer->mVertexes);
+
+    mShader = new Shader;
+    mShader->Init(assetManager, "Res/ground.vs", "Res/ground.fs");
+
+
 }
+

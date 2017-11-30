@@ -7,14 +7,21 @@
 
 #include "utils.h"
 #include "vertexbuffer.h"
+#include "shader.h"
 
 class Ground
 {
+public:
+    Ground();
+
+private:
     VertexBuffer *mVertexBuffer;
     GLuint mVBO;
 
+    Shader *mShader;
+
 public:
-    void Init();
+    void Init(AAssetManager *assetManager);
 
 };
 
