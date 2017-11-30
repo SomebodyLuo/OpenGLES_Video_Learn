@@ -152,10 +152,10 @@ GLuint CreateTexture2D(unsigned char *pixelData, int width, int height, GLenum t
 
     glBindTexture(GL_TEXTURE_2D, texture);
 
-    glTexParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //纹理放大时，用什么算法采集像素
-    glTexParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //纹理缩小时，用什么算法采集像素
-    glTexParameteri(texture, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  //
-    glTexParameteri(texture, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); //纹理放大时，用什么算法采集像素
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //纹理缩小时，用什么算法采集像素
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  //
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     //param1: 纹理编号
     //param2: MipMap级别，OpenGL会选择不同的级别去着色(占内存)。比如原始图像是128x128，缩小一倍就是64x64；原始级别就是0，下一级别是1，

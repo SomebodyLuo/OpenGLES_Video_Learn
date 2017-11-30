@@ -22,13 +22,17 @@ GLuint ebo = 0;     //element buffer object, 顶点数据索引缓存！！！
 // 申明插槽C++变量
 GLint positionLocation, modelMatrixLocation, viewMatrixLocation, projectionMatrixLocation, colorLocation;
 
+GLint texcoordLocation, textureLocation;
+
+GLuint texture;
+
 // 矩阵默认是单位矩阵
-glm::mat4 modelMaxtrix, viewMatrix, projectionMatrix;
+glm::mat4 modelMatrix, viewMatrix, projectionMatrix;
 
 float trianglecoordinates[] = {
-        /*顶点数据*/-0.0f, -0.2f, -0.6f, 1.0f, /*颜色数据*/1.0f, 1.0f, 1.0f, 1.0f,
-        /*顶点数据*/0.2f, -0.1f, -0.6f, 1.0f, /*颜色数据*/0.0f, 1.0f, 0.0f, 1.0f,
-        /*顶点数据*/0.0f, 0.2f, -0.6f, 1.0f, /*颜色数据*/1.0f, 0.0f, 0.0f, 1.0f,
+        /*顶点数据*/-0.2f, -0.2f, -0.6f, 1.0f, /*颜色数据*/1.0f, 1.0f, 1.0f, 1.0f, /*纹理坐标*/0.0f, 0.0f,
+        /*顶点数据*/0.2f, -0.2f, -0.6f, 1.0f, /*颜色数据*/0.0f, 1.0f, 0.0f, 1.0f, /*纹理坐标*/1.0f, 0.0f,
+        /*顶点数据*/0.0f, 0.2f, -0.6f, 1.0f, /*颜色数据*/1.0f, 0.0f, 0.0f, 1.0f, /*纹理坐标*/0.5f, 1.0f,
 };
 
 
@@ -128,8 +132,14 @@ void InitGL(AAssetManager *assetManager)
     projectionMatrixLocation = glGetUniformLocation(program, "ProjectionMatrix");
     LOGI("------program: positionLocation = %d; modelMatrixLocation = %d; viewMatrixLocation = %d; projectionMatrixLocation = %d", positionLocation, modelMatrixLocation, viewMatrixLocation, projectionMatrixLocation);
 
-    // 给model一个偏移矩阵，也就是 modelMaxtrix
-//    modelMaxtrix = glm::translate(modelMaxtrix,  glm::vec3(0.0f, 0.0f, -0.6f));
+    // 加载纹理，准备工作
+    texcoordLocation = glGetAttribLocation(program, "texcoord");
+    textureLocation = glGetUniformLocation(program, "U_Texture");
+    texture = CreateTexture2DFromBMP(assetManager, "Res/test.bmp");
+    LOGI("------program: texcoordLocation = %d; textureLocation = %d; texture = %d;", texcoordLocation, textureLocation, texture);
+
+    // 给model一个偏移矩阵，也就是 modelMatrix
+//    modelMatrix = glm::translate(modelMatrix,  glm::vec3(0.0f, 0.0f, -0.6f));
 
     // 给camera一个偏移矩阵，也就是 viewMatrix
 //    viewMatrix = glm::translate(viewMatrix,  glm::vec3(0.0f, 0.0f, -1.0f));
@@ -149,7 +159,7 @@ void DrawGL()
 
     LOGI("------DrawGL------- %f s", frameTime);
     // 擦除背景颜色
-    glClearColor(0.0f, 0.2f, 0.0f, 1.0f);
+    glClearColor(0.1f, 0.4f, 0.6f, 1.0f);
 
     //设置颜色缓冲区和深度缓冲区
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -165,15 +175,19 @@ void DrawGL()
         //param2: 传入设置几个这样的矩阵
         //param3: 矩阵从CPU传入GPU是否需要转制
         //param4: 要传入的矩阵
-        glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelMaxtrix));
+        glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
         glUniformMatrix4fv(viewMatrixLocation, 1, GL_FALSE, glm::value_ptr(viewMatrix));
         glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+        // 启用纹理
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glUniform1i(textureLocation, 0);
 
         // 设置当前的数据集，vbo实际是指代GPU的内存数据
         // 程序绘制的时候，shader绘制图形的时候从哪里获取顶点数据
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-        // 启用插槽
+        // 启用顶点插槽
         glEnableVertexAttribArray(positionLocation);
 
         //param1: 插槽位置（序号）
@@ -183,29 +197,36 @@ void DrawGL()
         //param5: 紧挨着的2个点，地址相距的间隔，也就是数据数组的行大小
         //param6: 顶点信息从VBO中哪里开始取值
         // 告诉GPU如何去遍历VBO内存块上面的数据
-        glVertexAttribPointer(positionLocation, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void *)0);
+        glVertexAttribPointer(positionLocation, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (void *)0);
 
         //param1: 绘制三角形
         //param2: 第几个顶点开始绘制
         //param3: 总共绘制几个点
 //        glDrawArrays(GL_TRIANGLES, 0, vertexCounts);
 
+
+
+        // 启用颜色插槽
+        glEnableVertexAttribArray(colorLocation);
+        glVertexAttribPointer(colorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (void *)(sizeof(float) * 4));    //注意最后一个参数，代表颜色数据的起始位置偏移量
+
+        // 启用纹理坐标插槽
+        glEnableVertexAttribArray(texcoordLocation);
+        glVertexAttribPointer(texcoordLocation, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 10, (void *)(sizeof(float) * 8));
+
+        // 启用顶点索引
         //注意EBO代码的位置，必须在glDisableVertexAttribArray / glBindBuffer之前，也就是VBO使能期间
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        // 颜色
-        glEnableVertexAttribArray(colorLocation);
-        glVertexAttribPointer(colorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void *)(sizeof(float) * 4));    //注意最后一个参数，代表颜色数据的起始位置偏移量
+        // 解除顶点插槽
+//        glDisableVertexAttribArray(positionLocation);
 
-        // 解除插槽
-        glDisableVertexAttribArray(positionLocation);
-
-        // 解除设置
+        // 解除VBO设置
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        // 解除选择
+        // 解除shader程序
         glUseProgram(0);
     }
 }
