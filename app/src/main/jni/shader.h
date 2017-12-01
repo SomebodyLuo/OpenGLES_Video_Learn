@@ -12,12 +12,13 @@ public:
     AAssetManager *mAssetManager;
 
     GLuint mProgram;
-    GLint mPositionLocation, mColorLocation, mNormalLocation;
+    GLint mPositionLocation, mColorLocation, mTexcoordLocation, mNormalLocation;
     GLint mModelMatrixLocation, mViewMatrixLocation, mProjectionMatrixLocation;
 
     Shader();
 
     bool Init(AAssetManager *assetManager, const char*vs, const char *fs);
+    void Bind(float *M, float *V, float *P);
 };
 
 

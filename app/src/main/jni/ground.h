@@ -20,8 +20,12 @@ private:
 
     Shader *mShader;
 
+    //注意模型矩阵肯定是模型自己的，需要放在模型类里面
+    glm::mat4 mModelMatrix;
+
 public:
     void Init(AAssetManager *assetManager);
+    void Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix);
 
 };
 

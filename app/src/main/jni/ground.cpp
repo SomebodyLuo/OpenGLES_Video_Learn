@@ -46,7 +46,7 @@ void Ground::Init(AAssetManager *assetManager)
                 mVertexBuffer->SetColor(offset + 1, 0.1f, 0.1f, 0.1f);
                 mVertexBuffer->SetColor(offset + 2, 0.1f, 0.1f, 0.1f);
                 mVertexBuffer->SetColor(offset + 3, 0.1f, 0.1f, 0.1f);
-            } else{
+            } else {
                 mVertexBuffer->SetColor(offset + 0, 0.8f, 0.8f, 0.8f);
                 mVertexBuffer->SetColor(offset + 1, 0.8f, 0.8f, 0.8f);
                 mVertexBuffer->SetColor(offset + 2, 0.8f, 0.8f, 0.8f);
@@ -59,7 +59,21 @@ void Ground::Init(AAssetManager *assetManager)
 
     mShader = new Shader;
     mShader->Init(assetManager, "Res/ground.vs", "Res/ground.fs");
+}
 
+void Ground::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
+{
+    glEnable(GL_DEPTH_TEST);
 
+    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+
+    mShader->Bind(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+
+    // 绘制400个小方块
+    for (int i = 0; i < 400; ++i) {
+        glDrawArrays(GL_TRIANGLE_STRIP, i * 4, 4);  //注意GL_TRIANGLE_STRIP
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 

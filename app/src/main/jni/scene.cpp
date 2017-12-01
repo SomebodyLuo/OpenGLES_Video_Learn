@@ -5,6 +5,7 @@
 #include "scene.h"
 #include "ggl.h"
 #include "utils.h"
+#include "ground.h"
 
 //------------------- GPU(显卡) ------------------
 // 理解显卡的原理
@@ -35,7 +36,7 @@ float trianglecoordinates[] = {
         /*顶点数据*/0.0f, 0.2f, -0.6f, 1.0f, /*颜色数据*/1.0f, 0.0f, 0.0f, 1.0f, /*纹理坐标*/0.5f, 1.0f,
 };
 
-
+Ground ground;
 
 void InitGL(AAssetManager *assetManager)
 {
@@ -143,6 +144,10 @@ void InitGL(AAssetManager *assetManager)
 
     // 给camera一个偏移矩阵，也就是 viewMatrix
 //    viewMatrix = glm::translate(viewMatrix,  glm::vec3(0.0f, 0.0f, -1.0f));
+
+
+    // 棋盘格
+    ground.Init(assetManager);
 }
 
 void SetViewportSize(float width, float height)
@@ -163,6 +168,9 @@ void DrawGL()
 
     //设置颜色缓冲区和深度缓冲区
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // 绘制棋盘格
+    ground.Draw(viewMatrix, projectionMatrix);
 
     if(0 != program) {
 

@@ -4,6 +4,7 @@
 
 #include "shader.h"
 #include "utils.h"
+#include "vertexbuffer.h"
 
 Shader::Shader()
 {
@@ -40,7 +41,7 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
         return false;
     }
 
-    GLuint fsShader = CompileShader(GL_VERTEX_SHADER, fsCode);
+    GLuint fsShader = CompileShader(GL_FRAGMENT_SHADER, fsCode);
     delete fsCode;
     if (0 == fsShader)
     {
@@ -57,8 +58,11 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
         return false;
     }
 
+    // 可能我们的shader代码中，不一定4个Attribute都有，但是OpenGL能够容错。
+    // 不存在的Attribute，相应的Location就是-1。
     mPositionLocation = glGetAttribLocation(mProgram, "position");
     mColorLocation = glGetAttribLocation(mProgram, "color");
+    mTexcoordLocation = glGetAttribLocation(mProgram, "texcoord");
     mNormalLocation = glGetAttribLocation(mProgram, "normal");
 
     mModelMatrixLocation = glGetUniformLocation(mProgram, "ModelMatrix");
@@ -66,6 +70,35 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     mProjectionMatrixLocation = glGetUniformLocation(mProgram, "ProjectionMatrix");
 
     return true;
+}
+
+void Shader::Bind(float *M, float *V, float *P)
+{
+    if (0 == mProgram)
+    {
+        return ;
+    }
+
+    glUseProgram(mProgram);
+
+    glUniformMatrix4fv(mModelMatrixLocation, 1, GL_FALSE, M);
+    glUniformMatrix4fv(mViewMatrixLocation, 1, GL_FALSE, V);
+    glUniformMatrix4fv(mProjectionMatrixLocation, 1, GL_FALSE, P);
+
+    // 可能我们的shader代码中，不一定4个Attribute都有，但是OpenGL能够容错。
+    // 不存在的Attribute，相应的Location就是-1。
+    glEnableVertexAttribArray(mPositionLocation);
+    glVertexAttribPointer(mPositionLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
+
+    glEnableVertexAttribArray(mColorLocation);
+    glVertexAttribPointer(mColorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(sizeof(float) * 4));
+
+    glEnableVertexAttribArray(mTexcoordLocation);
+    glVertexAttribPointer(mTexcoordLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(sizeof(float) * 8));
+
+    glEnableVertexAttribArray(mNormalLocation);
+    glVertexAttribPointer(mNormalLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(sizeof(float) * 12));
+
 }
 
 
