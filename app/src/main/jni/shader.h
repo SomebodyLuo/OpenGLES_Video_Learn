@@ -29,7 +29,8 @@ public:
     AAssetManager *mAssetManager;
 
     GLuint mProgram;
-    UniformTexture mTexture;
+    std::map<std::string, UniformTexture *> mUniformTextures;
+
     GLint mPositionLocation, mColorLocation, mTexcoordLocation, mNormalLocation;
     GLint mModelMatrixLocation, mViewMatrixLocation, mProjectionMatrixLocation;
 

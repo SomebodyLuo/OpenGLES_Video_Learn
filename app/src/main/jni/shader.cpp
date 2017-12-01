@@ -93,11 +93,16 @@ void Shader::Bind(float *M, float *V, float *P)
     glUniformMatrix4fv(mViewMatrixLocation, 1, GL_FALSE, V);
     glUniformMatrix4fv(mProjectionMatrixLocation, 1, GL_FALSE, P);
 
-    // 启用纹理
-    if (-1 != mTexture.mLocation)
+    LOGI("mUniformTextures.size = %d", mUniformTextures.size());
+    // 启用多重纹理
+    int index = 0;
+    for (auto iter = mUniformTextures.begin(); iter != mUniformTextures.end(); ++iter)
     {
-        glBindTexture(GL_TEXTURE_2D, mTexture.mTexture);
-        glUniform1i(mTexture.mLocation, 0);
+        // 每次绑定一个纹理，都要先激活一个插槽里面的纹理单元与之对应
+        glActiveTexture(GL_TEXTURE0 + index);
+        glBindBuffer(GL_TEXTURE_2D, iter->second->mTexture);
+        glUniform1i(iter->second->mLocation, index++);
+
     }
 
     // 可能我们的shader代码中，不一定4个Attribute都有，但是OpenGL能够容错。
@@ -123,14 +128,24 @@ void Shader::SetTexture(const char *name, const char *imagePath)
         return ;
     }
 
-    if (-1 == mTexture.mLocation)
+    // 设置纹理(支持多重)
+    auto iter = mUniformTextures.find(name);
+    if(iter == mUniformTextures.end())
     {
+        // 如果纹理列表中不存在目标纹理，则创建
         GLint location = glGetUniformLocation(mProgram, name);
         if (-1 != location)
         {
-            mTexture.mLocation = location;
-            mTexture.mTexture = CreateTexture2DFromBMP(mAssetManager, imagePath);
+            UniformTexture *t = new UniformTexture;
+            t->mLocation = location;
+            t->mTexture = CreateTexture2DFromBMP(mAssetManager, imagePath);
+            mUniformTextures.insert(std::pair<std::string, UniformTexture *>(name, t));
         }
+
+    } else {
+        // 如果纹理列表中，存在目标纹理，则先删除，然后再重新生成
+//        glDeleteTextures(1, &iter->second->mTexture);
+        iter->second->mTexture = CreateTexture2DFromBMP(mAssetManager, imagePath);
     }
 }
 

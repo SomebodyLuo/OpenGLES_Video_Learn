@@ -49,6 +49,7 @@ void InitGL(AAssetManager *assetManager)
     shader = new Shader;
     shader->Init(assetManager, "Res/test.vs", "Res/test.fs");
     shader->SetTexture("U_Texture", "Res/test.bmp");
+//    shader->SetTexture("U_Texture2", "Res/front.bmp");
 
     // 给model一个偏移矩阵，也就是 modelMatrix
     modelMatrix = glm::translate(modelMatrix,  glm::vec3(0.0f, 0.0f, -0.9f));
