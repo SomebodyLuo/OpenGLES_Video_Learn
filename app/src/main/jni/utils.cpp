@@ -194,6 +194,8 @@ GLuint CreateTexture2DFromBMP(AAssetManager *assetManager, const char*bmpPath)
     GLuint texture = CreateTexture2D(pixelData, bmpWidth, bmpHeight, GL_RGB);
     delete bmpFileContent;
 
+    LOGI("CreateTexture2DFromBMP: texture = %u", texture);
+
     return texture;
 }
 

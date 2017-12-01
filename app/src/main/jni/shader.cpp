@@ -100,9 +100,10 @@ void Shader::Bind(float *M, float *V, float *P)
     {
         // 每次绑定一个纹理，都要先激活一个插槽里面的纹理单元与之对应
         glActiveTexture(GL_TEXTURE0 + index);
-        glBindBuffer(GL_TEXTURE_2D, iter->second->mTexture);
-        glUniform1i(iter->second->mLocation, index++);
+        glBindTexture(GL_TEXTURE_2D, iter->second->mTexture);
+        glUniform1i(iter->second->mLocation, index);
 
+        index++;
     }
 
     // 可能我们的shader代码中，不一定4个Attribute都有，但是OpenGL能够容错。
@@ -144,7 +145,7 @@ void Shader::SetTexture(const char *name, const char *imagePath)
 
     } else {
         // 如果纹理列表中，存在目标纹理，则先删除，然后再重新生成
-//        glDeleteTextures(1, &iter->second->mTexture);
+        glDeleteTextures(1, &iter->second->mTexture);
         iter->second->mTexture = CreateTexture2DFromBMP(mAssetManager, imagePath);
     }
 }

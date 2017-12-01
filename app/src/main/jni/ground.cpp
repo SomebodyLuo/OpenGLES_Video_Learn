@@ -74,5 +74,7 @@ void Ground::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
 
     mVertexBuffer->Unbind();
 
+//    glDisable(GL_DEPTH_TEST);
+
 }
 

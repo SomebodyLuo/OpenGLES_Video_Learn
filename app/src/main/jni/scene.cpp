@@ -37,22 +37,25 @@ void InitGL(AAssetManager *assetManager)
     vertexBuffer->SetPosition(0, -0.2f, -0.2f, 0.0f);
     vertexBuffer->SetColor(0, 1.0f, 1.0f, 1.0f);
     vertexBuffer->SetTexcoord(0, 0.0f, 0.0f);
+    vertexBuffer->SetNormal(0, 0.0f, 0.0f, 1.0f);
 
     vertexBuffer->SetPosition(1, 0.2f, -0.2f, 0.0f);
     vertexBuffer->SetColor(1, 1.0f, 0.0f, 0.0f);
     vertexBuffer->SetTexcoord(1, 1.0f, 0.0f);
+    vertexBuffer->SetNormal(2, 0.0f, 0.0f, 1.0f);
 
     vertexBuffer->SetPosition(2, 0.0f, 0.2f, 0.0f);
     vertexBuffer->SetColor(2, 0.0f, 1.0f, 1.0f);
     vertexBuffer->SetTexcoord(2, 0.5f, 1.0f);
+    vertexBuffer->SetNormal(3, 0.0f, 0.0f, 1.0f);
 
     shader = new Shader;
     shader->Init(assetManager, "Res/test.vs", "Res/test.fs");
     shader->SetTexture("U_Texture", "Res/test.bmp");
-//    shader->SetTexture("U_Texture2", "Res/front.bmp");
+    shader->SetTexture("U_Texture2", "Res/front.bmp");
 
     // 给model一个偏移矩阵，也就是 modelMatrix
-    modelMatrix = glm::translate(modelMatrix,  glm::vec3(0.0f, 0.0f, -0.9f));
+    modelMatrix = glm::translate(modelMatrix,  glm::vec3(0.0f, 0.0f, -0.7f));
 
     // 给camera一个偏移矩阵，也就是 viewMatrix
 //    viewMatrix = glm::translate(viewMatrix,  glm::vec3(0.0f, 0.0f, -1.0f));
