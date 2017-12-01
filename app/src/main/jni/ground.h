@@ -16,7 +16,6 @@ public:
 
 private:
     VertexBuffer *mVertexBuffer;
-    GLuint mVBO;
 
     Shader *mShader;
 

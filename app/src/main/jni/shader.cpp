@@ -10,6 +10,14 @@ Shader::Shader()
 {
     mAssetManager = nullptr;
     mProgram = 0;
+
+    mPositionLocation = -1;
+    mColorLocation = -1;
+    mNormalLocation = -1;
+    mTexcoordLocation = -1;
+    mModelMatrixLocation = -1;
+    mViewMatrixLocation = -1;
+    mProjectionMatrixLocation = -1;
 }
 
 bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
@@ -85,6 +93,13 @@ void Shader::Bind(float *M, float *V, float *P)
     glUniformMatrix4fv(mViewMatrixLocation, 1, GL_FALSE, V);
     glUniformMatrix4fv(mProjectionMatrixLocation, 1, GL_FALSE, P);
 
+    // 启用纹理
+    if (-1 != mTexture.mLocation)
+    {
+        glBindTexture(GL_TEXTURE_2D, mTexture.mTexture);
+        glUniform1i(mTexture.mLocation, 0);
+    }
+
     // 可能我们的shader代码中，不一定4个Attribute都有，但是OpenGL能够容错。
     // 不存在的Attribute，相应的Location就是-1。
     glEnableVertexAttribArray(mPositionLocation);
@@ -100,5 +115,24 @@ void Shader::Bind(float *M, float *V, float *P)
     glVertexAttribPointer(mNormalLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(sizeof(float) * 12));
 
 }
+
+void Shader::SetTexture(const char *name, const char *imagePath)
+{
+    if ((nullptr == mAssetManager) || (nullptr == name) || (nullptr == imagePath))
+    {
+        return ;
+    }
+
+    if (-1 == mTexture.mLocation)
+    {
+        GLint location = glGetUniformLocation(mProgram, name);
+        if (-1 != location)
+        {
+            mTexture.mLocation = location;
+            mTexture.mTexture = CreateTexture2DFromBMP(mAssetManager, imagePath);
+        }
+    }
+}
+
 
 

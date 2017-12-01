@@ -7,18 +7,36 @@
 
 #include "ggl.h"
 
+struct UniformTexture
+{
+    UniformTexture()
+    {
+        mLocation = -1;
+        mTexture = 0;
+    }
+
+    GLint mLocation;
+    GLuint mTexture;
+
+};
+
+
+
 class Shader {
 public:
+    Shader();
+
     AAssetManager *mAssetManager;
 
     GLuint mProgram;
+    UniformTexture mTexture;
     GLint mPositionLocation, mColorLocation, mTexcoordLocation, mNormalLocation;
     GLint mModelMatrixLocation, mViewMatrixLocation, mProjectionMatrixLocation;
 
-    Shader();
-
     bool Init(AAssetManager *assetManager, const char*vs, const char *fs);
     void Bind(float *M, float *V, float *P);
+
+    void SetTexture(const char *name, const char *imagePath);
 };
 
 
