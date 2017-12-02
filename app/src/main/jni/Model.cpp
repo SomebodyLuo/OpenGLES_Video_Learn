@@ -7,7 +7,7 @@
 
 Model::Model()
 {
-
+    mShader = nullptr;
 }
 
 void Model::Init(AAssetManager *assetManager, const char *modelPath)
@@ -23,11 +23,12 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
         int normalIndex;
     };
 
-    if (nullptr == modelPath)
+    if ((nullptr == assetManager) || (nullptr == modelPath))
     {
         return;
     }
 
+    // 解析OBJ文件
     int fileSize = 0;
     const char *fileContent = LoadFileContent(assetManager, modelPath, fileSize);
     if (nullptr == fileContent)
@@ -107,9 +108,11 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
     // 因为绘制是以三角形面为基础，很多点会被复用，
     // 所以我们在统计总共要绘制的点的数量时，就应以三角形面数 x 3，也就是vertexes
     int vertexCounts = vertexes.size();
+    LOGI("vertexCounts = %d", vertexCounts);
     mVertexBuffer = new VertexBuffer;
     mVertexBuffer->SetSize(vertexCounts);
     for (int i = 0; i < vertexCounts; ++i) {
+        //注意obj文件中三角形面信息里面的索引号是从1开始，而数组索引是从0开始，所以posIndex - 1
         float *temp = positions[vertexes[i].posIndex - 1].v;
         mVertexBuffer->SetPosition(i, temp[0], temp[1], temp[2]);
 
@@ -119,4 +122,28 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
         temp = normals[vertexes[i].normalIndex - 1].v;
         mVertexBuffer->SetNormal(i, temp[0], temp[1], temp[2]);
     }
+    LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
+
+    // 加载Shader
+    mShader = new Shader;
+    mShader->Init(assetManager, "Res/model.vs", "Res/model.fs");
+
+
+}
+
+void Model::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
+{
+    glEnable(GL_DEPTH_TEST);
+    mVertexBuffer->Bind();
+
+    mShader->Bind(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+
+    glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer->mVertexCount);
+
+    mVertexBuffer->Unbind();
+}
+
+void Model::SetPosition(float x, float y, float z)
+{
+    mModelMatrix = glm::translate(x, y, z);
 }

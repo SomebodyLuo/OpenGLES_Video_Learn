@@ -8,16 +8,25 @@
 
 #include "ggl.h"
 #include "vertexbuffer.h"
+#include "shader.h"
 
 class Model {
 
 public:
+    Model();
 
     VertexBuffer *mVertexBuffer;
 
-    Model();
+    Shader *mShader;
+
+    glm::mat4 mModelMatrix;
+
+
     void Init(AAssetManager *assetManager, const char *modelPath);
 
+    void Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix);
+
+    void SetPosition(float x, float y, float z);
 };
 
 

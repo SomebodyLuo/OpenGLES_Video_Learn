@@ -7,21 +7,14 @@
 #include "utils.h"
 #include "ground.h"
 #include "shader.h"
+#include "Model.h"
 
 // 矩阵默认是单位矩阵
 glm::mat4 modelMatrix, viewMatrix, projectionMatrix;
 
 Ground ground;
 
-Shader *shader;
-VertexBuffer *vertexBuffer;
-
-
-float trianglecoordinates[] = {
-        /*顶点数据*/-0.2f, -0.2f, -0.6f, 1.0f, /*颜色数据*/1.0f, 1.0f, 1.0f, 1.0f, /*纹理坐标*/0.0f, 0.0f,
-        /*顶点数据*/0.2f, -0.2f, -0.6f, 1.0f, /*颜色数据*/0.0f, 1.0f, 0.0f, 1.0f, /*纹理坐标*/1.0f, 0.0f,
-        /*顶点数据*/0.0f, 0.2f, -0.6f, 1.0f, /*颜色数据*/1.0f, 0.0f, 0.0f, 1.0f, /*纹理坐标*/0.5f, 1.0f,
-};
+Model sphere;
 
 void InitGL(AAssetManager *assetManager)
 {
@@ -31,38 +24,13 @@ void InitGL(AAssetManager *assetManager)
         return;
     }
 
-    vertexBuffer = new VertexBuffer;
-    vertexBuffer->SetSize(3);
-
-    vertexBuffer->SetPosition(0, -0.2f, -0.2f, 0.0f);
-    vertexBuffer->SetColor(0, 1.0f, 1.0f, 1.0f);
-    vertexBuffer->SetTexcoord(0, 0.0f, 0.0f);
-    vertexBuffer->SetNormal(0, 0.0f, 0.0f, 1.0f);
-
-    vertexBuffer->SetPosition(1, 0.2f, -0.2f, 0.0f);
-    vertexBuffer->SetColor(1, 1.0f, 0.0f, 0.0f);
-    vertexBuffer->SetTexcoord(1, 1.0f, 0.0f);
-    vertexBuffer->SetNormal(2, 0.0f, 0.0f, 1.0f);
-
-    vertexBuffer->SetPosition(2, 0.0f, 0.2f, 0.0f);
-    vertexBuffer->SetColor(2, 0.0f, 1.0f, 1.0f);
-    vertexBuffer->SetTexcoord(2, 0.5f, 1.0f);
-    vertexBuffer->SetNormal(3, 0.0f, 0.0f, 1.0f);
-
-    shader = new Shader;
-    shader->Init(assetManager, "Res/test.vs", "Res/test.fs");
-    shader->SetTexture("U_Texture", "Res/test.bmp");
-    shader->SetTexture("U_Texture2", "Res/front.bmp");
-
-    // 给model一个偏移矩阵，也就是 modelMatrix
-    modelMatrix = glm::translate(modelMatrix,  glm::vec3(0.0f, 0.0f, -0.7f));
-
-    // 给camera一个偏移矩阵，也就是 viewMatrix
-//    viewMatrix = glm::translate(viewMatrix,  glm::vec3(0.0f, 0.0f, -1.0f));
-
-
     // 棋盘格
     ground.Init(assetManager);
+
+    // 球
+    sphere.Init(assetManager, "Res/Sphere.obj");
+    sphere.SetPosition(0.0f, 0.0f, -0.5f);
+
 }
 
 void SetViewportSize(float width, float height)
@@ -87,14 +55,7 @@ void DrawGL()
     // 绘制棋盘格
     ground.Draw(viewMatrix, projectionMatrix);
 
-    // 绘制三角形
-    vertexBuffer->Bind();
-    shader->Bind(glm::value_ptr(modelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
-
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    vertexBuffer->Unbind();
-
+    sphere.Draw(viewMatrix, projectionMatrix);
 
 }
 
