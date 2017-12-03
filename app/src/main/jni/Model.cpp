@@ -131,16 +131,17 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
     // 光照
     // 环境光
     mShader->SetVec4("U_LightAmbient", 1.0f, 1.0f, 1.0f, 1.0f);
-    mShader->SetVec4("U_AmbientMaterial", 0.1f, 0.1f, 0.1f, 1.0f);
+    SetAmbientMaterial(0.1f, 0.1f, 0.1f, 1.0f);
 
     // 漫反射光
     mShader->SetVec4("U_LightPos", 1.0f, 1.0f, 0.0f, 0.0f);
     mShader->SetVec4("U_LightDiffuse", 1.0f, 1.0f, 1.0f, 1.0f);
-    mShader->SetVec4("U_DiffuseMaterial", 0.6f, 0.6f, 0.6f, 1.0f);
+    SetDiffuseMaterial(0.6f, 0.6f, 0.6f, 1.0f);
 
     // 镜面反射光
     mShader->SetVec4("U_LightSpecular", 1.0f, 1.0f, 1.0f, 1.0f);
-    mShader->SetVec4("U_SpecularMaterial", 1.0f, 1.0f, 1.0f, 1.0f);
+    SetSpecularMaterial(1.0f, 1.0f, 1.0f, 1.0f);
+
     mShader->SetVec4("U_CameraPos", 0.0f, 0.0f, 0.0f, 1.0f);
     mShader->SetVec4("U_LightOpt", 32.0f, 0.0f, 0.0f, 0.0f);
 
@@ -163,4 +164,24 @@ void Model::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
 void Model::SetPosition(float x, float y, float z)
 {
     mModelMatrix = glm::translate(x, y, z);
+}
+
+void Model::SetAmbientMaterial(float r, float g, float b, float a)
+{
+    mShader->SetVec4("U_AmbientMaterial", r, g, b, a);
+}
+
+void Model::SetDiffuseMaterial(float r, float g, float b, float a)
+{
+    mShader->SetVec4("U_DiffuseMaterial", r, g, b, a);
+}
+
+void Model::SetSpecularMaterial(float r, float g, float b, float a)
+{
+    mShader->SetVec4("U_SpecularMaterial", r, g, b, a);
+}
+
+void Model::SetTexure(const char *imagePath)
+{
+    mShader->SetTexture("U_Texture", imagePath);
 }

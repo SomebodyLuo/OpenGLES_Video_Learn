@@ -30,6 +30,7 @@ void InitGL(AAssetManager *assetManager)
     // 球
     sphere.Init(assetManager, "Res/Sphere.obj");
     sphere.SetPosition(0.0f, 0.0f, -5.5f);
+    sphere.SetTexure("Res/earth.bmp");
 
 }
 

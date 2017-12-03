@@ -2,6 +2,8 @@
 precision mediump float;
 #endif
 
+uniform sampler2D U_Texture;
+
 uniform vec4 U_LightPos;
 
 uniform vec4 U_LightAmbient;
@@ -19,6 +21,7 @@ uniform vec4 U_LightOpt;
 varying vec4 V_Color;
 varying vec4 V_Normal;
 varying vec4 V_WorldPos;
+varying vec4 V_Texcoord;
 
 void main()
 {
@@ -40,7 +43,13 @@ void main()
         specularColor = U_LightSpecular * U_SpecularMaterial * pow(max(0.0, dot(viewDir, reflectDir)), U_LightOpt.x);
     }
 
-    color = ambientColor + diffuseColor + specularColor;
+    if(1.0 == U_LightOpt.w)
+    {
+        color = ambientColor + diffuseColor * texture2D(U_Texture, V_Texcoord.xy) + specularColor;
+    } else {
+        color = (ambientColor + diffuseColor) * texture2D(U_Texture, V_Texcoord.xy);
+    }
+
     gl_FragColor = color;
 
 }
