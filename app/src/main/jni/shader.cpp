@@ -106,6 +106,11 @@ void Shader::Bind(float *M, float *V, float *P)
         index++;
     }
 
+    for (auto iter = mUniformVec4s.begin(); iter != mUniformVec4s.end(); ++iter)
+    {
+        glUniform4fv(iter->second->mLocation, 1, iter->second->v);
+    }
+
     // 可能我们的shader代码中，不一定4个Attribute都有，但是OpenGL能够容错。
     // 不存在的Attribute，相应的Location就是-1。
     glEnableVertexAttribArray(mPositionLocation);
@@ -150,5 +155,29 @@ void Shader::SetTexture(const char *name, const char *imagePath)
     }
 }
 
+void Shader::SetVec4(const char *name, float x, float y, float z, float w)
+{
+    auto iter = mUniformVec4s.find(name);
+
+    if (mUniformVec4s.end() == iter)
+    {
+        GLint location = glGetUniformLocation(mProgram, name);
+        if (-1 != location)
+        {
+            UniformVector4f *v = new UniformVector4f;
+            v->v[0] = x;
+            v->v[1] = y;
+            v->v[2] = z;
+            v->v[3] = w;
+            v->mLocation = location;
+            mUniformVec4s.insert(std::pair<std::string, UniformVector4f *>(name, v));
+        }
+    } else {
+        iter->second->v[0] = x;
+        iter->second->v[1] = y;
+        iter->second->v[2] = z;
+        iter->second->v[3] = w;
+    }
+}
 
 

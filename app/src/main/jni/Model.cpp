@@ -128,6 +128,9 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
     mShader = new Shader;
     mShader->Init(assetManager, "Res/model.vs", "Res/model.fs");
 
+    // 光照
+    mShader->SetVec4("U_LightAmbient", 1.0f, 1.0f, 1.0f, 1.0f);
+    mShader->SetVec4("U_AmbientMaterial", 0.1f, 0.1f, 0.1f, 1.0f);
 
 }
 
