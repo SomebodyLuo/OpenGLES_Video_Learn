@@ -39,6 +39,7 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     delete vsCode;
     if (0 == vsShader)
     {
+        LOGI("------ vs CompileShader failed! -------");
         return false;
     }
 
@@ -53,6 +54,7 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     delete fsCode;
     if (0 == fsShader)
     {
+        LOGI("------ fs CompileShader failed! -------");
         glDeleteShader(vsShader);
         return 0;
     }

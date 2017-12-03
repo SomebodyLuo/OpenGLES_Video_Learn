@@ -26,10 +26,10 @@ void InitGL(AAssetManager *assetManager)
 
     // 棋盘格
     ground.Init(assetManager);
-
+    LOGI("------InitGL2-------");
     // 球
     sphere.Init(assetManager, "Res/Sphere.obj");
-    sphere.SetPosition(0.0f, 0.0f, -5.5f);
+    sphere.SetPosition(0.0f, 0.0f, -10.5f);
     sphere.SetTexure("Res/earth.bmp");
 
 }
@@ -48,7 +48,7 @@ void DrawGL()
 
     LOGI("------DrawGL------- %f s", frameTime);
     // 擦除背景颜色
-    glClearColor(0.1f, 0.4f, 0.6f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     //设置颜色缓冲区和深度缓冲区
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

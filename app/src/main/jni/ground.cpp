@@ -56,6 +56,13 @@ void Ground::Init(AAssetManager *assetManager)
 
     mShader = new Shader;
     mShader->Init(assetManager, "Res/ground.vs", "Res/ground.fs");
+
+    // 光照
+    mShader->SetVec4("U_LightPos", 0.0f, 0.0f, 1.0f, 0.0f);
+    mShader->SetVec4("U_LightAmbient", 1.0f, 1.0f, 1.0f, 1.0f);
+    mShader->SetVec4("U_AmbientMaterial", 0.1f, 0.1f, 0.1f, 1.0f);
+    mShader->SetVec4("U_LightDiffuse", 1.0f, 1.0f, 1.0f, 1.0f);
+    mShader->SetVec4("U_DiffuseMaterial", 0.6f, 0.6f, 0.6f, 1.0f);
 }
 
 void Ground::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
@@ -69,7 +76,7 @@ void Ground::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
 
     // 绘制400个小方块
     for (int i = 0; i < 400; ++i) {
-        glDrawArrays(GL_TRIANGLES, i * 4, 4);  //注意GL_TRIANGLE_STRIP
+        glDrawArrays(GL_TRIANGLE_STRIP, i * 4, 4);  //注意GL_TRIANGLE_STRIP
     }
 
     mVertexBuffer->Unbind();
