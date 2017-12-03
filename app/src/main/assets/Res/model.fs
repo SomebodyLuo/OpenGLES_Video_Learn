@@ -10,8 +10,15 @@ uniform vec4 U_AmbientMaterial;
 uniform vec4 U_LightDiffuse;
 uniform vec4 U_DiffuseMaterial;
 
+uniform vec4 U_LightSpecular;
+uniform vec4 U_SpecularMaterial;
+
+uniform vec4 U_CameraPos;
+uniform vec4 U_LightOpt;
+
 varying vec4 V_Color;
 varying vec4 V_Normal;
+varying vec4 V_WorldPos;
 
 void main()
 {
@@ -25,7 +32,15 @@ void main()
     float diffuseIntensity = max(0.0, dot(L, n));
     vec4 diffuseColor = U_LightDiffuse * U_DiffuseMaterial * diffuseIntensity;
 
-    color = ambientColor + diffuseColor;
+    vec4 specularColor = vec4(0.0, 0.0, 0.0, 0.0);
+    if(0.0 != diffuseIntensity)
+    {
+        vec3 reflectDir = normalize(reflect(-L, n));
+        vec3 viewDir = normalize(U_CameraPos.xyz - V_WorldPos.xyz);
+        specularColor = U_LightSpecular * U_SpecularMaterial * pow(max(0.0, dot(viewDir, reflectDir)), U_LightOpt.x);
+    }
+
+    color = ambientColor + diffuseColor + specularColor;
     gl_FragColor = color;
 
 }
