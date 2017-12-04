@@ -14,11 +14,11 @@
 glm::mat4 tempMatrix, viewMatrix, projectionMatrix;
 
 // 摄像机的位置
-glm::vec3 cameraPos(5.0f, 1.0f, 1.0f);
+glm::vec3 cameraPos(10.0f, 6.0f, 1.0f);
 
 Ground ground;
 
-Model sphere;
+Model sphere, niutou;
 
 SkyBox skybox;
 
@@ -44,6 +44,11 @@ void InitGL(AAssetManager *assetManager)
     // 天空盒
     skybox.Init(assetManager, "Res/");
 
+    // 牛头
+    niutou.Init(assetManager, "Res/niutou.obj");
+    niutou.SetTexure("Res/niutou.bmp");
+    niutou.mModelMatrix = glm::translate(5.0f, 0.0f, 1.0f) * glm::scale(0.05f, 0.05f, 0.05f)/* * glm::rotate(-45.0f, 0.0f, 1.0f, 0.0f)*/;
+
 }
 
 void SetViewportSize(float width, float height)
@@ -65,6 +70,7 @@ void DrawGL()
     //设置颜色缓冲区和深度缓冲区
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // 绘制天空盒——注意必须在最前面
     skybox.Draw(viewMatrix, projectionMatrix, cameraPos);
 
     // 绘制棋盘格
@@ -72,6 +78,9 @@ void DrawGL()
 
     // 绘制地球
     sphere.Draw(viewMatrix, projectionMatrix, cameraPos);
+
+    // 绘制牛头
+    niutou.Draw(viewMatrix, projectionMatrix, cameraPos);
 
 }
 
