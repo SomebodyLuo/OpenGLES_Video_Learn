@@ -10,7 +10,7 @@
 #include "Model.h"
 
 // 矩阵默认是单位矩阵
-glm::mat4 modelMatrix, viewMatrix, projectionMatrix;
+glm::mat4 tempMatrix, viewMatrix, projectionMatrix;
 
 Ground ground;
 
@@ -26,6 +26,7 @@ void InitGL(AAssetManager *assetManager)
 
     // 棋盘格
     ground.Init(assetManager);
+//    ground.SetPosition(-20.0f, -2.0f, -20.0f);
     LOGI("------InitGL2-------");
     // 球
     sphere.Init(assetManager, "Res/Sphere.obj");
@@ -56,6 +57,7 @@ void DrawGL()
     // 绘制棋盘格
     ground.Draw(viewMatrix, projectionMatrix);
 
+    // 绘制地球
     sphere.Draw(viewMatrix, projectionMatrix);
 
 }

@@ -58,7 +58,7 @@ void Ground::Init(AAssetManager *assetManager)
     mShader->Init(assetManager, "Res/ground.vs", "Res/ground.fs");
 
     // 光照
-    mShader->SetVec4("U_LightPos", 0.0f, 0.0f, 1.0f, 0.0f);
+    mShader->SetVec4("U_LightPos", 0.0f, 2.0f, 0.0f, 0.0f);
     mShader->SetVec4("U_LightAmbient", 1.0f, 1.0f, 1.0f, 1.0f);
     mShader->SetVec4("U_AmbientMaterial", 0.1f, 0.1f, 0.1f, 1.0f);
     mShader->SetVec4("U_LightDiffuse", 1.0f, 1.0f, 1.0f, 1.0f);
@@ -85,3 +85,9 @@ void Ground::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
 
 }
 
+
+
+void Ground::SetPosition(float x, float y, float z)
+{
+    mModelMatrix = glm::translate(x, y, z);
+}

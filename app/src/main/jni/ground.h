@@ -26,6 +26,8 @@ public:
     void Init(AAssetManager *assetManager);
     void Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix);
 
+    void SetPosition(float x, float y, float z);
+
 };
 
 
