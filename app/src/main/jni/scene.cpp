@@ -13,6 +13,9 @@
 // 矩阵默认是单位矩阵
 glm::mat4 tempMatrix, viewMatrix, projectionMatrix;
 
+// 摄像机的位置
+glm::vec3 cameraPos(10.0f, 10.0f, 10.0f);
+
 Ground ground;
 
 Model sphere;
@@ -27,13 +30,15 @@ void InitGL(AAssetManager *assetManager)
         return;
     }
 
+    viewMatrix = glm::lookAt(cameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
     // 棋盘格
     ground.Init(assetManager);
 //    ground.SetPosition(-10.0f, -1.0f, -10.0f);
     LOGI("------InitGL2-------");
     // 球
     sphere.Init(assetManager, "Res/Sphere.obj");
-    sphere.SetPosition(0.0f, 0.0f, -6.5f);
+    sphere.SetPosition(0.0f, 0.0f, 0.0f);
     sphere.SetTexure("Res/earth.bmp");
 
     // 天空盒
@@ -60,13 +65,13 @@ void DrawGL()
     //设置颜色缓冲区和深度缓冲区
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    skybox.Draw(viewMatrix, projectionMatrix);
+    skybox.Draw(viewMatrix, projectionMatrix, cameraPos);
 
     // 绘制棋盘格
     ground.Draw(viewMatrix, projectionMatrix);
 
     // 绘制地球
-    sphere.Draw(viewMatrix, projectionMatrix);
+    sphere.Draw(viewMatrix, projectionMatrix, cameraPos);
 
 }
 

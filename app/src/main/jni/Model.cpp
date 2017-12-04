@@ -147,8 +147,11 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
 
 }
 
-void Model::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
+void Model::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos)
 {
+    // 因为模型的specularLight跟camera的位置有关，所以必须更新
+    mShader->SetVec4("U_CameraPos", cameraPos.x, cameraPos.y, cameraPos.z, 1.0f);
+
     glEnable(GL_DEPTH_TEST);
     mVertexBuffer->Bind();
 

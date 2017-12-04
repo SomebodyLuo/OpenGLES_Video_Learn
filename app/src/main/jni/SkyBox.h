@@ -29,7 +29,7 @@ public:
     void InitTop();
     void InitBottom();
 
-    void Draw(glm::mat4 &V, glm::mat4 &P);
+    void Draw(glm::mat4 &V, glm::mat4 &P, glm::vec3 &cameraPos);
 
 };
 

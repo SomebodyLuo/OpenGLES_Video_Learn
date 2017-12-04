@@ -141,7 +141,7 @@ void SkyBox::InitTop(){
     char temp[256];
     memset(temp, 0, 256);
     strcpy(temp, mImageDir);
-    strcat(temp, "toop.bmp");
+    strcat(temp, "top.bmp");
     mShader[4].SetTexture("U_Texture", temp);
 }
 
@@ -169,9 +169,12 @@ void SkyBox::InitBottom(){
     mShader[5].SetTexture("U_Texture", temp);
 }
 
-void SkyBox::Draw(glm::mat4 &V, glm::mat4 &P)
+void SkyBox::Draw(glm::mat4 &V, glm::mat4 &P, glm::vec3 &cameraPos)
 {
     glDisable(GL_DEPTH_TEST);   //天空盒需要禁止深度测试
+
+    // 让天空盒跟随camera移动
+    mModelMatrix = glm::translate(cameraPos);
 
     for (int i = 0; i < 6; ++i) {
         mVertexBuffer[i].Bind();
