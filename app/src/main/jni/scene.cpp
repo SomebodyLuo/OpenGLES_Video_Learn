@@ -14,7 +14,7 @@
 glm::mat4 tempMatrix, viewMatrix, projectionMatrix;
 
 // 摄像机的位置
-glm::vec3 cameraPos(10.0f, 10.0f, 10.0f);
+glm::vec3 cameraPos(5.0f, 1.0f, 1.0f);
 
 Ground ground;
 
@@ -34,7 +34,7 @@ void InitGL(AAssetManager *assetManager)
 
     // 棋盘格
     ground.Init(assetManager);
-//    ground.SetPosition(-10.0f, -1.0f, -10.0f);
+    ground.SetPosition(0.0f, -30.0f, 0.0f);
     LOGI("------InitGL2-------");
     // 球
     sphere.Init(assetManager, "Res/Sphere.obj");

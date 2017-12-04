@@ -21,10 +21,10 @@ void Ground::Init(AAssetManager *assetManager)
     mVertexBuffer->SetSize(1600);
 
     for (int z = 0; z < 20; ++z) {
-        float zStart = 100.f - z * 10.0f;
+        float zStart = 100.0f - z * 10.0f;
         for (int x = 0; x < 20; ++x) {
             int offset = (x + z * 20) * 4;
-            float xStart = z * 10.0f - 100.0f;
+            float xStart = x * 10.0f - 100.0f;
 
             // 棋盘格
             mVertexBuffer->SetPosition(offset + 0, xStart, -1.0f, zStart);
@@ -62,7 +62,7 @@ void Ground::Init(AAssetManager *assetManager)
     mShader->SetVec4("U_LightAmbient", 1.0f, 1.0f, 1.0f, 1.0f);
     mShader->SetVec4("U_AmbientMaterial", 0.1f, 0.1f, 0.1f, 1.0f);
     mShader->SetVec4("U_LightDiffuse", 1.0f, 1.0f, 1.0f, 1.0f);
-    mShader->SetVec4("U_DiffuseMaterial", 0.6f, 0.6f, 0.6f, 1.0f);
+    mShader->SetVec4("U_DiffuseMaterial", 0.4f, 0.4f, 0.4f, 1.0f);
 }
 
 void Ground::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
