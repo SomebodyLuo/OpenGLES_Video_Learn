@@ -20,8 +20,8 @@ void main()
     vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
     float distance = 0.0;
     float constantFactor = 1.0;
-    float linearFactor = 0.1;
-    float quadricFactor = 0.1;
+    float linearFactor = 0.6;
+    float quadricFactor = 0.6;
 
     vec4 ambientColor = U_LightAmbient * U_AmbientMaterial;
 

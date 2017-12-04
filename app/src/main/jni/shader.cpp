@@ -95,7 +95,7 @@ void Shader::Bind(float *M, float *V, float *P)
     glUniformMatrix4fv(mViewMatrixLocation, 1, GL_FALSE, V);
     glUniformMatrix4fv(mProjectionMatrixLocation, 1, GL_FALSE, P);
 
-    LOGI("mUniformTextures.size = %d", mUniformTextures.size());
+//    LOGI("mUniformTextures.size = %d", mUniformTextures.size());
     // 启用多重纹理
     int index = 0;
     for (auto iter = mUniformTextures.begin(); iter != mUniformTextures.end(); ++iter)
