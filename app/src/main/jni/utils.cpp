@@ -221,5 +221,37 @@ GLuint CreateBufferObject(GLenum bufferType, GLsizeiptr size, GLenum usage, void
     return object;
 }
 
+// 程序纹理
+GLuint CreateProedureTexture(int size)
+{
+    unsigned char *imageData = new unsigned char[size * size * 4];
+
+    float halfSize = (float)size * 0.5f;
+    float maxDistance = sqrtf(halfSize * halfSize + halfSize * halfSize);
+    float centerX = halfSize, centerY = halfSize;
+
+    for (int y = 0; y < size; ++y) {
+        for (int x = 0; x < size; ++x) {
+            int currentPixelOffset = (x + y * size) * 4;
+            imageData[currentPixelOffset + 0] = 255;    //RGB都是255——白色
+            imageData[currentPixelOffset + 1] = 255;
+            imageData[currentPixelOffset + 2] = 255;
+
+            //下面通过坐标点与中心点之间的距离来计算a通道值——透明度
+            float deltaX = (float)x - centerX;
+            float deltaY = (float)y - centerY;
+            float distance = sqrtf(deltaX * deltaX + deltaY * deltaY);
+            float alpha = powf(1.0f - (distance / maxDistance), 8.0f);
+            alpha = (alpha > 1.0f) ? 1.0f : alpha;
+            imageData[currentPixelOffset + 3] = (unsigned char)(alpha * 255);
+        }
+    }
+
+    GLuint texture = CreateTexture2D(imageData, size, size, GL_RGBA);
+    delete imageData;
+
+    return texture;
+}
+
 
 
