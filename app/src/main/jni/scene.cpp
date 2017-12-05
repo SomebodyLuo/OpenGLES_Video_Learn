@@ -15,7 +15,7 @@
 glm::mat4 tempMatrix, viewMatrix, projectionMatrix;
 
 // 摄像机的位置
-glm::vec3 cameraPos(8.0f, 10.0f, 6.0f);
+glm::vec3 cameraPos(15.0f, 15.0f, 15.0f);
 
 Ground ground;
 
@@ -50,7 +50,7 @@ void InitGL(AAssetManager *assetManager)
     // 牛头
     niutou.Init(assetManager, "Res/niutou.obj");
     niutou.SetTexure("Res/niutou.bmp");
-    niutou.mModelMatrix = glm::translate(5.0f, 0.0f, 6.0f) * glm::scale(0.05f, 0.05f, 0.05f)/* * glm::rotate(-45.0f, 0.0f, 1.0f, 0.0f)*/;
+    niutou.mModelMatrix = glm::translate(5.0f, 0.0f, 6.0f) * glm::scale(0.05f, 0.05f, 0.05f) * glm::rotate(-45.0f, 0.0f, 1.0f, 0.0f);
 
     // 粒子系统
     ps.Init(assetManager, 0.0f, 0.0f, 0.0f);
@@ -89,6 +89,7 @@ void DrawGL()
     niutou.Draw(viewMatrix, projectionMatrix, cameraPos);
 
     // 绘制粒子
+    ps.Update(frameTime);
     ps.Draw(viewMatrix, projectionMatrix);
 }
 

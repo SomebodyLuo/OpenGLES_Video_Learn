@@ -3,6 +3,7 @@
 //
 
 #include "ParticleSystem.h"
+#include "ggl.h"
 #include "utils.h"
 
 ParticleSystem::ParticleSystem() {
@@ -20,7 +21,7 @@ void ParticleSystem::Init(AAssetManager *assetManager, float x, float y, float z
     int particleCounts = 180;
     mVertexBuffer->SetSize(particleCounts);
     for (int i = 0; i < particleCounts; ++i) {
-        mVertexBuffer->SetPosition(i, 5.0f * cosf(float(i) * 2.0f * 3.14f / 180.0f), 0.0f, 5.0f * sinf(float(i) * 2.0f * 3.14f / 180.0f));
+        mVertexBuffer->SetPosition(i, 5.0f * cosf(float(i) * 8.0f * 3.14f / 180.0f), 0.0f, 5.0f * sinf(float(i) * 8.0f * 3.14f / 180.0f));
         mVertexBuffer->SetColor(i, 0.1f, 0.4f, 0.6f);
     }
 
@@ -45,4 +46,22 @@ void ParticleSystem::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
     mVertexBuffer->Unbind();
 
     glDisable(GL_BLEND);        // 关闭混合
+}
+
+void ParticleSystem::Update(float deltaTime) {
+
+    static float angle = 0.0f;
+
+    // 每次刷新时，旋转一定角度，相当于有了动画
+    angle += deltaTime * 10.f;
+    mModelMatrix = glm::rotate(angle, 0.0f, 1.0f, 0.0f);
+
+    for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
+//        Normal[0] = x; Normal[1] = y; 让粒子上下运动
+        mVertexBuffer->GetVertex(i).Normal[1] = 0.1f * i;
+//        if (i > 90)
+//        {
+//            break;
+//        }
+    }
 }

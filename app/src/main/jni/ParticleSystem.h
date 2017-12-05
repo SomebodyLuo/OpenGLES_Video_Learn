@@ -18,6 +18,7 @@ public:
 
     void Init(AAssetManager *assetManager, float x, float y, float z);
     void Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix);
+    void Update(float deltaTime);
 };
 
 
