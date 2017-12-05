@@ -26,7 +26,7 @@ varying vec4 V_Texcoord;
 vec4  GetPointLight()
 {
     float distance = 0.0;
-    float constantFator = 1.0;
+    float constantFactor = 1.0;
     float linearFactor = 0.0;
     float quadricFactor = 0.0;
     vec4 ambientColor = U_LightAmbient * U_AmbientMaterial;
@@ -67,8 +67,7 @@ void main()
     {
         color = ambientColor + diffuseColor * texture2D(U_Texture, V_Texcoord.xy) + specularColor;
     } else {
-        color = ambientColor + diffuseColor + GetPointLight();
-        color = color * texture2D(U_Texture, V_Texcoord.xy);
+        color = (ambientColor + diffuseColor) * texture2D(U_Texture, V_Texcoord.xy);
     }
 
     gl_FragColor = color;
