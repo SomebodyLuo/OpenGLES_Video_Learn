@@ -16,11 +16,13 @@ void ParticleSystem::Init(AAssetManager *assetManager, float x, float y, float z
     // 设置粒子的位置
     mModelMatrix = glm::translate(x, y, z);
 
-    // 先试试单个粒子
     mVertexBuffer = new VertexBuffer;
-    mVertexBuffer->SetSize(1);
-    mVertexBuffer->SetPosition(0, 0.0f, 0.0f, 0.0f);
-    mVertexBuffer->SetColor(0, 0.1f, 0.4f, 0.6f);
+    int particleCounts = 180;
+    mVertexBuffer->SetSize(particleCounts);
+    for (int i = 0; i < particleCounts; ++i) {
+        mVertexBuffer->SetPosition(i, 5.0f * cosf(float(i) * 2.0f * 3.14f / 180.0f), 0.0f, 5.0f * sinf(float(i) * 2.0f * 3.14f / 180.0f));
+        mVertexBuffer->SetColor(i, 0.1f, 0.4f, 0.6f);
+    }
 
     // Shader
     mShader = new Shader;
