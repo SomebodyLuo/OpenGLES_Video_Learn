@@ -222,7 +222,7 @@ GLuint CreateBufferObject(GLenum bufferType, GLsizeiptr size, GLenum usage, void
 }
 
 // 程序纹理
-GLuint CreateProedureTexture(int size)
+GLuint CreateProcedureTexture(int size)
 {
     unsigned char *imageData = new unsigned char[size * size * 4];
 

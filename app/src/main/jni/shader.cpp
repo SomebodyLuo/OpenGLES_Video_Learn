@@ -157,6 +157,27 @@ void Shader::SetTexture(const char *name, const char *imagePath)
     }
 }
 
+void Shader::SetTexture(const char *name, GLuint texture)
+{
+    auto iter = mUniformTextures.find(name);
+
+    if(mUniformTextures.end() == iter)
+    {
+        GLint location = glGetUniformLocation(mProgram, name);
+        if (-1 == location)
+        {
+            UniformTexture *t = new UniformTexture;
+            t->mLocation = location;
+            t->mTexture = texture;
+            mUniformTextures.insert(std::pair<std::string, UniformTexture *>(name, t));
+        }
+    } else {
+        // 如果纹理列表中，存在目标纹理，则先删除，然后再重新生成
+        glDeleteTextures(1, &iter->second->mTexture);
+        iter->second->mTexture = texture;
+    }
+}
+
 void Shader::SetVec4(const char *name, float x, float y, float z, float w)
 {
     auto iter = mUniformVec4s.find(name);

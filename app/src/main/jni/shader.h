@@ -50,6 +50,7 @@ public:
     void Bind(float *M, float *V, float *P);
 
     void SetTexture(const char *name, const char *imagePath);
+    void SetTexture(const char *name, GLuint texture);
 
     void SetVec4(const char *name, float x, float y, float z, float w);
 };

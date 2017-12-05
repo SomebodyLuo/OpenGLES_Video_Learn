@@ -9,18 +9,21 @@
 #include "shader.h"
 #include "Model.h"
 #include "SkyBox.h"
+#include "ParticleSystem.h"
 
 // 矩阵默认是单位矩阵
 glm::mat4 tempMatrix, viewMatrix, projectionMatrix;
 
 // 摄像机的位置
-glm::vec3 cameraPos(10.0f, 6.0f, 1.0f);
+glm::vec3 cameraPos(-10.0f, 10.0f, 10.0f);
 
 Ground ground;
 
 Model sphere, niutou;
 
 SkyBox skybox;
+
+ParticleSystem ps;
 
 void InitGL(AAssetManager *assetManager)
 {
@@ -38,7 +41,7 @@ void InitGL(AAssetManager *assetManager)
     LOGI("------InitGL2-------");
     // 球
     sphere.Init(assetManager, "Res/Sphere.obj");
-    sphere.SetPosition(0.0f, 0.0f, 0.0f);
+    sphere.SetPosition(2.0f, 0.0f, 0.0f);
     sphere.SetTexure("Res/earth.bmp");
 
     // 天空盒
@@ -47,7 +50,10 @@ void InitGL(AAssetManager *assetManager)
     // 牛头
     niutou.Init(assetManager, "Res/niutou.obj");
     niutou.SetTexure("Res/niutou.bmp");
-    niutou.mModelMatrix = glm::translate(5.0f, 0.0f, 1.0f) * glm::scale(0.05f, 0.05f, 0.05f)/* * glm::rotate(-45.0f, 0.0f, 1.0f, 0.0f)*/;
+    niutou.mModelMatrix = glm::translate(5.0f, 0.0f, 6.0f) * glm::scale(0.05f, 0.05f, 0.05f)/* * glm::rotate(-45.0f, 0.0f, 1.0f, 0.0f)*/;
+
+    // 粒子系统
+    ps.Init(assetManager, 0.0f, 0.0f, 0.0f);
 
 }
 
@@ -82,6 +88,8 @@ void DrawGL()
     // 绘制牛头
     niutou.Draw(viewMatrix, projectionMatrix, cameraPos);
 
+    // 绘制粒子
+    ps.Draw(viewMatrix, projectionMatrix);
 }
 
 
