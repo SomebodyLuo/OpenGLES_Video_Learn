@@ -19,6 +19,7 @@ void ParticleSystem::Init(AAssetManager *assetManager, float x, float y, float z
     // 先试试单个粒子
     mVertexBuffer = new VertexBuffer;
     mVertexBuffer->SetSize(1);
+    mVertexBuffer->SetPosition(0, 0.0f, 0.0f, 0.0f);
     mVertexBuffer->SetColor(0, 0.1f, 0.4f, 0.6f);
 
     // Shader

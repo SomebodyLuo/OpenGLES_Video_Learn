@@ -15,7 +15,7 @@
 glm::mat4 tempMatrix, viewMatrix, projectionMatrix;
 
 // 摄像机的位置
-glm::vec3 cameraPos(-10.0f, 10.0f, 10.0f);
+glm::vec3 cameraPos(8.0f, 10.0f, 6.0f);
 
 Ground ground;
 
@@ -41,7 +41,7 @@ void InitGL(AAssetManager *assetManager)
     LOGI("------InitGL2-------");
     // 球
     sphere.Init(assetManager, "Res/Sphere.obj");
-    sphere.SetPosition(2.0f, 0.0f, 0.0f);
+    sphere.SetPosition(0.0f, 0.0f, 0.0f);
     sphere.SetTexure("Res/earth.bmp");
 
     // 天空盒
@@ -53,7 +53,7 @@ void InitGL(AAssetManager *assetManager)
     niutou.mModelMatrix = glm::translate(5.0f, 0.0f, 6.0f) * glm::scale(0.05f, 0.05f, 0.05f)/* * glm::rotate(-45.0f, 0.0f, 1.0f, 0.0f)*/;
 
     // 粒子系统
-    ps.Init(assetManager, 0.0f, 0.0f, 0.0f);
+    ps.Init(assetManager, 2.0f, 0.0f, 0.0f);
 
 }
 
