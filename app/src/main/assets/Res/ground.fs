@@ -33,7 +33,7 @@ void main()
     L = normalize(L);
     vec3 n = normalize(V_Normal);
     float diffuseIntensity = max(0.0, dot(L, n));
-    vec4 diffuseColor = U_LightDiffuse * U_DiffuseMaterial * diffuseIntensity * attenuation;
+    vec4 diffuseColor = U_LightDiffuse * U_DiffuseMaterial * diffuseIntensity * attenuation * 4.0;
 
     color = ambientColor + diffuseColor;
 

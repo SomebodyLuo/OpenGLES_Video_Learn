@@ -134,7 +134,7 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
     SetAmbientMaterial(0.1f, 0.1f, 0.1f, 1.0f);
 
     // 漫反射光
-    mShader->SetVec4("U_LightPos", 1.0f, 1.0f, 0.0f, 0.0f);
+    mShader->SetVec4("U_LightPos", 1.0f, 1.0f, 0.0f, 0.0f);     //方向光！！！
     mShader->SetVec4("U_LightDiffuse", 1.0f, 1.0f, 1.0f, 1.0f);
     SetDiffuseMaterial(0.6f, 0.6f, 0.6f, 1.0f);
 

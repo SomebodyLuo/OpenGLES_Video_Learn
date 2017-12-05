@@ -14,7 +14,7 @@
 glm::mat4 tempMatrix, viewMatrix, projectionMatrix;
 
 // 摄像机的位置
-glm::vec3 cameraPos(10.0f, 6.0f, 1.0f);
+glm::vec3 cameraPos(6.0f, 6.0f, 1.0f);
 
 Ground ground;
 

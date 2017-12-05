@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/OpenGLES_Video_Learn.iml" filepath="$PROJECT_DIR$/OpenGLES_Video_Learn.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/glDemo.iml" filepath="$PROJECT_DIR$/glDemo.iml" />
     </modules>
   </component>
