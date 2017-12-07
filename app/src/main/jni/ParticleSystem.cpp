@@ -59,9 +59,9 @@ void ParticleSystem::Update(float deltaTime) {
     for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
 //        Normal[0] = x; Normal[1] = y; 让粒子上下运动
         mVertexBuffer->GetVertex(i).Normal[1] = 0.1f * i;
-//        if (i > 90)
-//        {
-//            break;
-//        }
+        if (i > 90)
+        {
+            break;
+        }
     }
 }
