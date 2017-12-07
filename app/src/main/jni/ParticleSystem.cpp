@@ -29,7 +29,7 @@ void ParticleSystem::Init(AAssetManager *assetManager, float x, float y, float z
     mShader = new Shader;
     mShader->Init(assetManager, "Res/particle.vs", "Res/particle.fs");
     mTexture = CreateProcedureTexture(256);
-//    mShader->SetTexture("U_Texture", mTexture);
+    mShader->SetTexture("U_Texture", mTexture);
 }
 
 void ParticleSystem::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
@@ -41,8 +41,6 @@ void ParticleSystem::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
     mVertexBuffer->Bind();
 
     mShader->Bind(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
-
-    glBindTexture(GL_TEXTURE_2D, mTexture);
 
     glDrawArrays(GL_POINTS, 0, mVertexBuffer->mVertexCount);
 

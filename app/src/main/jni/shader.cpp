@@ -104,7 +104,7 @@ void Shader::Bind(float *M, float *V, float *P)
         glActiveTexture(GL_TEXTURE0 + index);
         glBindTexture(GL_TEXTURE_2D, iter->second->mTexture);
         glUniform1i(iter->second->mLocation, index);
-
+//        LOGI("Bind: t->mLocation = %d; t->mTexture = %u", iter->second->mLocation, iter->second->mTexture);
         index++;
     }
 
@@ -164,11 +164,12 @@ void Shader::SetTexture(const char *name, GLuint texture)
     if(mUniformTextures.end() == iter)
     {
         GLint location = glGetUniformLocation(mProgram, name);
-        if (-1 == location)
+        if (-1 != location)
         {
             UniformTexture *t = new UniformTexture;
             t->mLocation = location;
             t->mTexture = texture;
+//            LOGI("SetTexture: name = %s, t->mLocation = %d; t->mTexture = %u", name, t->mLocation, t->mTexture);
             mUniformTextures.insert(std::pair<std::string, UniformTexture *>(name, t));
         }
     } else {
