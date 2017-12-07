@@ -21,14 +21,15 @@ void ParticleSystem::Init(AAssetManager *assetManager, float x, float y, float z
     int particleCounts = 180;
     mVertexBuffer->SetSize(particleCounts);
     for (int i = 0; i < particleCounts; ++i) {
-        mVertexBuffer->SetPosition(i, 5.0f * cosf(float(i) * 8.0f * 3.14f / 180.0f), 0.0f, 5.0f * sinf(float(i) * 8.0f * 3.14f / 180.0f));
+        mVertexBuffer->SetPosition(i, 8.0f * cosf(float(i) * 8.0f * 3.14f / 180.0f), 0.0f, 8.0f * sinf(float(i) * 8.0f * 3.14f / 180.0f));
         mVertexBuffer->SetColor(i, 0.1f, 0.4f, 0.6f);
     }
 
     // Shader
     mShader = new Shader;
     mShader->Init(assetManager, "Res/particle.vs", "Res/particle.fs");
-    mShader->SetTexture("U_Texture", CreateProcedureTexture(128));
+    mTexture = CreateProcedureTexture(256);
+//    mShader->SetTexture("U_Texture", mTexture);
 }
 
 void ParticleSystem::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
@@ -40,6 +41,8 @@ void ParticleSystem::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
     mVertexBuffer->Bind();
 
     mShader->Bind(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+
+    glBindTexture(GL_TEXTURE_2D, mTexture);
 
     glDrawArrays(GL_POINTS, 0, mVertexBuffer->mVertexCount);
 

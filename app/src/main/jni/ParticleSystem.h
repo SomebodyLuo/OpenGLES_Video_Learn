@@ -12,7 +12,7 @@ class ParticleSystem {
     VertexBuffer *mVertexBuffer;
     glm::mat4 mModelMatrix;
     Shader *mShader;
-
+    GLuint mTexture;
 public:
     ParticleSystem();
 
