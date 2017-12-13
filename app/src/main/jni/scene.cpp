@@ -15,7 +15,7 @@
 glm::mat4 tempMatrix, viewMatrix, projectionMatrix;
 
 // 摄像机的位置
-glm::vec3 cameraPos(15.0f, 15.0f, 15.0f);
+glm::vec3 cameraPos(5.0f, 5.0f, 5.0f);
 
 Ground ground;
 
@@ -41,7 +41,7 @@ void InitGL(AAssetManager *assetManager)
     LOGI("------InitGL2-------");
     // 球
     sphere.Init(assetManager, "Res/Sphere.obj");
-    sphere.SetPosition(2.0f, 0.0f, 0.0f);
+    sphere.SetPosition(0.0f, 0.0f, -2.0f);
     sphere.SetTexure("Res/earth.bmp");
 
     // 天空盒
@@ -83,6 +83,7 @@ void DrawGL()
     ground.Draw(viewMatrix, projectionMatrix);
 
     // 绘制地球
+    sphere.Update(frameTime);
     sphere.Draw(viewMatrix, projectionMatrix, cameraPos);
 
     // 绘制牛头

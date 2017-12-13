@@ -24,6 +24,8 @@ public:
 
     void Init(AAssetManager *assetManager, const char *modelPath);
 
+    void Update(float deltaTime);
+
     void Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos);
 
     void SetPosition(float x, float y, float z);

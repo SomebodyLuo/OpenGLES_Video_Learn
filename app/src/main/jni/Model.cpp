@@ -146,6 +146,28 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
     mShader->SetVec4("U_LightOpt", 32.0f, 0.0f, 0.0f, 0.0f);
 
 }
+float  x;
+float y;
+float z;
+void Model::Update(float deltaTime) {
+
+
+    static float angle = 0.0f;
+
+
+    // 每次刷新时，旋转一定角度，相当于有了动画
+    angle += 0.05;
+    if(angle > 3.1415926 * 2 ){
+        angle = 0;
+    }
+
+    x = 2 * cos(angle);
+    y = 0;
+    z = 2 * sin(angle);
+
+    mShader->SetVec4("U_LightPos", x, y, z, 0.0f);     //方向光！！！
+
+}
 
 void Model::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos)
 {
@@ -155,7 +177,10 @@ void Model::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &
     glEnable(GL_DEPTH_TEST);
     mVertexBuffer->Bind();
 
-    glm::mat4 it = glm::inverse(mModelMatrix);
+    // https://www.cnblogs.com/bigdudu/articles/4191042.html
+    // 解决缩放不一致，导致法线不垂直的问题
+    glm::mat4 it = glm::inverseTranspose(mModelMatrix);
+
     mShader->Bind(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
     glUniformMatrix4fv(glGetUniformLocation(mShader->mProgram, "IT_ModelMatrix"), 1, GL_FALSE, glm::value_ptr(it));
 

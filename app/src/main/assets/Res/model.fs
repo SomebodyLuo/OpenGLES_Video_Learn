@@ -46,6 +46,7 @@ vec4  GetPointLight()
 void main()
 {
     vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+
     vec4 ambientColor = U_LightAmbient * U_AmbientMaterial;
 
     vec3 lightPos = U_LightPos.xyz;
@@ -65,9 +66,11 @@ void main()
 
     if(1.0 == U_LightOpt.w)
     {
-        color = ambientColor + diffuseColor * texture2D(U_Texture, V_Texcoord.xy) + specularColor;
+        color = (ambientColor + diffuseColor) * texture2D(U_Texture, V_Texcoord.xy) + specularColor;
+    } else if (2.0 == U_LightOpt.w){
+        color = (ambientColor + diffuseColor + GetPointLight()) * texture2D(U_Texture, V_Texcoord.xy);
     } else {
-        color = (ambientColor + diffuseColor) * texture2D(U_Texture, V_Texcoord.xy);
+        color = ambientColor + diffuseColor + specularColor;
     }
 
     gl_FragColor = color;
