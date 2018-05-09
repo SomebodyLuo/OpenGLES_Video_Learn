@@ -15,7 +15,7 @@
 #include <math.h>
 #include <string.h>
 #include <sys/time.h>
-#include <android/log.h>
+
 
 #include <string>
 #include <sstream>
@@ -26,6 +26,7 @@
 #include "Glm/glm.hpp"
 #include "Glm/ext.hpp"
 
+#include <android/log.h>
 #define TAG "luoyouren" // 这个是自定义TAG标识
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG,TAG ,__VA_ARGS__) // 定义LOGD类型
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO,TAG ,__VA_ARGS__) // 定义LOGI类型

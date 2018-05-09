@@ -12,23 +12,18 @@ import javax.microedition.khronos.opengles.GL10;
 class MyGLRenderer implements GLSurfaceView.Renderer{
 
     //视口被创建时
-    
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Native.InitOpenGL();    //替换成C++函数
     }
 
     //视口改变大小时，比如左右旋转屏幕时
-    
     public void onSurfaceChanged(GL10 gl, int width, int height) {
-
         Native.OnViewportChanged(width, height);    //替换成C++函数
     }
 
     //刷新View
-    
     public void onDrawFrame(GL10 gl) {
         Native.RenderOneFrame();    //替换成C++函数
-
     }
 }
 

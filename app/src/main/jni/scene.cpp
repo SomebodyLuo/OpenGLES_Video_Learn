@@ -83,7 +83,7 @@ void DrawGL()
     ground.Draw(viewMatrix, projectionMatrix);
 
     // 绘制地球
-    sphere.Update(frameTime);
+    sphere.Update(frameTime);   //光照动画
     sphere.Draw(viewMatrix, projectionMatrix, cameraPos);
 
     // 绘制牛头
