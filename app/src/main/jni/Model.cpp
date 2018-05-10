@@ -146,6 +146,7 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
     mShader->SetVec4("U_LightOpt", 32.0f, 0.0f, 0.0f, 0.0f);
 
 }
+
 float  x;
 float y;
 float z;

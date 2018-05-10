@@ -17,5 +17,6 @@ void main()
     V_Color = color;
     V_Normal = normal.xyz;
     V_WorldPos = (ModelMatrix * position).xyz;
+    gl_PointSize = 8.0;
     gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * position;
 }

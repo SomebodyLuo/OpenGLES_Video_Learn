@@ -116,16 +116,16 @@ void Shader::Bind(float *M, float *V, float *P)
     // 可能我们的shader代码中，不一定4个Attribute都有，但是OpenGL能够容错。
     // 不存在的Attribute，相应的Location就是-1。
     glEnableVertexAttribArray(mPositionLocation);
-    glVertexAttribPointer(mPositionLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
+    glVertexAttribPointer(mPositionLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)0);
 
     glEnableVertexAttribArray(mColorLocation);
-    glVertexAttribPointer(mColorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(sizeof(float) * 4));
+    glVertexAttribPointer(mColorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 4));
 
     glEnableVertexAttribArray(mTexcoordLocation);
-    glVertexAttribPointer(mTexcoordLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(sizeof(float) * 8));
+    glVertexAttribPointer(mTexcoordLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 8));
 
     glEnableVertexAttribArray(mNormalLocation);
-    glVertexAttribPointer(mNormalLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)(sizeof(float) * 12));
+    glVertexAttribPointer(mNormalLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 12));
 
 }
 

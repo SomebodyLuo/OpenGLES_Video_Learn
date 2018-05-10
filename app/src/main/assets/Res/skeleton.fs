@@ -10,7 +10,10 @@ uniform vec4 U_AmbientMaterial;
 uniform vec4 U_LightDiffuse;
 uniform vec4 U_DiffuseMaterial;
 
+uniform vec4 U_PointColor;
+
 varying vec4 V_Color;
+
 
 varying vec3 V_Normal;
 varying vec3 V_WorldPos;
@@ -37,5 +40,5 @@ void main()
 
     color = ambientColor + diffuseColor;
 
-    gl_FragColor = color * V_Color;
+    gl_FragColor = U_PointColor;
 }

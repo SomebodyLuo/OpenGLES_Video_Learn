@@ -79,6 +79,16 @@ void Ground::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
         glDrawArrays(GL_TRIANGLE_STRIP, i * 4, 4);  //注意GL_TRIANGLE_STRIP
     }
 
+    // draw points
+    // add vertex shader: gl_PointSize = 8.0;
+//    glDrawArrays(GL_POINTS, 0, mVertexBuffer->mVertexCount);
+
+    // draw lines
+//    glLineWidth(2.0f);
+//    for (int i = 0; i < 800; ++i) {
+//        glDrawArrays(GL_LINES, i * 2, 2);  //注意GL_TRIANGLE_STRIP
+//    }
+
     mVertexBuffer->Unbind();
 
 //    glDisable(GL_DEPTH_TEST);

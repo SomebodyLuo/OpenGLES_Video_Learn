@@ -10,12 +10,13 @@
 #include "Model.h"
 #include "SkyBox.h"
 #include "ParticleSystem.h"
+#include "skeleton_animation.h"
 
 // 矩阵默认是单位矩阵
 glm::mat4 tempMatrix, viewMatrix, projectionMatrix;
 
 // 摄像机的位置
-glm::vec3 cameraPos(5.0f, 5.0f, 5.0f);
+glm::vec3 cameraPos(0.5f, 0.0f, 2.0f);
 
 Ground ground;
 
@@ -25,6 +26,8 @@ SkyBox skybox;
 
 ParticleSystem ps;
 
+skeleton_animation skeleton;
+
 void InitGL(AAssetManager *assetManager)
 {
     LOGI("------InitGL-------");
@@ -33,7 +36,7 @@ void InitGL(AAssetManager *assetManager)
         return;
     }
 
-    viewMatrix = glm::lookAt(cameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    viewMatrix = glm::lookAt(cameraPos, glm::vec3(0.5f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     // 棋盘格
     ground.Init(assetManager);
@@ -54,6 +57,9 @@ void InitGL(AAssetManager *assetManager)
 
     // 粒子系统
     ps.Init(assetManager, 0.0f, 0.0f, 0.0f);
+
+    // 骨骼动画
+    skeleton.Init(assetManager, "");
 
 }
 
@@ -77,21 +83,24 @@ void DrawGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // 绘制天空盒——注意必须在最前面
-    skybox.Draw(viewMatrix, projectionMatrix, cameraPos);
+//    skybox.Draw(viewMatrix, projectionMatrix, cameraPos);
 
     // 绘制棋盘格
     ground.Draw(viewMatrix, projectionMatrix);
 
     // 绘制地球
-    sphere.Update(frameTime);   //光照动画
-    sphere.Draw(viewMatrix, projectionMatrix, cameraPos);
+//    sphere.Update(frameTime);   //光照动画
+//    sphere.Draw(viewMatrix, projectionMatrix, cameraPos);
 
     // 绘制牛头
-    niutou.Draw(viewMatrix, projectionMatrix, cameraPos);
+//    niutou.Draw(viewMatrix, projectionMatrix, cameraPos);
 
     // 绘制粒子
-    ps.Update(frameTime);
-    ps.Draw(viewMatrix, projectionMatrix);
+//    ps.Update(frameTime);
+//    ps.Draw(viewMatrix, projectionMatrix);
+
+    // 骨骼动画
+    skeleton.Draw(viewMatrix, projectionMatrix, cameraPos, frameTime);
 }
 
 

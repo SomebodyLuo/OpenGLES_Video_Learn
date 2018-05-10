@@ -187,12 +187,12 @@ GLuint CreateTexture2DFromBMP(AAssetManager *assetManager, const char*bmpPath)
     unsigned char *pixelData = DecodeBMP(bmpFileContent, bmpWidth, bmpHeight);
     if (nullptr == pixelData)
     {
-        delete bmpFileContent;
+        delete[] bmpFileContent;
         return 0;
     }
 
     GLuint texture = CreateTexture2D(pixelData, bmpWidth, bmpHeight, GL_RGB);
-    delete bmpFileContent;
+    delete[] bmpFileContent;
 
     LOGI("CreateTexture2DFromBMP: texture = %u", texture);
 
@@ -248,7 +248,7 @@ GLuint CreateProcedureTexture(int size)
     }
 
     GLuint texture = CreateTexture2D(imageData, size, size, GL_RGBA);
-    delete imageData;
+    delete[] imageData;
 
     return texture;
 }

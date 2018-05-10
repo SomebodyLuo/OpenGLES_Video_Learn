@@ -6,9 +6,12 @@
 #define GLDEMO_VERTEXBUFFER_H
 
 #include "ggl.h"
+#include "Bone.h"
+#include "BoneInfo.h"
 
-struct Vertex
+class VertexData
 {
+public:
     float Position[4];
     float Color[4];
     float Texcoord[4];
@@ -18,12 +21,15 @@ struct Vertex
 class VertexBuffer
 {
 public:
-    Vertex *mVertexes;
     int mVertexCount;
+    VertexData *mVertexes;
+    BoneInfo *mBoneInfo;
+    glm::mat4 *mModelMatrix;
 
     GLuint mVBO;
 
     VertexBuffer();
+    ~VertexBuffer();
 
     void SetSize(int vertexCount);
     void SetPosition(int index, float x, float y, float z, float w = 1.0f);
@@ -35,7 +41,9 @@ public:
 
     void Bind();
     void Unbind();
-    Vertex &GetVertex(int index);
+    VertexData &GetVertex(int index);
+
+    void BlendVertex(int vertexIndex);
 
 };
 
