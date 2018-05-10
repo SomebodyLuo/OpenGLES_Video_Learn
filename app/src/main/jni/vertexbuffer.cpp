@@ -36,10 +36,6 @@ void VertexBuffer::SetSize(int vertexCount)
     mBoneInfo = new BoneInfo[mVertexCount];
 
     mModelMatrix = new glm::mat4[mVertexCount];
-    for (int i = 0; i < mVertexCount; ++i) {
-//        mModelMatrix[i] = glm::translate(0.2f, 0.2f, 0.0f);
-        mModelMatrix[i] = glm::mat4();
-    }
 
     // 初始化VBO, 可以先不指定数据
     mVBO = CreateBufferObject(GL_ARRAY_BUFFER, GetByteSize(), GL_STATIC_DRAW, nullptr);
@@ -124,21 +120,28 @@ VertexData & VertexBuffer::GetVertex(int index)
 
 
 // skin info
-void VertexBuffer::BlendVertex(int vertexIndex)
+void VertexBuffer::BlendVertex(int vertexIndex,VertexBuffer* afterVertexBuffer)
 {
     //do the vertex blending,get the vertex's pos in world space
-//    mModelMatrix[vertexIndex] = glm::mat4();
-
-    for(int i = 0; i < mBoneInfo[vertexIndex].m_boneNum; ++i)
+    //mModelMatrix[vertexIndex] = glm::mat4();
+    glm::vec4 vAfterVc = glm::vec4();
+    for(int i=0; i < mBoneInfo[vertexIndex].m_boneNum; ++i)
     {
-        glm::mat4 mat = glm::mat4();
+        //
+        glm::mat4 mat =  glm::mul(mBoneInfo[vertexIndex].m_bones[i]->mWorldMatrix, mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix);
+        LOGE("luoyouren1----------\n");
+        print_mat(mat);
+        LOGE("luoyouren2----------\n");
+        VertexData vdIndex = mVertexes[vertexIndex];
+        glm::vec4 vec41= glm::vec4(vdIndex.Position[0],vdIndex.Position[1],vdIndex.Position[2],vdIndex.Position[3]);
+        glm::vec4 newVector  = glm::mul(mat,vec41);
 
-        mat = glm::mul(mBoneInfo[vertexIndex].m_bones[i]->mModelMatrix, mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix);
+        newVector = newVector * mBoneInfo[vertexIndex].m_boneWeights[i];
+        newVector.w = 1;
 
-        mat = mat * mBoneInfo[vertexIndex].m_boneWeights[i];
-
-        mModelMatrix[vertexIndex] = glm::mul(mat, mModelMatrix[vertexIndex]);
+        vAfterVc += newVector ;
     }
+    afterVertexBuffer->SetPosition(vertexIndex, vAfterVc.x, vAfterVc.y, vAfterVc.z );
 }
 
 #if 0

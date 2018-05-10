@@ -1,4 +1,5 @@
 #include "Bone.h"
+#include "utils.h"
 
 
 Bone::Bone(void)
@@ -6,10 +7,9 @@ Bone::Bone(void)
 }
 
 Bone::Bone(float x, float y, float z):
-	m_pSibling(NULL), m_pFirstChild(NULL), m_pFather(NULL), m_x(x), m_y(y), m_z(z)
+	m_pSibling(NULL), m_pFirstChild(NULL), m_pFather(NULL)
 {
-//    mModelMatrix = glm::translate(x, y, z);
-    mModelMatrix = glm::mat4();
+    mLocalMatrix = glm::translate(x, y, z);
 }
 
 
@@ -33,33 +33,19 @@ void Bone::SetSibling(Bone* pSibling)
 
 
 //give father's world pos, compute the bone's world pos
-void Bone::ComputeWorldPos(float fatherWX, float fatherWY, float fatherWZ)
+void Bone::ComputeWorldPos(glm::mat4 father)
 {
-    glm::mat4 fatherMat = glm::translate(fatherWX, fatherWY, fatherWZ);
-    mModelMatrix = glm::mul(fatherMat, mModelMatrix);
+    mWorldMatrix = glm::mul(father,mLocalMatrix) ;
 
-    m_wx = fatherWX + m_x;
-    m_wy = fatherWY + m_y;
-    m_wz = fatherWZ + m_z;
+//    print_mat(mWorldMatrix);
 
     if(m_pSibling != NULL)
-        m_pSibling->ComputeWorldPos(fatherWX, fatherWY, fatherWZ);
+        m_pSibling->ComputeWorldPos(father);
 
     if(m_pFirstChild != NULL)
-        m_pFirstChild->ComputeWorldPos(m_wx, m_wy, m_wz);
+        //   m_pFirstChild->ComputeWorldPos(m_wx, m_wy, m_wz);
+        m_pFirstChild->ComputeWorldPos(mWorldMatrix);
 
-}
-
-void Bone::ComputeWorldPos(glm::mat4 &fatherMat)
-{
-    mModelMatrix = glm::mul(fatherMat, mModelMatrix);
-    glm::vec3 vc1;
-
-    if(m_pSibling != NULL)
-        m_pSibling->ComputeWorldPos(fatherMat);
-
-    if(m_pFirstChild != NULL)
-        m_pFirstChild->ComputeWorldPos(mModelMatrix);
 
 }
 
@@ -67,17 +53,14 @@ void Bone::ComputeWorldPos(glm::mat4 &fatherMat)
 //called after compute world pos when bone loaded but not animated
 void Bone::ComputeBoneOffset()
 {
-
-    m_boneOffset.m_offx = -m_wx;
-    m_boneOffset.m_offy = -m_wy;
-    m_boneOffset.m_offz = -m_wz;
-
-    m_boneOffset.mOffsetMatrix = glm::inverse(mModelMatrix);
+    m_boneOffset.mOffsetMatrix = glm::inverse(mWorldMatrix);
 
     if(m_pSibling!=NULL)
+
         m_pSibling->ComputeBoneOffset();
 
     if(m_pFirstChild!=NULL)
+
         m_pFirstChild->ComputeBoneOffset();
 }
 

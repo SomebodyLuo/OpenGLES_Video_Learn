@@ -23,6 +23,7 @@ class VertexBuffer
 public:
     int mVertexCount;
     VertexData *mVertexes;
+    VertexData *mAfterVertexes;
     BoneInfo *mBoneInfo;
     glm::mat4 *mModelMatrix;
 
@@ -43,7 +44,7 @@ public:
     void Unbind();
     VertexData &GetVertex(int index);
 
-    void BlendVertex(int vertexIndex);
+    void BlendVertex(int vertexIndex ,VertexBuffer * afterBuffer);
 
 };
 

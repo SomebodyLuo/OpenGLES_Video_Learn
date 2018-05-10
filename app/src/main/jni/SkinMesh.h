@@ -19,6 +19,8 @@ public:
     Vertex* m_vertexs; //array of vertices in mesh
 
 	VertexBuffer *mVertexBuffer;
+	VertexBuffer *mAfterVertexBuffer;
+
 
 	Shader *mShader;
 
@@ -40,7 +42,6 @@ public:
 	Bone* g_boneRoot;
 	Bone* g_bone1, *g_bone2, *g_bone31, *g_bone32;
 
-    void Update(float deltaTime);
 	void animateBones();
 	int dir, dir2;
 };

@@ -18,7 +18,6 @@ public:
 
     //Actually, BoneOffset is the invert transform of that we place a bone in mesh space, that is (-20,0,0) means the bone is at (20,0,0) in mesh space
 
-    float m_offx, m_offy, m_offz;
     glm::mat4 mOffsetMatrix;
 
 };
@@ -38,14 +37,12 @@ public:
     void SetFirstChild(Bone* pChild);
     void SetSibling(Bone* pSibling); 
 
-    float m_x, m_y, m_z;//pos in its parent's space
-
     float m_wx, m_wy, m_wz; //pos in world space
-    glm::mat4 mModelMatrix;
+    glm::mat4 mLocalMatrix;
+    glm::mat4 mWorldMatrix;
 
     //give father's world pos, compute the bone's world pos
-    void ComputeWorldPos(float fatherWX, float fatherWY, float fatherWZ);
-    void ComputeWorldPos(glm::mat4 &fatherMat);
+    void ComputeWorldPos(glm::mat4 mat4);
 
     BoneOffset m_boneOffset;   
 

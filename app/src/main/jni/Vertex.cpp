@@ -16,23 +16,6 @@ Vertex::~Vertex(void)
 void Vertex::ComputeWorldPosByBone(Bone* pBone, float& outX, float& outY, float& outZ)
 {
 
-    //step1: transform vertex from mesh space to bone space
-
-    outX = m_x + pBone->m_boneOffset.m_offx;
-
-    outY = m_y + pBone->m_boneOffset.m_offy;
-
-    outZ = m_z + pBone->m_boneOffset.m_offz;
-
- 
-
-    //step2: transform vertex from bone space to world sapce
-
-    outX += pBone->m_wx;
-
-    outY += pBone->m_wy;
-
-    outZ += pBone->m_wz;
 
 }
  

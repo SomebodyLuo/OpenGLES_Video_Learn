@@ -30,8 +30,7 @@ void SkinMesh::UpdateVertices()
     for(int i=0; i<m_vertexNum; ++i)
     {
         m_vertexs[i].BlendVertex();
-
-        mVertexBuffer->BlendVertex(i);
+        mVertexBuffer->BlendVertex(i, mAfterVertexBuffer);
     }
 }
 
@@ -48,7 +47,7 @@ void SkinMesh::DrawStaticMesh(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
 
     mShader->SetVec4("U_PointColor", 0.2f, 0.9f, 0.2f, 1.0f);
 
-    glm::mat4 identityMat = glm::translate(-0.1f, -0.1f, 0.0f);
+    glm::mat4 identityMat = glm::translate(0.0f, 0.0f, 0.0f);
     mShader->Bind(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
 
     // draw points
@@ -73,16 +72,16 @@ void SkinMesh::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec
 //    mShader->SetVec4("U_CameraPos", cameraPos.x, cameraPos.y, cameraPos.z, 1.0f);
 
     glEnable(GL_DEPTH_TEST);
-    mVertexBuffer->Bind();
+    mAfterVertexBuffer->Bind();
 
-    mShader->SetVec4("U_PointColor", 0.9f, 0.1f, 0.1f, 1.0f);
+    mShader->SetVec4("U_PointColor", 0.9f, 0.2f, 0.2f, 1.0f);
 
-    glm::mat4 identityMat = glm::translate(0.2f, 0.2f, 0.0f);
+    glm::mat4 identityMat = glm::mat4();
+    mShader->Bind(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
 
     // draw points
     // add vertex shader: gl_PointSize = 8.0;
-    for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
-        mShader->Bind(glm::value_ptr(mVertexBuffer->mModelMatrix[i]), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+    for (int i = 0; i < mAfterVertexBuffer->mVertexCount; ++i) {
         glDrawArrays(GL_POINTS, i, 1);
     }
 
@@ -92,40 +91,29 @@ void SkinMesh::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec
 //        glDrawArrays(GL_LINES, i, 2);
 //    }
 
-    mVertexBuffer->Unbind();
+    mAfterVertexBuffer->Unbind();
 
 }
 
-
+float time1 = 0;
 void SkinMesh::animateBones()
 {
+
     //animate bones manually
-
-    g_bone1->m_y += 0.01f * dir;
-
-    if(g_bone1->m_y<-1.2 || g_bone1->m_y>1.2)
-    {
-        dir *= -1;
+    time1 += 0.1f;
+    if(time1 > 3.14*2){
+        time1 = 0;
     }
-
-    g_bone32->m_x += 0.01f * dir2;
-    if(g_bone32->m_x<0 || g_bone32->m_x>1.2)
-    {
-        dir2 *= -1;
+    if(glm::sin(time1) > 0){
+        g_bone1->mLocalMatrix = glm::mul(glm::translate(0.0f,0.01f,0.0f), g_bone1->mLocalMatrix);
+        g_bone32->mLocalMatrix = glm::mul(glm::translate(0.01f,0.0f,0.0f), g_bone32->mLocalMatrix);
+    }else{
+        g_bone1->mLocalMatrix = glm::mul(glm::translate(0.0f,-0.01f,0.0f), g_bone1->mLocalMatrix);
+        g_bone32->mLocalMatrix = glm::mul(glm::translate(-0.01f,0.0f,0.0f), g_bone32->mLocalMatrix);
     }
 }
 
-void SkinMesh::Update(float deltaTime) {
 
-    static float angle = 0.0f;
-
-    // 每次刷新时，旋转一定角度，相当于有了动画
-    angle += deltaTime * 30.f;
-
-    g_bone1->m_x = 1.0f * sin(angle * 3.14f / 180.0f);
-    g_bone1->m_y = 1.0f * cos(angle * 3.14f / 180.0f);
-
-}
 
 //==================================================================================================
 void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
@@ -188,10 +176,16 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     }
 
     LOGI("m_vertexNum = %d", m_vertexNum);
-    mVertexBuffer = new VertexBuffer;
+    mVertexBuffer = new VertexBuffer();
     mVertexBuffer->SetSize(m_vertexNum);
     for (int i = 0; i < m_vertexNum; ++i) {
         mVertexBuffer->SetPosition(i, m_vertexs[i].m_x , m_vertexs[i].m_y, m_vertexs[i].m_y);
+    }
+
+    mAfterVertexBuffer = new VertexBuffer();
+    mAfterVertexBuffer->SetSize(m_vertexNum);
+    for (int i = 0; i < m_vertexNum; ++i) {
+        mAfterVertexBuffer->SetPosition(i, m_vertexs[i].m_x , m_vertexs[i].m_y, m_vertexs[i].m_y);
     }
     LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
 
@@ -287,7 +281,7 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
 
     //compute bone offset
 
-    g_boneRoot->ComputeWorldPos(0, 0, 0);
+    g_boneRoot->ComputeWorldPos(glm::mat4());
 
     g_boneRoot->ComputeBoneOffset();
 
