@@ -1,6 +1,5 @@
 #pragma once
 #include "ggl.h"
-#include "Vertex.h"
 #include "vertexbuffer.h"
 #include "shader.h"
 
@@ -12,18 +11,12 @@ public:
 
 	~SkinMesh(void); 
 
-
-
     int m_vertexNum;
-
-    Vertex* m_vertexs; //array of vertices in mesh
 
 	VertexBuffer *mVertexBuffer;
 	VertexBuffer *mAfterVertexBuffer;
 
-
 	Shader *mShader;
-
 
 	void Init(AAssetManager *assetManager, const char *modelPath);
 

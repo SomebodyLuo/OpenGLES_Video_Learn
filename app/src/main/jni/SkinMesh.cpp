@@ -19,8 +19,10 @@ SkinMesh::~SkinMesh(void)
     delete g_bone31;
     delete g_bone32;
 
-    if(m_vertexNum>0)
-        delete[] m_vertexs;
+    delete[] mVertexBuffer;
+    delete[] mAfterVertexBuffer;
+    delete mShader;
+
 }
  
 
@@ -29,7 +31,6 @@ void SkinMesh::UpdateVertices()
 
     for(int i=0; i<m_vertexNum; ++i)
     {
-        m_vertexs[i].BlendVertex();
         mVertexBuffer->BlendVertex(i, mAfterVertexBuffer);
     }
 }
@@ -106,10 +107,10 @@ void SkinMesh::animateBones()
     }
     if(glm::sin(time1) > 0){
         g_bone1->mLocalMatrix = glm::mul(glm::translate(0.0f,0.01f,0.0f), g_bone1->mLocalMatrix);
-        g_bone32->mLocalMatrix = glm::mul(glm::translate(0.01f,0.0f,0.0f), g_bone32->mLocalMatrix);
+        g_boneRoot->mLocalMatrix = glm::mul(glm::translate(0.01f,0.0f,0.0f), g_boneRoot->mLocalMatrix);
     }else{
         g_bone1->mLocalMatrix = glm::mul(glm::translate(0.0f,-0.01f,0.0f), g_bone1->mLocalMatrix);
-        g_bone32->mLocalMatrix = glm::mul(glm::translate(-0.01f,0.0f,0.0f), g_bone32->mLocalMatrix);
+        g_boneRoot->mLocalMatrix = glm::mul(glm::translate(-0.01f,0.0f,0.0f), g_boneRoot->mLocalMatrix);
     }
 }
 
@@ -163,29 +164,18 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     };
 
     m_vertexNum = sizeof(_meshData)/(sizeof(float)*3);
-    m_vertexs = new Vertex[m_vertexNum];
-
-    for(int i=0; i < m_vertexNum; ++i)
-    {
-        m_vertexs[i].m_x = _meshData[i*3];
-
-        m_vertexs[i].m_y = _meshData[i*3 + 1];
-
-        m_vertexs[i].m_z = _meshData[i*3 + 2];
-
-    }
 
     LOGI("m_vertexNum = %d", m_vertexNum);
     mVertexBuffer = new VertexBuffer();
     mVertexBuffer->SetSize(m_vertexNum);
     for (int i = 0; i < m_vertexNum; ++i) {
-        mVertexBuffer->SetPosition(i, m_vertexs[i].m_x , m_vertexs[i].m_y, m_vertexs[i].m_y);
+        mVertexBuffer->SetPosition(i, _meshData[i*3], _meshData[i*3 + 1], _meshData[i*3 + 2]);
     }
 
     mAfterVertexBuffer = new VertexBuffer();
     mAfterVertexBuffer->SetSize(m_vertexNum);
     for (int i = 0; i < m_vertexNum; ++i) {
-        mAfterVertexBuffer->SetPosition(i, m_vertexs[i].m_x , m_vertexs[i].m_y, m_vertexs[i].m_y);
+        mAfterVertexBuffer->SetPosition(i, _meshData[i*3], _meshData[i*3 + 1], _meshData[i*3 + 2]);
     }
     LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
 
@@ -254,12 +244,10 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     //set skin info
     for(int i=0; i<m_vertexNum; ++i)
     {
-        m_vertexs[i].m_boneNum = _skinInfo[i*9];
         mVertexBuffer->mBoneInfo[i].m_boneNum = _skinInfo[i*9];
 
-        for(int j=0; j < m_vertexs[i].m_boneNum; ++j)
+        for(int j=0; j < mVertexBuffer->mBoneInfo[i].m_boneNum; ++j)
         {
-
             Bone* pBone = g_boneRoot;
 
             if(_skinInfo[ i*9 + 1 + j] == 1)
@@ -274,8 +262,7 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
             else if(_skinInfo[i*9+1+j]==32)
                 pBone = g_bone32;
 
-            m_vertexs[i].SetBoneAndWeight(j, pBone, _skinInfo[i*9+5+j]);
-            mVertexBuffer->mBoneInfo[i].SetBoneAndWeight(j, pBone, _skinInfo[i*9+5+j]);
+            mVertexBuffer->mBoneInfo[i].SetBoneAndWeight(j, pBone, _skinInfo[i*9 + 5 + j]);
         }
     }
 
