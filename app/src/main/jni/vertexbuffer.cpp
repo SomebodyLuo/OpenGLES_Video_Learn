@@ -125,16 +125,73 @@ void VertexBuffer::BlendVertex(int vertexIndex)
     //do the vertex blending,get the vertex's pos in world space
     mModelMatrix[vertexIndex] = glm::mat4();
 
-    for(int i=0; i < mBoneInfo[vertexIndex].m_boneNum; ++i)
+    for(int i = 0; i < mBoneInfo[vertexIndex].m_boneNum; ++i)
     {
         glm::mat4 mat;
 
-        mat = mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix + mBoneInfo[vertexIndex].m_bones[i]->mModelMatrix;
+        mat = glm::mul(mBoneInfo[vertexIndex].m_bones[i]->mModelMatrix, mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix);
 
         mat = mat * mBoneInfo[vertexIndex].m_boneWeights[i];
 
-        mModelMatrix[vertexIndex] = mModelMatrix[vertexIndex] + mat;
-
+        mModelMatrix[vertexIndex] = glm::mul(mat, mModelMatrix[vertexIndex]);
     }
 }
 
+#if 0
+void Vertex::ComputeWorldPosByBone(Bone* pBone, float& outX, float& outY, float& outZ)
+{
+
+    //step1: transform vertex from mesh space to bone space
+
+    outX = pBone->m_boneOffset.m_offx+m_x;
+
+    outY =  pBone->m_boneOffset.m_offy+m_y;
+
+    outZ = pBone->m_boneOffset.m_offz+m_z;
+
+
+
+    //step2: transform vertex from bone space to world sapce
+
+    outX += pBone->m_wx;
+
+    outY += pBone->m_wy;
+
+    outZ += pBone->m_wz;
+
+}
+
+
+void Vertex::BlendVertex()
+
+{
+    //do the vertex blending,get the vertex's pos in world space
+    m_wX = 0;
+    m_wY = 0;
+    m_wZ = 0;
+
+    for(int i=0; i<m_boneNum; ++i)
+    {
+
+        float tx, ty, tz;
+
+        ComputeWorldPosByBone(m_bones[i], tx, ty, tz);
+
+        tx*= m_boneWeights[i];
+
+        ty*= m_boneWeights[i];
+
+        tz*= m_boneWeights[i];
+
+
+
+        m_wX += tx;
+
+        m_wY += ty;
+
+        m_wZ += tz;
+
+    }
+
+}
+#endif

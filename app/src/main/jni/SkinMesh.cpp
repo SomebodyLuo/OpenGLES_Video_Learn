@@ -30,7 +30,8 @@ void SkinMesh::UpdateVertices()
     for(int i=0; i<m_vertexNum; ++i)
     {
         m_vertexs[i].BlendVertex();
-        mVertexBuffer->BlendVertex(i);
+
+//        mVertexBuffer->BlendVertex(i);
     }
 }
 
