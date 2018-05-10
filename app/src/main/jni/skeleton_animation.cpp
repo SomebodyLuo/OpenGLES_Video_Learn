@@ -24,11 +24,13 @@ void skeleton_animation::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
     mSkinMesh.DrawStaticMesh(viewMatrix, projectionMatrix, cameraPos);
 
     //move bones
-//    mSkinMesh.animateBones();
-    mSkinMesh.Update(frameTime);
+    mSkinMesh.animateBones();
+//    mSkinMesh.Update(frameTime);
 
     //update all bone's pos in bone tree
-    mSkinMesh.g_boneRoot->ComputeWorldPos(0, 0, 0);
+//    mSkinMesh.g_boneRoot->ComputeWorldPos(0, 0, 0);
+    glm::mat4 origin = glm::translate(0.0f, 0.0f, 0.0f);
+    mSkinMesh.g_boneRoot->ComputeWorldPos(origin);
 
     //update vertex pos by bones, using vertex blending
     mSkinMesh.UpdateVertices();

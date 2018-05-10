@@ -36,6 +36,10 @@ void VertexBuffer::SetSize(int vertexCount)
     mBoneInfo = new BoneInfo[mVertexCount];
 
     mModelMatrix = new glm::mat4[mVertexCount];
+    for (int i = 0; i < mVertexCount; ++i) {
+//        mModelMatrix[i] = glm::translate(0.2f, 0.2f, 0.0f);
+        mModelMatrix[i] = glm::mat4();
+    }
 
     // 初始化VBO, 可以先不指定数据
     mVBO = CreateBufferObject(GL_ARRAY_BUFFER, GetByteSize(), GL_STATIC_DRAW, nullptr);
@@ -123,11 +127,11 @@ VertexData & VertexBuffer::GetVertex(int index)
 void VertexBuffer::BlendVertex(int vertexIndex)
 {
     //do the vertex blending,get the vertex's pos in world space
-    mModelMatrix[vertexIndex] = glm::mat4();
+//    mModelMatrix[vertexIndex] = glm::mat4();
 
     for(int i = 0; i < mBoneInfo[vertexIndex].m_boneNum; ++i)
     {
-        glm::mat4 mat;
+        glm::mat4 mat = glm::mat4();
 
         mat = glm::mul(mBoneInfo[vertexIndex].m_bones[i]->mModelMatrix, mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix);
 

@@ -44,7 +44,8 @@ public:
     glm::mat4 mModelMatrix;
 
     //give father's world pos, compute the bone's world pos
-    void ComputeWorldPos(float fatherWX, float fatherWY, float fatherWZ); 
+    void ComputeWorldPos(float fatherWX, float fatherWY, float fatherWZ);
+    void ComputeWorldPos(glm::mat4 &fatherMat);
 
     BoneOffset m_boneOffset;   
 

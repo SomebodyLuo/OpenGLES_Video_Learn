@@ -8,7 +8,8 @@ Bone::Bone(void)
 Bone::Bone(float x, float y, float z):
 	m_pSibling(NULL), m_pFirstChild(NULL), m_pFather(NULL), m_x(x), m_y(y), m_z(z)
 {
-    mModelMatrix = glm::translate(x, y, z);
+//    mModelMatrix = glm::translate(x, y, z);
+    mModelMatrix = glm::mat4();
 }
 
 
@@ -49,9 +50,21 @@ void Bone::ComputeWorldPos(float fatherWX, float fatherWY, float fatherWZ)
 
 }
 
+void Bone::ComputeWorldPos(glm::mat4 &fatherMat)
+{
+    mModelMatrix = glm::mul(fatherMat, mModelMatrix);
+    glm::vec3 vc1;
+
+    if(m_pSibling != NULL)
+        m_pSibling->ComputeWorldPos(fatherMat);
+
+    if(m_pFirstChild != NULL)
+        m_pFirstChild->ComputeWorldPos(mModelMatrix);
+
+}
+
 
 //called after compute world pos when bone loaded but not animated
-
 void Bone::ComputeBoneOffset()
 {
 

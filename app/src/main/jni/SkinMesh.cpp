@@ -31,7 +31,7 @@ void SkinMesh::UpdateVertices()
     {
         m_vertexs[i].BlendVertex();
 
-//        mVertexBuffer->BlendVertex(i);
+        mVertexBuffer->BlendVertex(i);
     }
 }
 
@@ -48,7 +48,7 @@ void SkinMesh::DrawStaticMesh(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
 
     mShader->SetVec4("U_PointColor", 0.2f, 0.9f, 0.2f, 1.0f);
 
-    glm::mat4 identityMat = glm::mat4();
+    glm::mat4 identityMat = glm::translate(-0.1f, -0.1f, 0.0f);
     mShader->Bind(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
 
     // draw points
@@ -75,7 +75,9 @@ void SkinMesh::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec
     glEnable(GL_DEPTH_TEST);
     mVertexBuffer->Bind();
 
-    mShader->SetVec4("U_PointColor", 0.9f, 0.2f, 0.2f, 1.0f);
+    mShader->SetVec4("U_PointColor", 0.9f, 0.1f, 0.1f, 1.0f);
+
+    glm::mat4 identityMat = glm::translate(0.2f, 0.2f, 0.0f);
 
     // draw points
     // add vertex shader: gl_PointSize = 8.0;

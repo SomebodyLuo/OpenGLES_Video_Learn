@@ -254,4 +254,14 @@ GLuint CreateProcedureTexture(int size)
 }
 
 
+void print_mat(glm::mat4 &mat)
+{
+    LOGI("mat:\n");
+
+    float* data = glm::value_ptr(mat);
+    for (int i = 0; i < 4; ++i) {// 0
+        LOGI("%f\t%f\t%f\t%f\n", data[i+0],data[i+4],data[i+8],data[i+12]);
+        //  LOGI("%f\t%f\t%f\t%f\n", mat[i].x,mat[i].x,mat[i].x,mat[i].x);
+    }
+}
 
