@@ -18,6 +18,8 @@ public:
 
 	Shader *mShader;
 
+	Shader *mShaderDynamic;
+
 	void Init(AAssetManager *assetManager, const char *modelPath);
 
 	void UpdateVertices();

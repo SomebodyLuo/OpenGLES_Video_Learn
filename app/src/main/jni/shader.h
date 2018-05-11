@@ -52,7 +52,7 @@ public:
     GLint mBoneOffsetMatrixLocation0, mBoneOffsetMatrixLocation1, mBoneOffsetMatrixLocation2, mBoneOffsetMatrixLocation3;
     //----------------------------------------------------------------------
 
-    GLint mVertexMoveMatrixLocation;
+//    GLint mVertexMoveMatrixLocation;
 
     bool Init(AAssetManager *assetManager, const char*vs, const char *fs);
     void Bind(float *M, float *V, float *P);

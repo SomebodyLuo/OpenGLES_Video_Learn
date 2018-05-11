@@ -17,5 +17,5 @@ varying vec3 V_WorldPos;
 
 void main()
 {
-    gl_FragColor = U_PointColor;
+    gl_FragColor = V_Color;
 }

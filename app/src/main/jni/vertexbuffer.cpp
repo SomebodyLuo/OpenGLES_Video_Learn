@@ -122,6 +122,38 @@ VertexData & VertexBuffer::GetVertex(int index)
 // skin info
 void VertexBuffer::BlendVertex(int vertexIndex,VertexBuffer* afterVertexBuffer)
 {
+    for(int i=0; i < mBoneInfo[vertexIndex].m_boneNum; ++i)
+    {
+#if 0
+        print_mat(mBoneInfo[vertexIndex].m_bones[i]->mWorldMatrix);
+        memcpy(&(mVertexes->BoneWorldMatrix[i]), glm::value_ptr(mBoneInfo[vertexIndex].m_bones[i]->mWorldMatrix), sizeof(float) * 16);
+        print_array(mVertexes->BoneWorldMatrix[i]);
+
+#else
+        mVertexes->BoneWorldMatrix[i][0]    = 0.4f;
+        mVertexes->BoneWorldMatrix[i][1]    = 0.4f;
+        mVertexes->BoneWorldMatrix[i][2]    = 0.4f;
+        mVertexes->BoneWorldMatrix[i][3]    = 0.4f;
+        mVertexes->BoneWorldMatrix[i][4]    = 0.4f;
+        mVertexes->BoneWorldMatrix[i][5]    = 0.4f;
+        mVertexes->BoneWorldMatrix[i][6]    = 0.4f;
+        mVertexes->BoneWorldMatrix[i][7]    = 0.4f;
+        mVertexes->BoneWorldMatrix[i][8]    = 0.4f;
+        mVertexes->BoneWorldMatrix[i][9]    = 0.4f;
+        mVertexes->BoneWorldMatrix[i][10]   = 0.4f;
+        mVertexes->BoneWorldMatrix[i][11]   = 0.4f;
+        mVertexes->BoneWorldMatrix[i][12]   = 0.4f;
+        mVertexes->BoneWorldMatrix[i][13]   = 0.4f;
+        mVertexes->BoneWorldMatrix[i][14]   = 0.4f;
+        mVertexes->BoneWorldMatrix[i][15]   = 0.4f;
+#endif
+
+        LOGE("-----------------------------\n");
+        print_mat(mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix);
+        memcpy(&(mVertexes->BoneOffsetMatrix[i]), glm::value_ptr(mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix), sizeof(float) * 16);
+        print_array(mVertexes->BoneOffsetMatrix[i]);
+    }
+#if 0
     //do the vertex blending,get the vertex's pos in world space
     glm::vec4 vAfterVc = glm::vec4();
     for(int i=0; i < mBoneInfo[vertexIndex].m_boneNum; ++i)
@@ -141,63 +173,5 @@ void VertexBuffer::BlendVertex(int vertexIndex,VertexBuffer* afterVertexBuffer)
         vAfterVc += newVector ;
     }
     afterVertexBuffer->SetPosition(vertexIndex, vAfterVc.x, vAfterVc.y, vAfterVc.z );
-}
-
-#if 0
-void Vertex::ComputeWorldPosByBone(Bone* pBone, float& outX, float& outY, float& outZ)
-{
-
-    //step1: transform vertex from mesh space to bone space
-
-    outX = pBone->m_boneOffset.m_offx+m_x;
-
-    outY =  pBone->m_boneOffset.m_offy+m_y;
-
-    outZ = pBone->m_boneOffset.m_offz+m_z;
-
-
-
-    //step2: transform vertex from bone space to world sapce
-
-    outX += pBone->m_wx;
-
-    outY += pBone->m_wy;
-
-    outZ += pBone->m_wz;
-
-}
-
-
-void Vertex::BlendVertex()
-
-{
-    //do the vertex blending,get the vertex's pos in world space
-    m_wX = 0;
-    m_wY = 0;
-    m_wZ = 0;
-
-    for(int i=0; i<m_boneNum; ++i)
-    {
-
-        float tx, ty, tz;
-
-        ComputeWorldPosByBone(m_bones[i], tx, ty, tz);
-
-        tx*= m_boneWeights[i];
-
-        ty*= m_boneWeights[i];
-
-        tz*= m_boneWeights[i];
-
-
-
-        m_wX += tx;
-
-        m_wY += ty;
-
-        m_wZ += tz;
-
-    }
-
-}
 #endif
+}

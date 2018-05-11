@@ -5,6 +5,7 @@ SkinMesh::SkinMesh(void)
 {
 	m_vertexNum = 0;
     mShader = nullptr;
+    mShaderDynamic = nullptr;
 
     dir	= -1;
     dir2 = -1;
@@ -22,6 +23,7 @@ SkinMesh::~SkinMesh(void)
     delete[] mVertexBuffer;
     delete[] mAfterVertexBuffer;
     delete mShader;
+    delete mShaderDynamic;
 
 }
  
@@ -47,8 +49,9 @@ void SkinMesh::DrawStaticMesh(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
     mVertexBuffer->Bind();
 
     mShader->SetVec4("U_PointColor", 0.2f, 0.9f, 0.2f, 1.0f);
+//    mShader->SetVec4("U_Bool", 1.0f, 0.0f, 0.0f, 0.0f);
 
-    glm::mat4 identityMat = glm::translate(0.0f, 0.0f, 0.0f);
+    glm::mat4 identityMat = glm::translate(-0.1f, -0.1f, 0.0f);
     mShader->Bind(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
 
     // draw points
@@ -73,28 +76,29 @@ void SkinMesh::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec
 //    mShader->SetVec4("U_CameraPos", cameraPos.x, cameraPos.y, cameraPos.z, 1.0f);
 
     glEnable(GL_DEPTH_TEST);
-    mAfterVertexBuffer->Bind();
+    mVertexBuffer->Bind();
 
-    mShader->SetVec4("U_PointColor", 0.9f, 0.2f, 0.2f, 1.0f);
+    mShaderDynamic->SetVec4("U_PointColor", 0.9f, 0.2f, 0.2f, 1.0f);
+//    mShaderDynamic->SetVec4("U_Bool", 0.0f, 0.0f, 0.0f, 0.0f);
 
     glm::mat4 identityMat = glm::mat4();
-    mShader->Bind(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+    mShaderDynamic->Bind(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
 
     // draw points
     // add vertex shader: gl_PointSize = 8.0;
-//    for (int i = 0; i < mAfterVertexBuffer->mVertexCount; ++i) {
-//        glDrawArrays(GL_POINTS, i, 1);
-//    }
+    for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
+        glDrawArrays(GL_POINTS, i, 1);
+    }
 
-    glDrawArrays(GL_TRIANGLES, 0, mAfterVertexBuffer->mVertexCount);
+//    glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer->mVertexCount);
 
     // draw lines
-//    glLineWidth(2.0f);
-//    for (int i = 0; i < mVertexBuffer->mVertexCount - 1; ++i) {
-//        glDrawArrays(GL_LINES, i, 2);
-//    }
+    glLineWidth(2.0f);
+    for (int i = 0; i < mVertexBuffer->mVertexCount - 1; ++i) {
+        glDrawArrays(GL_LINES, i, 2);
+    }
 
-    mAfterVertexBuffer->Unbind();
+    mVertexBuffer->Unbind();
 
 }
 
@@ -193,6 +197,19 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     mShader->SetVec4("U_LightDiffuse", 1.0f, 1.0f, 1.0f, 1.0f);
     mShader->SetVec4("U_DiffuseMaterial", 0.6f, 0.6f, 0.6f, 1.0f);
     mShader->SetVec4("U_PointColor", 0.6f, 0.6f, 0.6f, 1.0f);
+    mShader->SetVec4("U_Bool", 1.0f, 0.0f, 0.0f, 0.0f);
+
+    mShaderDynamic = new Shader;
+    mShaderDynamic->Init(assetManager, "Res/skeleton_dynamic.vs", "Res/skeleton_dynamic.fs");
+
+    // 光照
+    mShaderDynamic->SetVec4("U_LightPos", 0.0f, 20.0f, 0.0f, 0.0f);
+    mShaderDynamic->SetVec4("U_LightAmbient", 1.0f, 1.0f, 1.0f, 1.0f);
+    mShaderDynamic->SetVec4("U_AmbientMaterial", 0.1f, 0.1f, 0.1f, 1.0f);
+    mShaderDynamic->SetVec4("U_LightDiffuse", 1.0f, 1.0f, 1.0f, 1.0f);
+    mShaderDynamic->SetVec4("U_DiffuseMaterial", 0.6f, 0.6f, 0.6f, 1.0f);
+    mShaderDynamic->SetVec4("U_PointColor", 0.6f, 0.6f, 0.6f, 1.0f);
+    mShaderDynamic->SetVec4("U_Bool", 1.0f, 0.0f, 0.0f, 0.0f);
 
     //=======================3===================
     g_boneRoot = new Bone(0, 0, 0);
@@ -244,16 +261,15 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     };
 
     for (int i = 0; i < m_vertexNum; ++i) {
-        mAfterVertexBuffer->mVertexes[i].BoneNumber[0] = 0.6;
-        mAfterVertexBuffer->mVertexes[i].BoneIdArray[0] = _skinInfo[i * 9 + 1];
-        mAfterVertexBuffer->mVertexes[i].BoneIdArray[1] = _skinInfo[i * 9 + 2];
-        mAfterVertexBuffer->mVertexes[i].BoneIdArray[2] = _skinInfo[i * 9 + 3];
-        mAfterVertexBuffer->mVertexes[i].BoneIdArray[3] = _skinInfo[i * 9 + 4];
-
-        mAfterVertexBuffer->mVertexes[i].BoneWeightArray[0] = _skinInfo[i * 9 + 5];
-        mAfterVertexBuffer->mVertexes[i].BoneWeightArray[1] = _skinInfo[i * 9 + 6];
-        mAfterVertexBuffer->mVertexes[i].BoneWeightArray[2] = _skinInfo[i * 9 + 7];
-        mAfterVertexBuffer->mVertexes[i].BoneWeightArray[3] = _skinInfo[i * 9 + 8];
+        mVertexBuffer->mVertexes[i].BoneNumber[0] = _skinInfo[i*9];
+        mVertexBuffer->mVertexes[i].BoneIdArray[0] = _skinInfo[i * 9 + 1];
+        mVertexBuffer->mVertexes[i].BoneIdArray[1] = _skinInfo[i * 9 + 2];
+        mVertexBuffer->mVertexes[i].BoneIdArray[2] = _skinInfo[i * 9 + 3];
+        mVertexBuffer->mVertexes[i].BoneIdArray[3] = _skinInfo[i * 9 + 4];
+        mVertexBuffer->mVertexes[i].BoneWeightArray[0] = _skinInfo[i * 9 + 5];
+        mVertexBuffer->mVertexes[i].BoneWeightArray[1] = _skinInfo[i * 9 + 6];
+        mVertexBuffer->mVertexes[i].BoneWeightArray[2] = _skinInfo[i * 9 + 7];
+        mVertexBuffer->mVertexes[i].BoneWeightArray[3] = _skinInfo[i * 9 + 8];
     }
 
     //set skin info
@@ -293,14 +309,17 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
 void SkinMesh::SetAmbientMaterial(float r, float g, float b, float a)
 {
     mShader->SetVec4("U_AmbientMaterial", r, g, b, a);
+//    mShaderDynamic
 }
 
 void SkinMesh::SetDiffuseMaterial(float r, float g, float b, float a)
 {
     mShader->SetVec4("U_DiffuseMaterial", r, g, b, a);
+//    mShaderDynamic
 }
 
 void SkinMesh::SetSpecularMaterial(float r, float g, float b, float a)
 {
     mShader->SetVec4("U_SpecularMaterial", r, g, b, a);
+//    mShaderDynamic
 }

@@ -21,15 +21,15 @@ Shader::Shader()
     mBoneIdArrayLocation = -1;
     mBoneWeightArrayLocation = -1;
 
-    mBoneOffsetMatrixLocation0 = -1;
-    mBoneOffsetMatrixLocation1 = -1;
-    mBoneOffsetMatrixLocation2 = -1;
-    mBoneOffsetMatrixLocation3 = -1;
-
     mBoneWorldMatrixLocation0 = -1;
     mBoneWorldMatrixLocation1 = -1;
     mBoneWorldMatrixLocation2 = -1;
     mBoneWorldMatrixLocation3 = -1;
+
+    mBoneOffsetMatrixLocation0 = -1;
+    mBoneOffsetMatrixLocation1 = -1;
+    mBoneOffsetMatrixLocation2 = -1;
+    mBoneOffsetMatrixLocation3 = -1;
 
     //----------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ Shader::Shader()
     mViewMatrixLocation = -1;
     mProjectionMatrixLocation = -1;
 
-    mVertexMoveMatrixLocation = -1;
+//    mVertexMoveMatrixLocation = -1;
 }
 
 bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
@@ -46,6 +46,7 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     {
         return false;
     }
+    LOGI("Shader::Init vs=%s; fs=%s\n", vs, fs);
     mAssetManager = assetManager;
 
     int fileSize = 0;
@@ -59,7 +60,7 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     delete vsCode;
     if (0 == vsShader)
     {
-        LOGI("------ vs CompileShader failed! -------");
+        LOGE("------ vs CompileShader failed! -------");
         return false;
     }
 
@@ -74,7 +75,7 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     delete fsCode;
     if (0 == fsShader)
     {
-        LOGI("------ fs CompileShader failed! -------");
+        LOGE("------ fs CompileShader failed! -------");
         glDeleteShader(vsShader);
         return 0;
     }
@@ -116,7 +117,7 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     mViewMatrixLocation = glGetUniformLocation(mProgram, "ViewMatrix");
     mProjectionMatrixLocation = glGetUniformLocation(mProgram, "ProjectionMatrix");
 
-    mVertexMoveMatrixLocation = glGetUniformLocation(mProgram, "VertexMoveMatrix");
+//    mVertexMoveMatrixLocation = glGetUniformLocation(mProgram, "VertexMoveMatrix");
 
     return true;
 }
