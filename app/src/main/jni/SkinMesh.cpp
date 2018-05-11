@@ -82,9 +82,11 @@ void SkinMesh::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec
 
     // draw points
     // add vertex shader: gl_PointSize = 8.0;
-    for (int i = 0; i < mAfterVertexBuffer->mVertexCount; ++i) {
-        glDrawArrays(GL_POINTS, i, 1);
-    }
+//    for (int i = 0; i < mAfterVertexBuffer->mVertexCount; ++i) {
+//        glDrawArrays(GL_POINTS, i, 1);
+//    }
+
+    glDrawArrays(GL_TRIANGLES, 0, mAfterVertexBuffer->mVertexCount);
 
     // draw lines
 //    glLineWidth(2.0f);
@@ -240,6 +242,19 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
             1,  		0, -1, -1, -1,    		1.0, 0.0, 0.0, 0.0,
 
     };
+
+    for (int i = 0; i < m_vertexNum; ++i) {
+        mAfterVertexBuffer->mVertexes[i].BoneNumber[0] = 0.6;
+        mAfterVertexBuffer->mVertexes[i].BoneIdArray[0] = _skinInfo[i * 9 + 1];
+        mAfterVertexBuffer->mVertexes[i].BoneIdArray[1] = _skinInfo[i * 9 + 2];
+        mAfterVertexBuffer->mVertexes[i].BoneIdArray[2] = _skinInfo[i * 9 + 3];
+        mAfterVertexBuffer->mVertexes[i].BoneIdArray[3] = _skinInfo[i * 9 + 4];
+
+        mAfterVertexBuffer->mVertexes[i].BoneWeightArray[0] = _skinInfo[i * 9 + 5];
+        mAfterVertexBuffer->mVertexes[i].BoneWeightArray[1] = _skinInfo[i * 9 + 6];
+        mAfterVertexBuffer->mVertexes[i].BoneWeightArray[2] = _skinInfo[i * 9 + 7];
+        mAfterVertexBuffer->mVertexes[i].BoneWeightArray[3] = _skinInfo[i * 9 + 8];
+    }
 
     //set skin info
     for(int i=0; i<m_vertexNum; ++i)

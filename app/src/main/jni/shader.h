@@ -46,8 +46,17 @@ public:
     GLint mPositionLocation, mColorLocation, mTexcoordLocation, mNormalLocation;
     GLint mModelMatrixLocation, mViewMatrixLocation, mProjectionMatrixLocation;
 
+    //----------------------------------------------------------------------
+    GLint mBoneNumLocation, mBoneIdArrayLocation, mBoneWeightArrayLocation;
+    GLint mBoneWorldMatrixLocation0, mBoneWorldMatrixLocation1, mBoneWorldMatrixLocation2, mBoneWorldMatrixLocation3;
+    GLint mBoneOffsetMatrixLocation0, mBoneOffsetMatrixLocation1, mBoneOffsetMatrixLocation2, mBoneOffsetMatrixLocation3;
+    //----------------------------------------------------------------------
+
+    GLint mVertexMoveMatrixLocation;
+
     bool Init(AAssetManager *assetManager, const char*vs, const char *fs);
     void Bind(float *M, float *V, float *P);
+//    void Bind(float *M, float *V, float *P, float *VM);
 
     void SetTexture(const char *name, const char *imagePath);
     void SetTexture(const char *name, GLuint texture);

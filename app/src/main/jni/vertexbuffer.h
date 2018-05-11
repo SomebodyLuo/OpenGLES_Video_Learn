@@ -16,6 +16,22 @@ public:
     float Color[4];
     float Texcoord[4];
     float Normal[4];
+
+    //----------------------------------------------------------------------
+    float BoneNumber[4];
+    float BoneIdArray[4];
+    float BoneWeightArray[4];
+
+    float BoneWorldMatrix[4][16];
+//    float BoneWorldMatrix1[16];
+//    float BoneWorldMatrix2[16];
+//    float BoneWorldMatrix3[16];
+
+    float BoneOffsetMatrix[4][16];
+//    float BoneOffsetMatrix1[16];
+//    float BoneOffsetMatrix2[16];
+//    float BoneOffsetMatrix3[16];
+    //----------------------------------------------------------------------
 };
 
 class VertexBuffer
@@ -23,9 +39,8 @@ class VertexBuffer
 public:
     int mVertexCount;
     VertexData *mVertexes;
-    VertexData *mAfterVertexes;
     BoneInfo *mBoneInfo;
-    glm::mat4 *mModelMatrix;
+    glm::mat4 *mVertexMoveMatrix;
 
     GLuint mVBO;
 

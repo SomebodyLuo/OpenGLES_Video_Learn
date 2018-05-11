@@ -10,7 +10,7 @@ VertexBuffer::VertexBuffer()
     mVBO = 0;
     mVertexCount = 0;
     mVertexes = nullptr;
-    mModelMatrix = nullptr;
+    mVertexMoveMatrix = nullptr;
 }
 
 VertexBuffer::~VertexBuffer()
@@ -20,9 +20,9 @@ VertexBuffer::~VertexBuffer()
         delete[] mVertexes;
     }
 
-    if(nullptr != mModelMatrix)
+    if(nullptr != mVertexMoveMatrix)
     {
-        delete[] mModelMatrix;
+        delete[] mVertexMoveMatrix;
     }
 }
 
@@ -35,7 +35,7 @@ void VertexBuffer::SetSize(int vertexCount)
 
     mBoneInfo = new BoneInfo[mVertexCount];
 
-    mModelMatrix = new glm::mat4[mVertexCount];
+    mVertexMoveMatrix = new glm::mat4[mVertexCount];
 
     // 初始化VBO, 可以先不指定数据
     mVBO = CreateBufferObject(GL_ARRAY_BUFFER, GetByteSize(), GL_STATIC_DRAW, nullptr);
@@ -123,7 +123,6 @@ VertexData & VertexBuffer::GetVertex(int index)
 void VertexBuffer::BlendVertex(int vertexIndex,VertexBuffer* afterVertexBuffer)
 {
     //do the vertex blending,get the vertex's pos in world space
-    //mModelMatrix[vertexIndex] = glm::mat4();
     glm::vec4 vAfterVc = glm::vec4();
     for(int i=0; i < mBoneInfo[vertexIndex].m_boneNum; ++i)
     {

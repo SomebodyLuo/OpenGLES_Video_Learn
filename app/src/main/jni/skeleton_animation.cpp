@@ -24,7 +24,7 @@ void skeleton_animation::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
     mSkinMesh.DrawStaticMesh(viewMatrix, projectionMatrix, cameraPos);
 
     //move bones
-  mSkinMesh.animateBones();
+    mSkinMesh.animateBones();
  //   mSkinMesh.Update(frameTime);
 
     //update all bone's pos in bone tree
