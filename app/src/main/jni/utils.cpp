@@ -37,6 +37,200 @@ char *LoadFileContent(AAssetManager *assetManager, const char *path, int &filesi
     return fileContent;
 }
 
+
+char *LoadJsonFile(AAssetManager *assetManager, const char *path, int &filesize)
+{
+    char *fileContent = nullptr;
+    filesize = 0;
+
+    if (nullptr == assetManager)
+    {
+        LOGD("nullptr == assetManager");
+        return nullptr;
+    }
+
+    // 打开
+    AAsset *asset = AAssetManager_open(assetManager, path, AASSET_MODE_UNKNOWN);
+    if (nullptr == asset)
+    {
+        LOGD("AAssetManager_open failed!");
+        return nullptr;
+    }
+
+    filesize = AAsset_getLength(asset);
+    fileContent = new char[filesize + 1];
+
+    // 读文件
+    AAsset_read(asset, fileContent, filesize);
+    fileContent[filesize] = '\0';
+
+    std::vector<std::string>joint_name;
+    std::vector<glm::vec3>joint_pos;
+    std::vector<glm::quat>joint_rot;
+    std::vector<int> joint_parent_ID;
+    joint_name.reserve(100);
+    joint_pos.reserve(100);
+    joint_rot.reserve(100);
+    joint_parent_ID.reserve(100);
+
+    // 解析JSON文件
+    rapidjson::Document jdoc;
+    jdoc.Parse(fileContent);
+    LOGI("\nJSON: jdoc.IsObject() %s\n", jdoc.IsObject() ? "true" : "false");
+    LOGI("JSON: jdoc[\"root\"].IsString() %s\n", jdoc["root"].IsString() ? "true" : "false");
+    LOGI("JSON: jdoc[\"root\"].IsObject() %s\n", jdoc["root"].IsObject() ? "true" : "false");
+    LOGI("JSON: jdoc[\"root\"].IsArray() %s\n", jdoc["root"].IsArray() ? "true" : "false");
+
+    rapidjson::Value &obj = jdoc["root"];
+    std::string name = obj["name"].GetString();
+    glm::vec3 pos;
+    glm::quat rot;
+    rapidjson::Value &pos_read = obj["pos"];
+    pos = glm::vec3(pos_read[0].GetFloat(), pos_read[1].GetFloat(), pos_read[2].GetFloat());
+
+    rapidjson::Value &rot_read = obj["rot"];
+    double theta = rot_read[0].GetFloat() / M_PI * 180;
+    glm::vec3 axis(rot_read[1].GetFloat(), rot_read[2].GetFloat(), rot_read[3].GetFloat());
+    glm::normalize(axis);
+    rot.w = float(cos(theta/2));
+    rot.x = float(sin(theta/2) * axis[0]);
+    rot.y = float(sin(theta/2) * axis[1]);
+    rot.z = float(sin(theta/2) * axis[2]);
+
+
+
+//    rapidjson::GenericObject object = jdoc["root"].GetObject();
+//    const char *name = jdoc["root"].GetObject()["name"].GetString();
+    LOGI("JSON: %s\n", name.c_str());
+
+#if 0
+    // 2. Modify it by DOM.
+    rapidjson::Value& s = jdoc["stars"];
+    s.SetInt(s.GetInt() + 1);
+
+    // 3. Stringify the DOM
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    jdoc.Accept(writer);
+
+    // Output {"project":"rapidjson","stars":11}
+    LOGI("json: %s\n", buffer.GetString());
+//    std::cout << buffer.GetString() << std::endl;
+#endif
+
+    delete[] fileContent;
+
+    // 关闭文件
+    AAsset_close(asset);
+
+    return nullptr;
+}
+
+
+static void JsonReadIteration(std::vector<std::string>&joint_name, \
+                                std::vector<glm::vec3> &joint_pos,  \
+                                std::vector<glm::quat>&joint_rot,   \
+                                std::vector<int> &joint_parent_ID,  \
+                                int joint_p_ID, rapidjson::Value &joint_objects)
+{
+
+
+    for (auto &m : joint_objects.GetArray())
+    {
+        rapidjson::Value &obj = m;
+
+        std::string name = obj["name"].GetString();
+        LOGI("JSON: child name = %s\n", name.c_str());
+
+        glm::vec3 pos;
+        rapidjson::Value &pos_read = obj["pos"];
+        pos = glm::vec3(pos_read[0].GetFloat(), pos_read[1].GetFloat(), pos_read[2].GetFloat());
+
+        glm::quat rot;
+        rapidjson::Value &rot_read = obj["rot"];
+        double theta = rot_read[0].GetFloat() / M_PI * 180;
+        glm::vec3 axis(rot_read[1].GetFloat(), rot_read[2].GetFloat(), rot_read[3].GetFloat());
+        glm::normalize(axis);
+        rot.w = float(cos(theta/2));
+        rot.x = float(sin(theta/2) * axis[0]);
+        rot.y = float(sin(theta/2) * axis[1]);
+        rot.z = float(sin(theta/2) * axis[2]);
+
+        // 将根节点信息入库
+        joint_name.push_back(name);
+        joint_pos.push_back(pos);
+        joint_rot.push_back(rot);
+        joint_parent_ID.push_back(joint_p_ID);
+
+        rapidjson::Value &child = obj["children"];
+        int children_counts = child.GetArray().Size();
+        LOGI("JSON: children_counts = %d\n", children_counts);
+
+        JsonReadIteration(joint_name, joint_pos, joint_rot, joint_parent_ID, joint_name.size() - 1, child);
+    }
+}
+
+bool ParseJsonFile(AAssetManager *assetManager, const char *path, \
+    std::vector<std::string> &joint_name, \
+    std::vector<glm::vec3> &joint_pos, \
+    std::vector<glm::quat> &joint_rot, \
+    std::vector<int> &joint_parent_ID)
+{
+    char *fileContent = nullptr;
+    int filesize = 0;
+
+    fileContent = LoadFileContent(assetManager, path, filesize);
+    if(nullptr == fileContent)
+    {
+        return false;
+    }
+
+    joint_name.reserve(100);
+    joint_pos.reserve(100);
+    joint_rot.reserve(100);
+    joint_parent_ID.reserve(100);
+
+    // 解析JSON文件
+    rapidjson::Document jdoc;
+    jdoc.Parse(fileContent);
+
+    rapidjson::Value &obj = jdoc["root"];
+
+    std::string name = obj["name"].GetString();
+    LOGI("JSON: root name = %s\n", name.c_str());
+
+    glm::vec3 pos;
+    rapidjson::Value &pos_read = obj["pos"];
+    pos = glm::vec3(pos_read[0].GetFloat(), pos_read[1].GetFloat(), pos_read[2].GetFloat());
+
+    glm::quat rot;
+    rapidjson::Value &rot_read = obj["rot"];
+    double theta = rot_read[0].GetFloat() / M_PI * 180;
+    glm::vec3 axis(rot_read[1].GetFloat(), rot_read[2].GetFloat(), rot_read[3].GetFloat());
+    glm::normalize(axis);
+    rot.w = float(cos(theta/2));
+    rot.x = float(sin(theta/2) * axis[0]);
+    rot.y = float(sin(theta/2) * axis[1]);
+    rot.z = float(sin(theta/2) * axis[2]);
+
+    // 将根节点信息入库
+    joint_name.push_back(name);
+    joint_pos.push_back(pos);
+    joint_rot.push_back(rot);
+    joint_parent_ID.push_back(-1);
+
+    rapidjson::Value &child = obj["children"];
+    int children_counts = child.GetArray().Size();
+    LOGI("JSON: children_counts = %d\n", children_counts);
+
+    JsonReadIteration(joint_name, joint_pos, joint_rot, joint_parent_ID, joint_name.size() - 1, child);
+
+
+    delete[] fileContent;
+
+    return true;
+}
+
 GLuint CompileShader(GLenum shaderType, const char *shaderCode)
 {
     // 根据shader类型创建一个Shader对象（标识符）

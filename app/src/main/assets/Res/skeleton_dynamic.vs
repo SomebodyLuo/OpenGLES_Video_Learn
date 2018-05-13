@@ -78,7 +78,7 @@ void main()
     vec4 origin = vec4(0.0, 0.0, 0.0, 0.0);
     //--------------------------------------
 
-    V_Color = vec4(0.0, 0.0, boneWorldMatrix0[0].y, 1.0);
+    V_Color = vec4(0.0, 0.0, boneWorldMatrix0[3].w, 1.0);
 
     //V_Color = vec4(boneWorldMatrix0[0].xyz, 1.0);
 

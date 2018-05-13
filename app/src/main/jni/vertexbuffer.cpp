@@ -130,27 +130,27 @@ void VertexBuffer::BlendVertex(int vertexIndex,VertexBuffer* afterVertexBuffer)
         print_array(mVertexes->BoneWorldMatrix[i]);
 
 #else
-        mVertexes->BoneWorldMatrix[i][0]    = 0.4f;
-        mVertexes->BoneWorldMatrix[i][1]    = 0.4f;
-        mVertexes->BoneWorldMatrix[i][2]    = 0.4f;
-        mVertexes->BoneWorldMatrix[i][3]    = 0.4f;
-        mVertexes->BoneWorldMatrix[i][4]    = 0.4f;
-        mVertexes->BoneWorldMatrix[i][5]    = 0.4f;
-        mVertexes->BoneWorldMatrix[i][6]    = 0.4f;
-        mVertexes->BoneWorldMatrix[i][7]    = 0.4f;
-        mVertexes->BoneWorldMatrix[i][8]    = 0.4f;
-        mVertexes->BoneWorldMatrix[i][9]    = 0.4f;
-        mVertexes->BoneWorldMatrix[i][10]   = 0.4f;
-        mVertexes->BoneWorldMatrix[i][11]   = 0.4f;
-        mVertexes->BoneWorldMatrix[i][12]   = 0.4f;
-        mVertexes->BoneWorldMatrix[i][13]   = 0.4f;
-        mVertexes->BoneWorldMatrix[i][14]   = 0.4f;
-        mVertexes->BoneWorldMatrix[i][15]   = 0.4f;
+        mVertexes->BoneWorldMatrix[i][0]    = 0.2f;
+        mVertexes->BoneWorldMatrix[i][1]    = 0.2f;
+        mVertexes->BoneWorldMatrix[i][2]    = 0.2f;
+        mVertexes->BoneWorldMatrix[i][3]    = 0.2f;
+        mVertexes->BoneWorldMatrix[i][4]    = 0.2f;
+        mVertexes->BoneWorldMatrix[i][5]    = 0.2f;
+        mVertexes->BoneWorldMatrix[i][6]    = 0.2f;
+        mVertexes->BoneWorldMatrix[i][7]    = 0.2f;
+        mVertexes->BoneWorldMatrix[i][8]    = 0.2f;
+        mVertexes->BoneWorldMatrix[i][9]    = 0.2f;
+        mVertexes->BoneWorldMatrix[i][10]   = 0.2f;
+        mVertexes->BoneWorldMatrix[i][11]   = 0.2f;
+        mVertexes->BoneWorldMatrix[i][12]   = 0.2f;
+        mVertexes->BoneWorldMatrix[i][13]   = 0.2f;
+        mVertexes->BoneWorldMatrix[i][14]   = 0.2f;
+        mVertexes->BoneWorldMatrix[i][15]   = 0.2f;
 #endif
 
         LOGE("-----------------------------\n");
         print_mat(mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix);
-        memcpy(&(mVertexes->BoneOffsetMatrix[i]), glm::value_ptr(mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix), sizeof(float) * 16);
+        memcpy(mVertexes->BoneOffsetMatrix[i], glm::value_ptr(mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix), sizeof(float) * 16);
         print_array(mVertexes->BoneOffsetMatrix[i]);
     }
 #if 0

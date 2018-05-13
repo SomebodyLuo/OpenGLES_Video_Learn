@@ -9,6 +9,14 @@
 
 char *LoadFileContent(AAssetManager *assetManager, const char *path, int &filesize);
 
+char *LoadJsonFile(AAssetManager *assetManager, const char *path, int &filesize);
+
+bool ParseJsonFile(AAssetManager *assetManager, const char *path, \
+    std::vector<std::string> &joint_name, \
+    std::vector<glm::vec3> &joint_pos, \
+    std::vector<glm::quat> &joint_rot, \
+    std::vector<int> &joint_parent_ID);
+
 GLuint CompileShader(GLenum shaderType, const char *shaderCode);
 
 // vs--Vertex Shader; fs--Fragment Shader

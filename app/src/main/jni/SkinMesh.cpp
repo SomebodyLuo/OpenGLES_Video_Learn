@@ -78,7 +78,7 @@ void SkinMesh::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec
     glEnable(GL_DEPTH_TEST);
     mVertexBuffer->Bind();
 
-    mShaderDynamic->SetVec4("U_PointColor", 0.9f, 0.2f, 0.2f, 1.0f);
+//    mShaderDynamic->SetVec4("U_PointColor", 0.9f, 0.2f, 0.2f, 1.0f);
 //    mShaderDynamic->SetVec4("U_Bool", 0.0f, 0.0f, 0.0f, 0.0f);
 
     glm::mat4 identityMat = glm::mat4();

@@ -26,6 +26,10 @@
 #include "Glm/glm.hpp"
 #include "Glm/ext.hpp"
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+
 #include <android/log.h>
 #define TAG "luoyouren" // 这个是自定义TAG标识
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG,TAG ,__VA_ARGS__) // 定义LOGD类型
