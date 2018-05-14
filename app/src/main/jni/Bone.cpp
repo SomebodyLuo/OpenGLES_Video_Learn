@@ -2,14 +2,19 @@
 #include "utils.h"
 
 
-Bone::Bone(void)
+Bone::Bone(void):
+        m_pSibling(NULL), m_pFirstChild(NULL), m_pFather(NULL)
 {
 }
 
-Bone::Bone(float x, float y, float z):
-	m_pSibling(NULL), m_pFirstChild(NULL), m_pFather(NULL)
+void Bone::setPosition(float x, float y, float z)
 {
-    mLocalMatrix = glm::translate(x, y, z);
+    mLocalTranslateMatrix = glm::translate(x, y, z);
+}
+
+void Bone::setRotation(float angle, float x, float y, float z)
+{
+    mLocalRotationMatrix = glm::rotate(angle, x, y, z);
 }
 
 
@@ -29,30 +34,38 @@ void Bone::SetSibling(Bone* pSibling)
 { 
 	m_pSibling = pSibling; 
 	m_pSibling->m_pFather = m_pFather; 
-} 
+}
 
-
-//give father's world pos, compute the bone's world pos
-void Bone::ComputeWorldPos(glm::mat4 father)
+void Bone::ComputeWorldModelMatrix(glm::mat4 fatherT, glm::mat4 fatherR)
 {
-    mWorldMatrix = glm::mul(father,mLocalMatrix) ;
-
-//    print_mat(mWorldMatrix);
-
-    if(m_pSibling != NULL)
-        m_pSibling->ComputeWorldPos(father);
-
-    if(m_pFirstChild != NULL)
-        //   m_pFirstChild->ComputeWorldPos(m_wx, m_wy, m_wz);
-        m_pFirstChild->ComputeWorldPos(mWorldMatrix);
-
 
 }
+
+//give father's world model matrix, compute the bone's model matrix
+void Bone::ComputeWorldModelMatrix(glm::mat4 &fatherModelMatrix)
+{
+    mWorldModelMatrix = fatherModelMatrix * GetLocalModelMatrix();
+
+    if(m_pSibling != NULL)
+        m_pSibling->ComputeWorldModelMatrix(fatherModelMatrix);
+
+    if(m_pFirstChild != NULL)
+        m_pFirstChild->ComputeWorldModelMatrix(mWorldModelMatrix);
+}
+
+glm::mat4 &Bone::GetLocalModelMatrix()
+{
+    mLocalModelMatrix = mLocalTranslateMatrix * mLocalRotationMatrix;
+
+    return mLocalModelMatrix;
+}
+
+
 
 //called after compute world pos when bone loaded but not animated
 void Bone::ComputeBoneOffset()
 {
-    m_boneOffset.mOffsetMatrix = glm::inverse(mWorldMatrix);
+    m_boneOffset.mOffsetMatrix = glm::inverse(mWorldModelMatrix);
 
     if(m_pSibling!=NULL)
 

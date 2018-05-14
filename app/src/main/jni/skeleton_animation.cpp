@@ -28,7 +28,7 @@ void skeleton_animation::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
  //   mSkinMesh.Update(frameTime);
 
     //update all bone's pos in bone tree
-    mSkinMesh.ComputeWorldPos(glm::mat4());
+    mSkinMesh.ComputeWorldModelMatrix(glm::mat4());
 
     //update vertex pos by bones, using vertex blending
     mSkinMesh.UpdateMatrices();

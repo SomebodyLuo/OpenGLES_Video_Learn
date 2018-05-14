@@ -48,7 +48,7 @@ public:
     GLint mModelMatrixLocation, mViewMatrixLocation, mProjectionMatrixLocation;
 
     GLint mBoneCountsLocation, mBoneIdsArrayLocation, mBoneWeightArrayLocation;
-    GLint mBoneIndexArrayLocation, mBoneWorldMatrixArrayLocation, mBoneOffsetMatrixArrayLocation;
+    GLint mBoneIndexArrayLocation, mBoneWorldModelMatrixArrayLocation, mBoneOffsetMatrixArrayLocation;
 
     bool Init(AAssetManager *assetManager, const char*vs, const char *fs);
     void Bind(float *M, float *V, float *P, VertexBuffer *vb);

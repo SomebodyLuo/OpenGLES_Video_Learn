@@ -10,7 +10,7 @@ uniform ivec4 boneIdsArray[100];
 uniform vec4 boneWeightArray[100];
 
 uniform int boneIndexArray[10];
-uniform mat4 boneWorldMatrixArray[10];
+uniform mat4 boneWorldModelMatrixArray[10];
 uniform mat4 boneOffsetMatrixArray[10];
 //--------------------------------------------
 
@@ -37,7 +37,7 @@ void main()
         {
             if(boneIdsArray[int(meshInfoId + 0.5)][i] == boneIndexArray[j])
             {
-                combineMat = boneWorldMatrixArray[j] * boneOffsetMatrixArray[j];
+                combineMat =  boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j];
                 weight = boneWeightArray[int(meshInfoId + 0.5)][i];
 
                 vc = weight * combineMat * originPos;
@@ -58,7 +58,6 @@ void main()
     //{
     //    V_Color = vec4(0.1, 0.1, 0.9, 1.0);
     //}
-    V_Color = vec4(boneWorldMatrixArray[2][3].xyz, 1.0);
 
     gl_PointSize = 8.0;
     gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * finalPos;

@@ -20,8 +20,8 @@ VertexBuffer::VertexBuffer()
 
     mBoneIndexArray.clear();
     mBoneIndexArray.reserve(10);
-    mBoneWorldMatrixArray.clear();
-    mBoneWorldMatrixArray.reserve(10);
+    mBoneWorldModelMatrixArray.clear();
+    mBoneWorldModelMatrixArray.reserve(10);
     mBoneOffsetMatrixArray.clear();
     mBoneOffsetMatrixArray.reserve(10);
 
@@ -145,8 +145,8 @@ void VertexBuffer::BlendVertex(int vertexIndex,VertexBuffer* afterVertexBuffer)
 #if 0
     for(int i=0; i < mBoneInfo[vertexIndex].m_boneNum; ++i)
     {
-        print_mat(mBoneInfo[vertexIndex].m_bones[i]->mWorldMatrix);
-        memcpy(&(mVertexes->BoneWorldMatrix[i]), glm::value_ptr(mBoneInfo[vertexIndex].m_bones[i]->mWorldMatrix), sizeof(float) * 16);
+        print_mat(mBoneInfo[vertexIndex].m_bones[i]->mWorldTranslateMatrix);
+        memcpy(&(mVertexes->BoneWorldMatrix[i]), glm::value_ptr(mBoneInfo[vertexIndex].m_bones[i]->mWorldTranslateMatrix), sizeof(float) * 16);
         print_array(mVertexes->BoneWorldMatrix[i]);
 
 
@@ -161,7 +161,7 @@ void VertexBuffer::BlendVertex(int vertexIndex,VertexBuffer* afterVertexBuffer)
     for(int i=0; i < mBoneInfo[vertexIndex].m_boneNum; ++i)
     {
         //
-        glm::mat4 mat =  glm::mul(mBoneInfo[vertexIndex].m_bones[i]->mWorldMatrix, mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix);
+        glm::mat4 mat =  glm::mul(mBoneInfo[vertexIndex].m_bones[i]->mWorldTranslateMatrix, mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix);
         LOGE("luoyouren1----------\n");
         print_mat(mat);
         LOGE("luoyouren2----------\n");

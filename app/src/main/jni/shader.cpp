@@ -92,10 +92,10 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     LOGI("mBoneWeightArrayLocation = %d\n", mBoneWeightArrayLocation);
 
     mBoneIndexArrayLocation = glGetUniformLocation(mProgram, "boneIndexArray");
-    mBoneWorldMatrixArrayLocation = glGetUniformLocation(mProgram, "boneWorldMatrixArray");
+    mBoneWorldModelMatrixArrayLocation = glGetUniformLocation(mProgram, "boneWorldModelMatrixArray");
     mBoneOffsetMatrixArrayLocation = glGetUniformLocation(mProgram, "boneOffsetMatrixArray");
     LOGI("mBoneIndexArrayLocation = %d\n", mBoneIndexArrayLocation);
-    LOGI("mBoneWorldMatrixArrayLocation = %d\n", mBoneWorldMatrixArrayLocation);
+    LOGI("mBoneWorldTranslateMatrixArrayLocation = %d\n", mBoneWorldModelMatrixArrayLocation);
     LOGI("mBoneOffsetMatrixArrayLocation = %d\n", mBoneOffsetMatrixArrayLocation);
 
 
@@ -185,25 +185,25 @@ void Shader::BindBoneInfo(VertexBuffer *vb)
 
     //----------------------------------------------
     // 所有骨骼的信息：ID、worldMatrix、OffsetMatrix
-    LOGI("mBoneIndexArrayLocation = %d\n", mBoneIndexArrayLocation);
-    LOGI("vb->mBoneIndexArray[0] = %d\n", vb->mBoneIndexArray[0]);
-    LOGI("vb->mBoneIndexArray[1] = %d\n", vb->mBoneIndexArray[1]);
-    LOGI("vb->mBoneIndexArray[2] = %d\n", vb->mBoneIndexArray[2]);
-    LOGI("vb->mBoneIndexArray[3] = %d\n", vb->mBoneIndexArray[3]);
-    LOGI("vb->mBoneIndexArray[4] = %d\n", vb->mBoneIndexArray[4]);
+//    LOGI("mBoneIndexArrayLocation = %d\n", mBoneIndexArrayLocation);
+//    LOGI("vb->mBoneIndexArray[0] = %d\n", vb->mBoneIndexArray[0]);
+//    LOGI("vb->mBoneIndexArray[1] = %d\n", vb->mBoneIndexArray[1]);
+//    LOGI("vb->mBoneIndexArray[2] = %d\n", vb->mBoneIndexArray[2]);
+//    LOGI("vb->mBoneIndexArray[3] = %d\n", vb->mBoneIndexArray[3]);
+//    LOGI("vb->mBoneIndexArray[4] = %d\n", vb->mBoneIndexArray[4]);
     glUniform1iv(mBoneIndexArrayLocation,
             // How many matrices to pass
                  vb->mBoneIndexArray.size(),
             // Pointer to the first element of the matrix
                  &(vb->mBoneIndexArray[0]));
 
-    glUniformMatrix4fv(mBoneWorldMatrixArrayLocation,
+    glUniformMatrix4fv(mBoneWorldModelMatrixArrayLocation,
             // How many matrices to pass
-                                vb->mBoneWorldMatrixArray.size(),
+                                vb->mBoneWorldModelMatrixArray.size(),
             // Transpose the matrix? OpenGL uses column-major, so no.
                                 GL_FALSE,
             // Pointer to the first element of the matrix
-                                &(vb->mBoneWorldMatrixArray[0][0][0]));
+                                &(vb->mBoneWorldModelMatrixArray[0][0][0]));
 
     glUniformMatrix4fv(mBoneOffsetMatrixArrayLocation,
             // How many matrices to pass
@@ -212,6 +212,7 @@ void Shader::BindBoneInfo(VertexBuffer *vb)
                        GL_FALSE,
             // Pointer to the first element of the matrix
                        &(vb->mBoneOffsetMatrixArray[0][0][0]));
+
 }
 
 void Shader::SetTexture(const char *name, const char *imagePath)

@@ -26,7 +26,8 @@ class Bone
 {
 public:
 	Bone();
-    Bone(float x, float y, float z); 
+    void setPosition(float x, float y, float z);
+    void setRotation(float angle, float x, float y, float z);
 
     ~Bone(); 
 
@@ -38,11 +39,19 @@ public:
     void SetFirstChild(Bone* pChild);
     void SetSibling(Bone* pSibling); 
 
-    glm::mat4 mLocalMatrix;
-    glm::mat4 mWorldMatrix;
+    glm::mat4 mLocalTranslateMatrix;
+//    glm::mat4 mWorldTranslateMatrix;
 
-    //give father's world pos, compute the bone's world pos
-    void ComputeWorldPos(glm::mat4 mat4);
+    glm::mat4 mLocalRotationMatrix;
+//    glm::mat4 mWorldRotationMatrix;
+
+    glm::mat4 mLocalModelMatrix;
+    glm::mat4 mWorldModelMatrix;
+
+    //give father's world model matrix, compute the bone's model matrix
+    void ComputeWorldModelMatrix(glm::mat4 fatherT, glm::mat4 fatherR);
+    void ComputeWorldModelMatrix(glm::mat4 &fatherModelMatrix);
+    glm::mat4 &GetLocalModelMatrix();
 
     BoneOffset m_boneOffset;
 

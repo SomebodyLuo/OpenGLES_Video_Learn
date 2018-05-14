@@ -22,7 +22,8 @@ public:
 
 	void Init(AAssetManager *assetManager, const char *modelPath);
 
-	void ComputeWorldPos(glm::mat4 father);
+    void ComputeWorldModelMatrix(glm::mat4 fatherModelMatrix);
+
 	void retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb);
 	void UpdateMatrices();
 

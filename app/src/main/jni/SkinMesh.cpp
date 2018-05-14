@@ -42,7 +42,7 @@ void SkinMesh::DrawStaticMesh(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
     mShader->SetVec4("U_PointColor", 0.2f, 0.9f, 0.2f, 1.0f);
 //    mShader->SetVec4("U_Bool", 1.0f, 0.0f, 0.0f, 0.0f);
 
-    glm::mat4 identityMat = glm::translate(-0.1f, -0.1f, 0.0f);
+    glm::mat4 identityMat = glm::mat4();//glm::translate(-0.1f, -0.1f, 0.0f);
     mShader->BindMVP(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix),
                      glm::value_ptr(projectionMatrix));
 
@@ -93,7 +93,8 @@ void SkinMesh::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec
 
 }
 
-float time1 = 0;
+float time1 = 0.0f;
+float angle = 0.0f;
 void SkinMesh::animateBones()
 {
 
@@ -103,17 +104,26 @@ void SkinMesh::animateBones()
         time1 = 0;
     }
     if(glm::sin(time1) > 0){
-        g_bone1->mLocalMatrix = glm::mul(glm::translate(0.0f,0.01f,0.0f), g_bone1->mLocalMatrix);
-        g_boneRoot->mLocalMatrix = glm::mul(glm::translate(0.01f,0.0f,0.0f), g_boneRoot->mLocalMatrix);
+//        g_bone1->mLocalTranslateMatrix = glm::mul(glm::translate(0.0f,0.01f,0.0f), g_bone1->mLocalTranslateMatrix);
+        //g_boneRoot->mLocalTranslateMatrix = glm::mul(glm::translate(0.01f,0.0f,0.0f), g_boneRoot->mLocalTranslateMatrix);
     }else{
-        g_bone1->mLocalMatrix = glm::mul(glm::translate(0.0f,-0.01f,0.0f), g_bone1->mLocalMatrix);
-        g_boneRoot->mLocalMatrix = glm::mul(glm::translate(-0.01f,0.0f,0.0f), g_boneRoot->mLocalMatrix);
+//        g_bone1->mLocalTranslateMatrix = glm::mul(glm::translate(0.0f,-0.01f,0.0f), g_bone1->mLocalTranslateMatrix);
+        //g_boneRoot->mLocalTranslateMatrix = glm::mul(glm::translate(-0.01f,0.0f,0.0f), g_boneRoot->mLocalTranslateMatrix);
     }
+
+    angle += 0.001f;
+    if(angle == 360.0f)
+    {
+        angle = 0.0f;
+    }
+    g_boneRoot->mLocalRotationMatrix = glm::mul(glm::rotate(angle, 0.0f, 0.0f, 1.0f), g_boneRoot->mLocalRotationMatrix);
+
 }
 
-void SkinMesh::ComputeWorldPos(glm::mat4 father)
+
+void SkinMesh::ComputeWorldModelMatrix(glm::mat4 fatherModelMatrix)
 {
-    g_boneRoot->ComputeWorldPos(father);
+    g_boneRoot->ComputeWorldModelMatrix(fatherModelMatrix);
 }
 
 void SkinMesh::retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb)
@@ -121,7 +131,7 @@ void SkinMesh::retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb)
     for (int i = 0; i < vb->mBoneIndexArray.size(); ++i) {
         if(pBone->mBoneIndex == vb->mBoneIndexArray[i])
         {
-            vb->mBoneWorldMatrixArray[i] = pBone->mWorldMatrix;
+            vb->mBoneWorldModelMatrixArray[i] = pBone->mWorldModelMatrix;
             vb->mBoneOffsetMatrixArray[i] = pBone->m_boneOffset.mOffsetMatrix;
         }
     }
@@ -214,12 +224,25 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     mShaderDynamic->SetVec4("U_PointColor", 0.6f, 0.6f, 0.6f, 1.0f);
 
     //=======================3===================
-    g_boneRoot = new Bone(0, 0, 0);
+    g_boneRoot = new Bone();
+    g_boneRoot->setPosition(0, 0, 0);
+    g_boneRoot->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
 
-    g_bone1 = new Bone(0.2, 0, 0);
-    g_bone2 = new Bone(0.2, 0, 0);
-    g_bone31 = new Bone(0.2, 0.1, 0);
-    g_bone32 = new Bone(0.2, -0.1, 0);
+    g_bone1 = new Bone();
+    g_bone1->setPosition(0.2, 0, 0);
+    g_bone1->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
+
+    g_bone2 = new Bone();
+    g_bone2->setPosition(0.2, 0, 0);
+    g_bone2->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
+
+    g_bone31 = new Bone();
+    g_bone31->setPosition(0.2, 0.1, 0);
+    g_bone31->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
+
+    g_bone32 = new Bone();
+    g_bone32->setPosition(0.2, -0.1, 0);
+    g_bone32->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
 
     g_boneRoot->SetFirstChild(g_bone1);
     g_bone1->SetFirstChild(g_bone2);
@@ -316,7 +339,7 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     mVertexBuffer->mBoneIndexArray[2] = 2;
     mVertexBuffer->mBoneIndexArray[3] = 31;
     mVertexBuffer->mBoneIndexArray[4] = 32;
-    mVertexBuffer->mBoneWorldMatrixArray.resize(5);
+    mVertexBuffer->mBoneWorldModelMatrixArray.resize(5);
     mVertexBuffer->mBoneOffsetMatrixArray.resize(5);
 
     LOGI("mVertexBuffer->mBoneIndexArray.size = %d\n", mVertexBuffer->mBoneIndexArray.size());
@@ -329,7 +352,7 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
 
     //compute bone offset
 
-    g_boneRoot->ComputeWorldPos(glm::mat4());
+    ComputeWorldModelMatrix(glm::mat4());
 
     g_boneRoot->ComputeBoneOffset();
 
