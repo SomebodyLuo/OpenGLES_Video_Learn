@@ -6,7 +6,6 @@
 #define GLDEMO_VERTEXBUFFER_H
 
 #include "ggl.h"
-#include "Bone.h"
 #include "BoneInfo.h"
 
 class VertexData
@@ -16,22 +15,8 @@ public:
     float Color[4];
     float Texcoord[4];
     float Normal[4];
+    float meshId;
 
-    //----------------------------------------------------------------------
-    float BoneNumber[4];
-    float BoneIdArray[4];
-    float BoneWeightArray[4];
-
-    float BoneWorldMatrix[4][16];
-//    float BoneWorldMatrix1[16];
-//    float BoneWorldMatrix2[16];
-//    float BoneWorldMatrix3[16];
-
-    float BoneOffsetMatrix[4][16];
-//    float BoneOffsetMatrix1[16];
-//    float BoneOffsetMatrix2[16];
-//    float BoneOffsetMatrix3[16];
-    //----------------------------------------------------------------------
 };
 
 class VertexBuffer
@@ -40,7 +25,18 @@ public:
     int mVertexCount;
     VertexData *mVertexes;
     BoneInfo *mBoneInfo;
-    glm::mat4 *mVertexMoveMatrix;
+
+    //----------------------------------------------------------------------------------------------
+    // 每个顶点拥有的骨骼数量、骨骼ID、骨骼权重
+    std::vector<int> mBoneCountsArray;
+    std::vector<glm::ivec4> mBoneIdsArray;
+    std::vector<glm::vec4> mBoneWeightArray;
+
+    // 所有骨骼的信息：ID、worldMatrix、OffsetMatrix
+    std::vector<int> mBoneIndexArray;
+    std::vector<glm::mat4> mBoneWorldMatrixArray;
+    std::vector<glm::mat4> mBoneOffsetMatrixArray;
+    //----------------------------------------------------------------------------------------------
 
     GLuint mVBO;
 
@@ -52,6 +48,7 @@ public:
     void SetColor(int index, float r, float g, float b, float a = 1.0f);
     void SetTexcoord(int index, float x, float y);
     void SetNormal(int index, float x, float y, float z);
+    void SetMeshInfoId(int index);
 
     int GetByteSize();
 

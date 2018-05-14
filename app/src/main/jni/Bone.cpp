@@ -49,7 +49,6 @@ void Bone::ComputeWorldPos(glm::mat4 father)
 
 }
 
-
 //called after compute world pos when bone loaded but not animated
 void Bone::ComputeBoneOffset()
 {

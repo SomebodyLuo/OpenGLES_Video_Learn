@@ -40,7 +40,8 @@ void ParticleSystem::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
 
     mVertexBuffer->Bind();
 
-    mShader->Bind(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+    mShader->BindMVP(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix),
+                     glm::value_ptr(projectionMatrix));
 
     glDrawArrays(GL_POINTS, 0, mVertexBuffer->mVertexCount);
 

@@ -6,6 +6,7 @@
 #define GLDEMO_SHADER_H
 
 #include "ggl.h"
+#include "vertexbuffer.h"
 
 struct UniformTexture
 {
@@ -43,20 +44,16 @@ public:
     std::map<std::string, UniformTexture *> mUniformTextures;
     std::map<std::string, UniformVector4f *> mUniformVec4s;
 
-    GLint mPositionLocation, mColorLocation, mTexcoordLocation, mNormalLocation;
+    GLint mPositionLocation, mColorLocation, mTexcoordLocation, mNormalLocation, mMeshInfoIdLocation;
     GLint mModelMatrixLocation, mViewMatrixLocation, mProjectionMatrixLocation;
 
-    //----------------------------------------------------------------------
-    GLint mBoneNumLocation, mBoneIdArrayLocation, mBoneWeightArrayLocation;
-    GLint mBoneWorldMatrixLocation0, mBoneWorldMatrixLocation1, mBoneWorldMatrixLocation2, mBoneWorldMatrixLocation3;
-    GLint mBoneOffsetMatrixLocation0, mBoneOffsetMatrixLocation1, mBoneOffsetMatrixLocation2, mBoneOffsetMatrixLocation3;
-    //----------------------------------------------------------------------
-
-//    GLint mVertexMoveMatrixLocation;
+    GLint mBoneCountsLocation, mBoneIdsArrayLocation, mBoneWeightArrayLocation;
+    GLint mBoneIndexArrayLocation, mBoneWorldMatrixArrayLocation, mBoneOffsetMatrixArrayLocation;
 
     bool Init(AAssetManager *assetManager, const char*vs, const char *fs);
-    void Bind(float *M, float *V, float *P);
-//    void Bind(float *M, float *V, float *P, float *VM);
+    void Bind(float *M, float *V, float *P, VertexBuffer *vb);
+    void BindMVP(float *M, float *V, float *P);
+    void BindBoneInfo(VertexBuffer *vb);
 
     void SetTexture(const char *name, const char *imagePath);
     void SetTexture(const char *name, GLuint texture);

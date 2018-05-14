@@ -182,7 +182,8 @@ void Model::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &
     // 解决缩放不一致，导致法线不垂直的问题
     glm::mat4 it = glm::inverse(mModelMatrix);
 
-    mShader->Bind(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+    mShader->BindMVP(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix),
+                     glm::value_ptr(projectionMatrix));
     glUniformMatrix4fv(glGetUniformLocation(mShader->mProgram, "IT_ModelMatrix"), 1, GL_FALSE, glm::value_ptr(it));
 
     glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer->mVertexCount);

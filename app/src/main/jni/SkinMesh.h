@@ -3,6 +3,7 @@
 #include "vertexbuffer.h"
 #include "shader.h"
 
+
 class SkinMesh
 {
 public:
@@ -14,7 +15,6 @@ public:
     int m_vertexNum;
 
 	VertexBuffer *mVertexBuffer;
-	VertexBuffer *mAfterVertexBuffer;
 
 	Shader *mShader;
 
@@ -22,7 +22,9 @@ public:
 
 	void Init(AAssetManager *assetManager, const char *modelPath);
 
-	void UpdateVertices();
+	void ComputeWorldPos(glm::mat4 father);
+	void retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb);
+	void UpdateMatrices();
 
 	void DrawStaticMesh(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos);
 	void Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos);

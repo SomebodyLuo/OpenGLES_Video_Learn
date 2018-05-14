@@ -10,7 +10,21 @@ VertexBuffer::VertexBuffer()
     mVBO = 0;
     mVertexCount = 0;
     mVertexes = nullptr;
-    mVertexMoveMatrix = nullptr;
+
+    mBoneCountsArray.clear();
+    mBoneCountsArray.reserve(100);
+    mBoneIdsArray.clear();
+    mBoneIdsArray.reserve(100);
+    mBoneWeightArray.clear();
+    mBoneWeightArray.reserve(100);
+
+    mBoneIndexArray.clear();
+    mBoneIndexArray.reserve(10);
+    mBoneWorldMatrixArray.clear();
+    mBoneWorldMatrixArray.reserve(10);
+    mBoneOffsetMatrixArray.clear();
+    mBoneOffsetMatrixArray.reserve(10);
+
 }
 
 VertexBuffer::~VertexBuffer()
@@ -20,10 +34,6 @@ VertexBuffer::~VertexBuffer()
         delete[] mVertexes;
     }
 
-    if(nullptr != mVertexMoveMatrix)
-    {
-        delete[] mVertexMoveMatrix;
-    }
 }
 
 void VertexBuffer::SetSize(int vertexCount)
@@ -35,7 +45,6 @@ void VertexBuffer::SetSize(int vertexCount)
 
     mBoneInfo = new BoneInfo[mVertexCount];
 
-    mVertexMoveMatrix = new glm::mat4[mVertexCount];
 
     // 初始化VBO, 可以先不指定数据
     mVBO = CreateBufferObject(GL_ARRAY_BUFFER, GetByteSize(), GL_STATIC_DRAW, nullptr);
@@ -87,6 +96,17 @@ void VertexBuffer::SetNormal(int index, float x, float y, float z)
     mVertexes[index].Normal[2] = z;
 }
 
+void VertexBuffer::SetMeshInfoId(int index)
+{
+    if (index < 0 || index >= mVertexCount)
+    {
+        return;
+    }
+
+    mVertexes[index].meshId = index;
+
+}
+
 int VertexBuffer::GetByteSize()
 {
     return (sizeof(VertexData) * mVertexCount);
@@ -122,38 +142,20 @@ VertexData & VertexBuffer::GetVertex(int index)
 // skin info
 void VertexBuffer::BlendVertex(int vertexIndex,VertexBuffer* afterVertexBuffer)
 {
+#if 0
     for(int i=0; i < mBoneInfo[vertexIndex].m_boneNum; ++i)
     {
-#if 0
         print_mat(mBoneInfo[vertexIndex].m_bones[i]->mWorldMatrix);
         memcpy(&(mVertexes->BoneWorldMatrix[i]), glm::value_ptr(mBoneInfo[vertexIndex].m_bones[i]->mWorldMatrix), sizeof(float) * 16);
         print_array(mVertexes->BoneWorldMatrix[i]);
 
-#else
-        mVertexes->BoneWorldMatrix[i][0]    = 0.2f;
-        mVertexes->BoneWorldMatrix[i][1]    = 0.2f;
-        mVertexes->BoneWorldMatrix[i][2]    = 0.2f;
-        mVertexes->BoneWorldMatrix[i][3]    = 0.2f;
-        mVertexes->BoneWorldMatrix[i][4]    = 0.2f;
-        mVertexes->BoneWorldMatrix[i][5]    = 0.2f;
-        mVertexes->BoneWorldMatrix[i][6]    = 0.2f;
-        mVertexes->BoneWorldMatrix[i][7]    = 0.2f;
-        mVertexes->BoneWorldMatrix[i][8]    = 0.2f;
-        mVertexes->BoneWorldMatrix[i][9]    = 0.2f;
-        mVertexes->BoneWorldMatrix[i][10]   = 0.2f;
-        mVertexes->BoneWorldMatrix[i][11]   = 0.2f;
-        mVertexes->BoneWorldMatrix[i][12]   = 0.2f;
-        mVertexes->BoneWorldMatrix[i][13]   = 0.2f;
-        mVertexes->BoneWorldMatrix[i][14]   = 0.2f;
-        mVertexes->BoneWorldMatrix[i][15]   = 0.2f;
-#endif
 
         LOGE("-----------------------------\n");
         print_mat(mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix);
         memcpy(mVertexes->BoneOffsetMatrix[i], glm::value_ptr(mBoneInfo[vertexIndex].m_bones[i]->m_boneOffset.mOffsetMatrix), sizeof(float) * 16);
         print_array(mVertexes->BoneOffsetMatrix[i]);
     }
-#if 0
+
     //do the vertex blending,get the vertex's pos in world space
     glm::vec4 vAfterVc = glm::vec4();
     for(int i=0; i < mBoneInfo[vertexIndex].m_boneNum; ++i)

@@ -40,7 +40,7 @@ void InitGL(AAssetManager *assetManager)
     std::vector<glm::vec3> joint_pos;
     std::vector<glm::quat> joint_rot;
     std::vector<int> joint_parent_ID;
-    ParseJsonFile(assetManager, "Res/test.json", joint_name, joint_pos, joint_rot, joint_parent_ID);
+    ParseJsonFile(assetManager, "Res/cow.json", joint_name, joint_pos, joint_rot, joint_parent_ID);
 
     viewMatrix = glm::lookAt(cameraPos, glm::vec3(0.5f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -63,7 +63,6 @@ void InitGL(AAssetManager *assetManager)
 
     // 粒子系统
     ps.Init(assetManager, 0.0f, 0.0f, 0.0f);
-
 
 
     // 骨骼动画

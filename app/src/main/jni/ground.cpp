@@ -72,7 +72,8 @@ void Ground::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix)
     // 注意代码顺序, VBO的Bind必须在Shader的Bind之前，否则Shader无数据可用！
     mVertexBuffer->Bind();
 
-    mShader->Bind(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+    mShader->BindMVP(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix),
+                     glm::value_ptr(projectionMatrix));
 
     // 绘制400个小方块
     for (int i = 0; i < 400; ++i) {

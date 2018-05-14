@@ -21,21 +21,12 @@ SkinMesh::~SkinMesh(void)
     delete g_bone32;
 
     delete[] mVertexBuffer;
-    delete[] mAfterVertexBuffer;
     delete mShader;
     delete mShaderDynamic;
 
 }
  
 
-void SkinMesh::UpdateVertices()
-{
-
-    for(int i=0; i<m_vertexNum; ++i)
-    {
-        mVertexBuffer->BlendVertex(i, mAfterVertexBuffer);
-    }
-}
 
 
 
@@ -52,7 +43,8 @@ void SkinMesh::DrawStaticMesh(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
 //    mShader->SetVec4("U_Bool", 1.0f, 0.0f, 0.0f, 0.0f);
 
     glm::mat4 identityMat = glm::translate(-0.1f, -0.1f, 0.0f);
-    mShader->Bind(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+    mShader->BindMVP(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix),
+                     glm::value_ptr(projectionMatrix));
 
     // draw points
     // add vertex shader: gl_PointSize = 8.0;
@@ -78,11 +70,10 @@ void SkinMesh::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec
     glEnable(GL_DEPTH_TEST);
     mVertexBuffer->Bind();
 
-//    mShaderDynamic->SetVec4("U_PointColor", 0.9f, 0.2f, 0.2f, 1.0f);
-//    mShaderDynamic->SetVec4("U_Bool", 0.0f, 0.0f, 0.0f, 0.0f);
+    mShaderDynamic->SetVec4("U_PointColor", 0.9f, 0.2f, 0.2f, 1.0f);
 
     glm::mat4 identityMat = glm::mat4();
-    mShaderDynamic->Bind(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+    mShaderDynamic->Bind(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix), mVertexBuffer);
 
     // draw points
     // add vertex shader: gl_PointSize = 8.0;
@@ -120,6 +111,32 @@ void SkinMesh::animateBones()
     }
 }
 
+void SkinMesh::ComputeWorldPos(glm::mat4 father)
+{
+    g_boneRoot->ComputeWorldPos(father);
+}
+
+void SkinMesh::retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb)
+{
+    for (int i = 0; i < vb->mBoneIndexArray.size(); ++i) {
+        if(pBone->mBoneIndex == vb->mBoneIndexArray[i])
+        {
+            vb->mBoneWorldMatrixArray[i] = pBone->mWorldMatrix;
+            vb->mBoneOffsetMatrixArray[i] = pBone->m_boneOffset.mOffsetMatrix;
+        }
+    }
+
+    if(pBone->m_pSibling != NULL)
+        retrieveBoneMatrices(pBone->m_pSibling, vb);
+
+    if(pBone->m_pFirstChild != NULL)
+        retrieveBoneMatrices(pBone->m_pFirstChild, vb);
+}
+
+void SkinMesh::UpdateMatrices()
+{
+    retrieveBoneMatrices(g_boneRoot, mVertexBuffer);
+}
 
 
 //==================================================================================================
@@ -176,13 +193,10 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     mVertexBuffer->SetSize(m_vertexNum);
     for (int i = 0; i < m_vertexNum; ++i) {
         mVertexBuffer->SetPosition(i, _meshData[i*3], _meshData[i*3 + 1], _meshData[i*3 + 2]);
+        mVertexBuffer->SetColor(i, 0.9f, 0.6f, 0.1f);
+        mVertexBuffer->SetMeshInfoId(i);
     }
 
-    mAfterVertexBuffer = new VertexBuffer();
-    mAfterVertexBuffer->SetSize(m_vertexNum);
-    for (int i = 0; i < m_vertexNum; ++i) {
-        mAfterVertexBuffer->SetPosition(i, _meshData[i*3], _meshData[i*3 + 1], _meshData[i*3 + 2]);
-    }
     LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
 
     //=======================2===================
@@ -191,25 +205,13 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     mShader->Init(assetManager, "Res/skeleton.vs", "Res/skeleton.fs");
 
     // 光照
-    mShader->SetVec4("U_LightPos", 0.0f, 20.0f, 0.0f, 0.0f);
-    mShader->SetVec4("U_LightAmbient", 1.0f, 1.0f, 1.0f, 1.0f);
-    mShader->SetVec4("U_AmbientMaterial", 0.1f, 0.1f, 0.1f, 1.0f);
-    mShader->SetVec4("U_LightDiffuse", 1.0f, 1.0f, 1.0f, 1.0f);
-    mShader->SetVec4("U_DiffuseMaterial", 0.6f, 0.6f, 0.6f, 1.0f);
     mShader->SetVec4("U_PointColor", 0.6f, 0.6f, 0.6f, 1.0f);
-    mShader->SetVec4("U_Bool", 1.0f, 0.0f, 0.0f, 0.0f);
 
     mShaderDynamic = new Shader;
     mShaderDynamic->Init(assetManager, "Res/skeleton_dynamic.vs", "Res/skeleton_dynamic.fs");
 
     // 光照
-    mShaderDynamic->SetVec4("U_LightPos", 0.0f, 20.0f, 0.0f, 0.0f);
-    mShaderDynamic->SetVec4("U_LightAmbient", 1.0f, 1.0f, 1.0f, 1.0f);
-    mShaderDynamic->SetVec4("U_AmbientMaterial", 0.1f, 0.1f, 0.1f, 1.0f);
-    mShaderDynamic->SetVec4("U_LightDiffuse", 1.0f, 1.0f, 1.0f, 1.0f);
-    mShaderDynamic->SetVec4("U_DiffuseMaterial", 0.6f, 0.6f, 0.6f, 1.0f);
     mShaderDynamic->SetVec4("U_PointColor", 0.6f, 0.6f, 0.6f, 1.0f);
-    mShaderDynamic->SetVec4("U_Bool", 1.0f, 0.0f, 0.0f, 0.0f);
 
     //=======================3===================
     g_boneRoot = new Bone(0, 0, 0);
@@ -260,19 +262,6 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
 
     };
 
-    for (int i = 0; i < m_vertexNum; ++i) {
-        mVertexBuffer->mVertexes[i].BoneNumber[0] = _skinInfo[i*9];
-        mVertexBuffer->mVertexes[i].BoneIdArray[0] = _skinInfo[i * 9 + 1];
-        mVertexBuffer->mVertexes[i].BoneIdArray[1] = _skinInfo[i * 9 + 2];
-        mVertexBuffer->mVertexes[i].BoneIdArray[2] = _skinInfo[i * 9 + 3];
-        mVertexBuffer->mVertexes[i].BoneIdArray[3] = _skinInfo[i * 9 + 4];
-        mVertexBuffer->mVertexes[i].BoneWeightArray[0] = _skinInfo[i * 9 + 5];
-        mVertexBuffer->mVertexes[i].BoneWeightArray[1] = _skinInfo[i * 9 + 6];
-        mVertexBuffer->mVertexes[i].BoneWeightArray[2] = _skinInfo[i * 9 + 7];
-        mVertexBuffer->mVertexes[i].BoneWeightArray[3] = _skinInfo[i * 9 + 8];
-    }
-
-    //set skin info
     for(int i=0; i<m_vertexNum; ++i)
     {
         mVertexBuffer->mBoneInfo[i].m_boneNum = _skinInfo[i*9];
@@ -280,22 +269,63 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
         for(int j=0; j < mVertexBuffer->mBoneInfo[i].m_boneNum; ++j)
         {
             Bone* pBone = g_boneRoot;
+            pBone->mBoneIndex = 0;
 
             if(_skinInfo[ i*9 + 1 + j] == 1)
+            {
                 pBone = g_bone1;
-
+                pBone->mBoneIndex = 1;
+            }
             else if(_skinInfo[ i*9 + 1 + j] == 2)
+            {
                 pBone = g_bone2;
-
-            else if(_skinInfo[i*9+1+j]==31)
+                pBone->mBoneIndex = 2;
+            }
+            else if(_skinInfo[i*9 + 1 + j] == 31)
+            {
                 pBone = g_bone31;
-
-            else if(_skinInfo[i*9+1+j]==32)
+                pBone->mBoneIndex = 31;
+            }
+            else if(_skinInfo[i*9 + 1 + j] == 32)
+            {
                 pBone = g_bone32;
+                pBone->mBoneIndex = 32;
+            }
 
             mVertexBuffer->mBoneInfo[i].SetBoneAndWeight(j, pBone, _skinInfo[i*9 + 5 + j]);
         }
     }
+
+    mVertexBuffer->mBoneCountsArray.resize(m_vertexNum);
+    mVertexBuffer->mBoneIdsArray.resize(m_vertexNum);
+    mVertexBuffer->mBoneWeightArray.resize(m_vertexNum);
+    for(int i = 0; i < m_vertexNum; ++i)
+    {
+        mVertexBuffer->mBoneCountsArray[i] = _skinInfo[i*9];
+
+        // 假设每个顶点拥有的骨骼数量不超过4个
+        for(int j = 0; j < mVertexBuffer->mBoneCountsArray[i]; ++j)
+        {
+            mVertexBuffer->mBoneIdsArray[i][j] = _skinInfo[i*9 + 1 + j];
+            mVertexBuffer->mBoneWeightArray[i][j] = _skinInfo[i*9 + 5 + j];
+        }
+    }
+    mVertexBuffer->mBoneIndexArray.resize(5);
+    mVertexBuffer->mBoneIndexArray[0] = 0;
+    mVertexBuffer->mBoneIndexArray[1] = 1;
+    mVertexBuffer->mBoneIndexArray[2] = 2;
+    mVertexBuffer->mBoneIndexArray[3] = 31;
+    mVertexBuffer->mBoneIndexArray[4] = 32;
+    mVertexBuffer->mBoneWorldMatrixArray.resize(5);
+    mVertexBuffer->mBoneOffsetMatrixArray.resize(5);
+
+    LOGI("mVertexBuffer->mBoneIndexArray.size = %d\n", mVertexBuffer->mBoneIndexArray.size());
+    LOGI("mVertexBuffer->mBoneIndexArray.capacity = %d\n", mVertexBuffer->mBoneIndexArray.capacity());
+    LOGI("mVertexBuffer->mBoneIndexArray[0] = %d\n", mVertexBuffer->mBoneIndexArray[0]);
+    LOGI("mVertexBuffer->mBoneIndexArray[1] = %d\n", mVertexBuffer->mBoneIndexArray[1]);
+    LOGI("mVertexBuffer->mBoneIndexArray[2] = %d\n", mVertexBuffer->mBoneIndexArray[2]);
+    LOGI("mVertexBuffer->mBoneIndexArray[3] = %d\n", mVertexBuffer->mBoneIndexArray[3]);
+    LOGI("mVertexBuffer->mBoneIndexArray[4] = %d\n", mVertexBuffer->mBoneIndexArray[4]);
 
     //compute bone offset
 

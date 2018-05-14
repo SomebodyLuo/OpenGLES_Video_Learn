@@ -4,7 +4,6 @@
 
 #include "shader.h"
 #include "utils.h"
-#include "vertexbuffer.h"
 
 Shader::Shader()
 {
@@ -15,29 +14,12 @@ Shader::Shader()
     mColorLocation = -1;
     mNormalLocation = -1;
     mTexcoordLocation = -1;
-
-    //----------------------------------------------------------------------
-    mBoneNumLocation = -1;
-    mBoneIdArrayLocation = -1;
-    mBoneWeightArrayLocation = -1;
-
-    mBoneWorldMatrixLocation0 = -1;
-    mBoneWorldMatrixLocation1 = -1;
-    mBoneWorldMatrixLocation2 = -1;
-    mBoneWorldMatrixLocation3 = -1;
-
-    mBoneOffsetMatrixLocation0 = -1;
-    mBoneOffsetMatrixLocation1 = -1;
-    mBoneOffsetMatrixLocation2 = -1;
-    mBoneOffsetMatrixLocation3 = -1;
-
-    //----------------------------------------------------------------------
+    mMeshInfoIdLocation = -1;
 
     mModelMatrixLocation = -1;
     mViewMatrixLocation = -1;
     mProjectionMatrixLocation = -1;
 
-//    mVertexMoveMatrixLocation = -1;
 }
 
 bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
@@ -95,35 +77,38 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     mColorLocation = glGetAttribLocation(mProgram, "color");
     mTexcoordLocation = glGetAttribLocation(mProgram, "texcoord");
     mNormalLocation = glGetAttribLocation(mProgram, "normal");
-
-    //----------------------------------------------------------------------
-    mBoneNumLocation = glGetAttribLocation(mProgram, "boneNum");
-    mBoneIdArrayLocation = glGetAttribLocation(mProgram, "boneIdArray");
-    mBoneWeightArrayLocation = glGetAttribLocation(mProgram, "boneWeightArray");
-
-    mBoneWorldMatrixLocation0 = glGetAttribLocation(mProgram, "boneWorldMatrix0");
-    mBoneWorldMatrixLocation1 = glGetAttribLocation(mProgram, "boneWorldMatrix1");
-    mBoneWorldMatrixLocation2 = glGetAttribLocation(mProgram, "boneWorldMatrix2");
-    mBoneWorldMatrixLocation3 = glGetAttribLocation(mProgram, "boneWorldMatrix3");
-
-    mBoneOffsetMatrixLocation0 = glGetAttribLocation(mProgram, "boneOffsetMatrix0");
-    mBoneOffsetMatrixLocation1 = glGetAttribLocation(mProgram, "boneOffsetMatrix1");
-    mBoneOffsetMatrixLocation2 = glGetAttribLocation(mProgram, "boneOffsetMatrix2");
-    mBoneOffsetMatrixLocation3 = glGetAttribLocation(mProgram, "boneOffsetMatrix3");
-
-    //----------------------------------------------------------------------
+    mMeshInfoIdLocation = glGetAttribLocation(mProgram, "meshInfoId");
+    LOGI("mMeshInfoIdLocation = %d\n", mMeshInfoIdLocation);
 
     mModelMatrixLocation = glGetUniformLocation(mProgram, "ModelMatrix");
     mViewMatrixLocation = glGetUniformLocation(mProgram, "ViewMatrix");
     mProjectionMatrixLocation = glGetUniformLocation(mProgram, "ProjectionMatrix");
 
-//    mVertexMoveMatrixLocation = glGetUniformLocation(mProgram, "VertexMoveMatrix");
+    mBoneCountsLocation = glGetUniformLocation(mProgram, "boneCounts");
+    mBoneIdsArrayLocation = glGetUniformLocation(mProgram, "boneIdsArray");
+    mBoneWeightArrayLocation = glGetUniformLocation(mProgram, "boneWeightArray");
+    LOGI("mBoneCountsLocation = %d\n", mBoneCountsLocation);
+    LOGI("mBoneIdsArrayLocation = %d\n", mBoneIdsArrayLocation);
+    LOGI("mBoneWeightArrayLocation = %d\n", mBoneWeightArrayLocation);
+
+    mBoneIndexArrayLocation = glGetUniformLocation(mProgram, "boneIndexArray");
+    mBoneWorldMatrixArrayLocation = glGetUniformLocation(mProgram, "boneWorldMatrixArray");
+    mBoneOffsetMatrixArrayLocation = glGetUniformLocation(mProgram, "boneOffsetMatrixArray");
+    LOGI("mBoneIndexArrayLocation = %d\n", mBoneIndexArrayLocation);
+    LOGI("mBoneWorldMatrixArrayLocation = %d\n", mBoneWorldMatrixArrayLocation);
+    LOGI("mBoneOffsetMatrixArrayLocation = %d\n", mBoneOffsetMatrixArrayLocation);
+
 
     return true;
 }
 
-//void Shader::Bind(float *M, float *V, float *P, float *VM)
-void Shader::Bind(float *M, float *V, float *P)
+void Shader::Bind(float *M, float *V, float *P, VertexBuffer *vb)
+{
+    BindMVP(M, V, P);
+    BindBoneInfo(vb);
+}
+
+void Shader::BindMVP(float *M, float *V, float *P)
 {
     if (0 == mProgram)
     {
@@ -147,7 +132,7 @@ void Shader::Bind(float *M, float *V, float *P)
         glActiveTexture(GL_TEXTURE0 + index);
         glBindTexture(GL_TEXTURE_2D, iter->second->mTexture);
         glUniform1i(iter->second->mLocation, index);
-//        LOGI("Bind: t->mLocation = %d; t->mTexture = %u", iter->second->mLocation, iter->second->mTexture);
+//        LOGI("BindMVP: t->mLocation = %d; t->mTexture = %u", iter->second->mLocation, iter->second->mTexture);
         index++;
     }
 
@@ -170,35 +155,63 @@ void Shader::Bind(float *M, float *V, float *P)
     glEnableVertexAttribArray(mNormalLocation);
     glVertexAttribPointer(mNormalLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 12));
 
-    //----------------------------------------------------------------------
-    glEnableVertexAttribArray(mBoneNumLocation);
-    glVertexAttribPointer(mBoneNumLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 16));
+    glEnableVertexAttribArray(mMeshInfoIdLocation);
+    glVertexAttribPointer(mMeshInfoIdLocation, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 16));
 
-    glEnableVertexAttribArray(mBoneIdArrayLocation);
-    glVertexAttribPointer(mBoneIdArrayLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 20));
+}
 
-    glEnableVertexAttribArray(mBoneWeightArrayLocation);
-    glVertexAttribPointer(mBoneWeightArrayLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 24));
+void Shader::BindBoneInfo(VertexBuffer *vb)
+{
 
-    glEnableVertexAttribArray(mBoneWorldMatrixLocation0);
-    glVertexAttribPointer(mBoneWorldMatrixLocation0, 16, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 28));
-    glEnableVertexAttribArray(mBoneWorldMatrixLocation1);
-    glVertexAttribPointer(mBoneWorldMatrixLocation1, 16, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 44));
-    glEnableVertexAttribArray(mBoneWorldMatrixLocation2);
-    glVertexAttribPointer(mBoneWorldMatrixLocation2, 16, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 60));
-    glEnableVertexAttribArray(mBoneWorldMatrixLocation3);
-    glVertexAttribPointer(mBoneWorldMatrixLocation3, 16, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 76));
+    //----------------------------------------------
+    // 每个顶点拥有的骨骼数量、骨骼ID、骨骼权重
+    glUniform1iv(mBoneCountsLocation,
+            // How many matrices to pass
+                       vb->mBoneCountsArray.size(),
+            // Pointer to the first element of the matrix
+                       &(vb->mBoneCountsArray[0]));
 
-    glEnableVertexAttribArray(mBoneOffsetMatrixLocation0);
-    glVertexAttribPointer(mBoneOffsetMatrixLocation0, 16, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 92));
-    glEnableVertexAttribArray(mBoneOffsetMatrixLocation1);
-    glVertexAttribPointer(mBoneOffsetMatrixLocation1, 16, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 108));
-    glEnableVertexAttribArray(mBoneOffsetMatrixLocation2);
-    glVertexAttribPointer(mBoneOffsetMatrixLocation2, 16, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 124));
-    glEnableVertexAttribArray(mBoneOffsetMatrixLocation3);
-    glVertexAttribPointer(mBoneOffsetMatrixLocation3, 16, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 140));
+    glUniform4iv(mBoneIdsArrayLocation,
+            // How many matrices to pass
+                       vb->mBoneIdsArray.size(),
+            // Pointer to the first element of the matrix
+                       &(vb->mBoneIdsArray[0][0]));
 
-    //----------------------------------------------------------------------
+    glUniform4fv(mBoneWeightArrayLocation,
+            // How many matrices to pass
+                 vb->mBoneWeightArray.size(),
+            // Pointer to the first element of the matrix
+                 &(vb->mBoneWeightArray[0][0]));
+
+    //----------------------------------------------
+    // 所有骨骼的信息：ID、worldMatrix、OffsetMatrix
+    LOGI("mBoneIndexArrayLocation = %d\n", mBoneIndexArrayLocation);
+    LOGI("vb->mBoneIndexArray[0] = %d\n", vb->mBoneIndexArray[0]);
+    LOGI("vb->mBoneIndexArray[1] = %d\n", vb->mBoneIndexArray[1]);
+    LOGI("vb->mBoneIndexArray[2] = %d\n", vb->mBoneIndexArray[2]);
+    LOGI("vb->mBoneIndexArray[3] = %d\n", vb->mBoneIndexArray[3]);
+    LOGI("vb->mBoneIndexArray[4] = %d\n", vb->mBoneIndexArray[4]);
+    glUniform1iv(mBoneIndexArrayLocation,
+            // How many matrices to pass
+                 vb->mBoneIndexArray.size(),
+            // Pointer to the first element of the matrix
+                 &(vb->mBoneIndexArray[0]));
+
+    glUniformMatrix4fv(mBoneWorldMatrixArrayLocation,
+            // How many matrices to pass
+                                vb->mBoneWorldMatrixArray.size(),
+            // Transpose the matrix? OpenGL uses column-major, so no.
+                                GL_FALSE,
+            // Pointer to the first element of the matrix
+                                &(vb->mBoneWorldMatrixArray[0][0][0]));
+
+    glUniformMatrix4fv(mBoneOffsetMatrixArrayLocation,
+            // How many matrices to pass
+                       vb->mBoneOffsetMatrixArray.size(),
+            // Transpose the matrix? OpenGL uses column-major, so no.
+                       GL_FALSE,
+            // Pointer to the first element of the matrix
+                       &(vb->mBoneOffsetMatrixArray[0][0][0]));
 }
 
 void Shader::SetTexture(const char *name, const char *imagePath)
@@ -275,5 +288,6 @@ void Shader::SetVec4(const char *name, float x, float y, float z, float w)
         iter->second->v[3] = w;
     }
 }
+
 
 

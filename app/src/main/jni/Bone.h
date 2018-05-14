@@ -30,6 +30,7 @@ public:
 
     ~Bone(); 
 
+    int mBoneIndex;
     Bone* m_pSibling;
     Bone* m_pFirstChild;
     Bone* m_pFather; //only for draw bone 
@@ -37,14 +38,13 @@ public:
     void SetFirstChild(Bone* pChild);
     void SetSibling(Bone* pSibling); 
 
-    float m_wx, m_wy, m_wz; //pos in world space
     glm::mat4 mLocalMatrix;
     glm::mat4 mWorldMatrix;
 
     //give father's world pos, compute the bone's world pos
     void ComputeWorldPos(glm::mat4 mat4);
 
-    BoneOffset m_boneOffset;   
+    BoneOffset m_boneOffset;
 
     //called after compute world pos when bone loaded but not animated
 
