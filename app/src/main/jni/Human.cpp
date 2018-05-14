@@ -1,16 +1,15 @@
 //
-// Created by pc on 2017/12/1.
+// Created by pc on 2018/5/15.
 //
 
-#include "Model.h"
+#include "Human.h"
 #include "utils.h"
 
-Model::Model()
-{
-    mShader = nullptr;
+Human::Human() {
+
 }
 
-void Model::Init(AAssetManager *assetManager, const char *modelPath)
+void Human::Init(AAssetManager *assetManager, const char *modelPath)
 {
     struct FloatData
     {
@@ -127,15 +126,15 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
 
     // 加载Shader
     mShader = new Shader;
-    mShader->Init(assetManager, "Res/model.vs", "Res/model.fs");
+    mShader->Init(assetManager, "Res/human.vs", "Res/human.fs");
 
     // 光照
     // 环境光
-    mShader->SetVec4("U_LightAmbient", 1.0f, 1.0f, 1.0f, 1.0f);
-    SetAmbientMaterial(0.1f, 0.1f, 0.1f, 1.0f);
+    mShader->SetVec4("U_LightAmbient", 1.0f, 1.0f, 5.0f, 1.0f);
+    SetAmbientMaterial(0.3f, 0.3f, 0.3f, 1.0f);
 
     // 漫反射光
-    mShader->SetVec4("U_LightPos", 1.0f, 1.0f, 0.0f, 0.0f);     //方向光！！！
+    mShader->SetVec4("U_LightPos", 1.0f, 1.0f, 3.0f, 0.0f);     //方向光！！！
     mShader->SetVec4("U_LightDiffuse", 1.0f, 1.0f, 1.0f, 1.0f);
     SetDiffuseMaterial(0.6f, 0.6f, 0.6f, 1.0f);
 
@@ -144,35 +143,94 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
     SetSpecularMaterial(1.0f, 1.0f, 1.0f, 1.0f);
 
     mShader->SetVec4("U_CameraPos", 0.0f, 0.0f, 0.0f, 1.0f);
-    mShader->SetVec4("U_LightOpt", 32.0f, 0.0f, 0.0f, 2.0f);
+    mShader->SetVec4("U_LightOpt", 32.0f, 0.0f, 0.0f, 0.0f);
+
+    mKeyPoints.Init(5, assetManager, "");
+    mKeyPoints.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
 
 }
 
-float  x;
-float y;
-float z;
-void Model::Update(float deltaTime) {
+void Human::ParseHumanBody()
+{
+    LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
+    float maxY = 0.0f, minY = 0.0f;
+    int maxYIndex = 0, minYIndex = 0;
+    float maxX = 0.0f, minX = 0.0f;
+    int maxXIndex = 0, minXIndex = 0;
 
+    for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
 
-    static float angle = 0.0f;
+        if(mVertexBuffer->mVertexes[i].Position[0] > maxX)
+        {
+            maxX = mVertexBuffer->mVertexes[i].Position[0];
+            maxXIndex = i;
+        }
 
+        if(mVertexBuffer->mVertexes[i].Position[0] < minX)
+        {
+            minX = mVertexBuffer->mVertexes[i].Position[0];
+            minXIndex = i;
+        }
 
-    // 每次刷新时，旋转一定角度，相当于有了动画
-    angle += 0.05;
-    if(angle > 3.1415926 * 2 ){
-        angle = 0;
+        if(mVertexBuffer->mVertexes[i].Position[1] > maxY)
+        {
+            maxY = mVertexBuffer->mVertexes[i].Position[1];
+            maxYIndex = i;
+        }
+
+        if(mVertexBuffer->mVertexes[i].Position[1] < minY)
+        {
+            minY = mVertexBuffer->mVertexes[i].Position[1];
+            minYIndex = i;
+        }
+    }
+    // mtopPoint
+    mKeyPoints.SetPointPosition(0, mVertexBuffer->mVertexes[maxYIndex].Position[0], mVertexBuffer->mVertexes[maxYIndex].Position[1], mVertexBuffer->mVertexes[maxYIndex].Position[2]);
+    LOGI("\n\n---------------------------------\n");
+    print_array(mVertexBuffer->mVertexes[maxYIndex].Position, 4);
+
+    // mbottomPoint
+    mKeyPoints.SetPointPosition(1, mVertexBuffer->mVertexes[minYIndex].Position[0], mVertexBuffer->mVertexes[minYIndex].Position[1], mVertexBuffer->mVertexes[minYIndex].Position[2]);
+    print_array(mVertexBuffer->mVertexes[minYIndex].Position, 4);
+
+    // mLeftPoint
+    mKeyPoints.SetPointPosition(2, mVertexBuffer->mVertexes[minXIndex].Position[0], mVertexBuffer->mVertexes[minXIndex].Position[1], mVertexBuffer->mVertexes[minXIndex].Position[2]);
+    print_array(mVertexBuffer->mVertexes[minXIndex].Position, 4);
+
+    // mRightPoint
+    mKeyPoints.SetPointPosition(3, mVertexBuffer->mVertexes[maxXIndex].Position[0], mVertexBuffer->mVertexes[maxXIndex].Position[1], mVertexBuffer->mVertexes[maxXIndex].Position[2]);
+    print_array(mVertexBuffer->mVertexes[maxXIndex].Position, 4);
+
+    mHeight = maxY - minY;
+    mWidth = maxX - minX;
+
+    float headHeight = mHeight * mHeadPercentage;
+    float jawY = maxY - headHeight;
+    float noseZ = -1000.0f;
+    int noseZIndex = 0;
+
+    for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
+
+        if(mVertexBuffer->mVertexes[i].Position[1] > jawY)
+        {
+            if(mVertexBuffer->mVertexes[i].Position[2] > noseZ)
+            {
+                noseZ = mVertexBuffer->mVertexes[i].Position[2];
+                noseZIndex = i;
+            }
+        }
     }
 
-    x = 2 * cos(angle);
-    y = 0;
-    z = 2 * sin(angle);
+    // nose
+    mKeyPoints.SetPointPosition(4, mVertexBuffer->mVertexes[noseZIndex].Position[0], mVertexBuffer->mVertexes[noseZIndex].Position[1], mVertexBuffer->mVertexes[noseZIndex].Position[2]);
+    print_array(mVertexBuffer->mVertexes[noseZIndex].Position, 4);
 
-    mShader->SetVec4("U_LightPos", x, y, z, 0.0f);     //方向光！！！
-
+    LOGI("---------------------------------\n\n\n");
 }
 
-void Model::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos)
+void Human::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos)
 {
+#if 1
     // 因为模型的specularLight跟camera的位置有关，所以必须更新
     mShader->SetVec4("U_CameraPos", cameraPos.x, cameraPos.y, cameraPos.z, 1.0f);
 
@@ -190,29 +248,7 @@ void Model::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &
     glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer->mVertexCount);
 
     mVertexBuffer->Unbind();
-}
+#endif
 
-void Model::SetPosition(float x, float y, float z)
-{
-    mModelMatrix = glm::translate(x, y, z);
-}
-
-void Model::SetAmbientMaterial(float r, float g, float b, float a)
-{
-    mShader->SetVec4("U_AmbientMaterial", r, g, b, a);
-}
-
-void Model::SetDiffuseMaterial(float r, float g, float b, float a)
-{
-    mShader->SetVec4("U_DiffuseMaterial", r, g, b, a);
-}
-
-void Model::SetSpecularMaterial(float r, float g, float b, float a)
-{
-    mShader->SetVec4("U_SpecularMaterial", r, g, b, a);
-}
-
-void Model::SetTexure(const char *imagePath)
-{
-    mShader->SetTexture("U_Texture", imagePath);
+    mKeyPoints.DrawStaticMesh(viewMatrix, projectionMatrix, cameraPos);
 }

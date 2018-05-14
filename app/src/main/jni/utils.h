@@ -35,6 +35,6 @@ GLuint CreateBufferObject(GLenum bufferType, GLsizeiptr size, GLenum usage, void
 GLuint CreateProcedureTexture(int size);
 
 void print_mat(glm::mat4 &mat);
-void print_array(float array[16]);
+void print_array(float array[16], int size);
 
 #endif //GLDEMO_UTILS_H

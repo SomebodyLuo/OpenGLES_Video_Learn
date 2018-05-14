@@ -11,16 +11,18 @@
 #include "SkyBox.h"
 #include "ParticleSystem.h"
 #include "skeleton_animation.h"
+#include "Human.h"
 
 // 矩阵默认是单位矩阵
 glm::mat4 tempMatrix, viewMatrix, projectionMatrix;
 
 // 摄像机的位置
-glm::vec3 cameraPos(0.5f, 0.0f, 2.0f);
+glm::vec3 cameraPos(2.5f, 0.0f, 5.0f);
 
 Ground ground;
 
 Model sphere, niutou;
+Human man;
 
 SkyBox skybox;
 
@@ -42,7 +44,7 @@ void InitGL(AAssetManager *assetManager)
     std::vector<int> joint_parent_ID;
     ParseJsonFile(assetManager, "Res/cow.json", joint_name, joint_pos, joint_rot, joint_parent_ID);
 
-    viewMatrix = glm::lookAt(cameraPos, glm::vec3(0.5f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    viewMatrix = glm::lookAt(cameraPos, glm::vec3(2.5f, 0.0f, 0.5f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     // 棋盘格
     ground.Init(assetManager);
@@ -59,7 +61,13 @@ void InitGL(AAssetManager *assetManager)
     // 牛头
     niutou.Init(assetManager, "Res/niutou.obj");
     niutou.SetTexure("Res/niutou.bmp");
-    niutou.mModelMatrix = glm::translate(5.0f, 0.0f, 6.0f) * glm::scale(0.05f, 0.05f, 0.05f) * glm::rotate(-45.0f, 0.0f, 1.0f, 0.0f);
+    niutou.mModelMatrix = glm::translate(5.0f, -3.0f, 0.0f) * glm::scale(0.05f, 0.05f, 0.05f) * glm::rotate(-110.0f, 0.0f, 1.0f, 0.0f);
+
+    // 人体
+    man.Init(assetManager, "Res/human_body.obj");
+//    man.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
+    man.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
+    man.ParseHumanBody();
 
     // 粒子系统
     ps.Init(assetManager, 0.0f, 0.0f, 0.0f);
@@ -100,7 +108,10 @@ void DrawGL()
 //    sphere.Draw(viewMatrix, projectionMatrix, cameraPos);
 
     // 绘制牛头
-//    niutou.Draw(viewMatrix, projectionMatrix, cameraPos);
+    niutou.Draw(viewMatrix, projectionMatrix, cameraPos);
+
+    // 绘制人体
+    man.Draw(viewMatrix, projectionMatrix, cameraPos);
 
     // 绘制粒子
 //    ps.Update(frameTime);

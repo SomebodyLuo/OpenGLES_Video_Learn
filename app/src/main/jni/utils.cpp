@@ -459,12 +459,12 @@ void print_mat(glm::mat4 &mat)
     }
 }
 
-void print_array(float array[16])
+void print_array(float array[16], int size)
 {
     LOGI("array:\n");
     float* data = array;
-    for (int i = 0; i < 4; ++i) {// 0
-        LOGI("%f\t%f\t%f\t%f\n", data[i+0],data[i+4],data[i+8],data[i+12]);
+    for (int i = 0; i < size / 4; ++i) {
+        LOGI("%f\t%f\t%f\t%f\n", data[i+0],data[i+1],data[i+2],data[i+3]);
         //  LOGI("%f\t%f\t%f\t%f\n", mat[i].x,mat[i].x,mat[i].x,mat[i].x);
     }
 }

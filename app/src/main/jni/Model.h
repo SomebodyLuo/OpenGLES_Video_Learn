@@ -22,11 +22,11 @@ public:
     glm::mat4 mModelMatrix;
 
 
-    void Init(AAssetManager *assetManager, const char *modelPath);
+    virtual void Init(AAssetManager *assetManager, const char *modelPath);
 
     void Update(float deltaTime);
 
-    void Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos);
+    virtual void Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos);
 
     void SetPosition(float x, float y, float z);
 
