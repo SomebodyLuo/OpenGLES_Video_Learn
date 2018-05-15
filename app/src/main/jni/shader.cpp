@@ -66,6 +66,8 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     glDeleteShader(vsShader);
     glDeleteShader(fsShader);
 
+    LOGI("Shader::Init mProgram = %d\n", mProgram);
+
     if (0 == mProgram)
     {
         return false;
@@ -104,12 +106,6 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
 
 void Shader::Bind(float *M, float *V, float *P, VertexBuffer *vb)
 {
-    BindMVP(M, V, P);
-    BindBoneInfo(vb);
-}
-
-void Shader::BindMVP(float *M, float *V, float *P)
-{
     if (0 == mProgram)
     {
         return ;
@@ -121,7 +117,56 @@ void Shader::BindMVP(float *M, float *V, float *P)
     glUniformMatrix4fv(mViewMatrixLocation, 1, GL_FALSE, V);
     glUniformMatrix4fv(mProjectionMatrixLocation, 1, GL_FALSE, P);
 
-//    glUniformMatrix4fv(mVertexMoveMatrixLocation, 1, GL_FALSE, VM);
+    //----------------------------------------------
+    // 每个顶点拥有的骨骼数量、骨骼ID、骨骼权重
+    glUniform1iv(mBoneCountsLocation,
+            // How many matrices to pass
+                 vb->mBoneCountsArray.size(),
+            // Pointer to the first element of the matrix
+                 &(vb->mBoneCountsArray[0]));
+
+    glUniform4iv(mBoneIdsArrayLocation,
+            // How many matrices to pass
+                 vb->mBoneIdsArray.size(),
+            // Pointer to the first element of the matrix
+                 &(vb->mBoneIdsArray[0][0]));
+
+    glUniform4fv(mBoneWeightArrayLocation,
+            // How many matrices to pass
+                 vb->mBoneWeightArray.size(),
+            // Pointer to the first element of the matrix
+                 &(vb->mBoneWeightArray[0][0]));
+
+    //----------------------------------------------
+    // 所有骨骼的信息：ID、worldMatrix、OffsetMatrix
+    LOGI("mBoneWeightArrayLocation = %d\n", mBoneWeightArrayLocation);
+    LOGI("vb->mBoneWeightArray[0][0] = %f\n", vb->mBoneWeightArray[0][0]);
+    LOGI("vb->mBoneWeightArray[1][0] = %f\n", vb->mBoneWeightArray[1][0]);
+    LOGI("vb->mBoneWeightArray[2][0] = %f\n", vb->mBoneWeightArray[2][0]);
+    LOGI("vb->mBoneWeightArray[3][0] = %f\n", vb->mBoneWeightArray[3][0]);
+    LOGI("vb->mBoneWeightArray[4][0] = %f\n", vb->mBoneWeightArray[4][0]);
+    glUniform1iv(mBoneIndexArrayLocation,
+            // How many matrices to pass
+                 vb->mBoneIndexArray.size(),
+            // Pointer to the first element of the matrix
+                 &(vb->mBoneIndexArray[0]));
+
+    glUniformMatrix4fv(mBoneWorldModelMatrixArrayLocation,
+            // How many matrices to pass
+                       vb->mBoneWorldModelMatrixArray.size(),
+            // Transpose the matrix? OpenGL uses column-major, so no.
+                       GL_FALSE,
+            // Pointer to the first element of the matrix
+                       &(vb->mBoneWorldModelMatrixArray[0][0][0]));
+
+    glUniformMatrix4fv(mBoneOffsetMatrixArrayLocation,
+            // How many matrices to pass
+                       vb->mBoneOffsetMatrixArray.size(),
+            // Transpose the matrix? OpenGL uses column-major, so no.
+                       GL_FALSE,
+            // Pointer to the first element of the matrix
+                       &(vb->mBoneOffsetMatrixArray[0][0][0]));
+
 
 //    LOGI("mUniformTextures.size = %d", mUniformTextures.size());
     // 启用多重纹理
@@ -157,61 +202,56 @@ void Shader::BindMVP(float *M, float *V, float *P)
 
     glEnableVertexAttribArray(mMeshInfoIdLocation);
     glVertexAttribPointer(mMeshInfoIdLocation, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 16));
-
 }
 
-void Shader::BindBoneInfo(VertexBuffer *vb)
+void Shader::BindMVP(float *M, float *V, float *P)
 {
+    if (0 == mProgram)
+    {
+        return ;
+    }
 
-    //----------------------------------------------
-    // 每个顶点拥有的骨骼数量、骨骼ID、骨骼权重
-    glUniform1iv(mBoneCountsLocation,
-            // How many matrices to pass
-                       vb->mBoneCountsArray.size(),
-            // Pointer to the first element of the matrix
-                       &(vb->mBoneCountsArray[0]));
+    glUseProgram(mProgram);
 
-    glUniform4iv(mBoneIdsArrayLocation,
-            // How many matrices to pass
-                       vb->mBoneIdsArray.size(),
-            // Pointer to the first element of the matrix
-                       &(vb->mBoneIdsArray[0][0]));
+    glUniformMatrix4fv(mModelMatrixLocation, 1, GL_FALSE, M);
+    glUniformMatrix4fv(mViewMatrixLocation, 1, GL_FALSE, V);
+    glUniformMatrix4fv(mProjectionMatrixLocation, 1, GL_FALSE, P);
 
-    glUniform4fv(mBoneWeightArrayLocation,
-            // How many matrices to pass
-                 vb->mBoneWeightArray.size(),
-            // Pointer to the first element of the matrix
-                 &(vb->mBoneWeightArray[0][0]));
 
-    //----------------------------------------------
-    // 所有骨骼的信息：ID、worldMatrix、OffsetMatrix
-//    LOGI("mBoneIndexArrayLocation = %d\n", mBoneIndexArrayLocation);
-//    LOGI("vb->mBoneIndexArray[0] = %d\n", vb->mBoneIndexArray[0]);
-//    LOGI("vb->mBoneIndexArray[1] = %d\n", vb->mBoneIndexArray[1]);
-//    LOGI("vb->mBoneIndexArray[2] = %d\n", vb->mBoneIndexArray[2]);
-//    LOGI("vb->mBoneIndexArray[3] = %d\n", vb->mBoneIndexArray[3]);
-//    LOGI("vb->mBoneIndexArray[4] = %d\n", vb->mBoneIndexArray[4]);
-    glUniform1iv(mBoneIndexArrayLocation,
-            // How many matrices to pass
-                 vb->mBoneIndexArray.size(),
-            // Pointer to the first element of the matrix
-                 &(vb->mBoneIndexArray[0]));
+//    LOGI("mUniformTextures.size = %d", mUniformTextures.size());
+    // 启用多重纹理
+    int index = 0;
+    for (auto iter = mUniformTextures.begin(); iter != mUniformTextures.end(); ++iter)
+    {
+        // 每次绑定一个纹理，都要先激活一个插槽里面的纹理单元与之对应
+        glActiveTexture(GL_TEXTURE0 + index);
+        glBindTexture(GL_TEXTURE_2D, iter->second->mTexture);
+        glUniform1i(iter->second->mLocation, index);
+//        LOGI("BindMVP: t->mLocation = %d; t->mTexture = %u", iter->second->mLocation, iter->second->mTexture);
+        index++;
+    }
 
-    glUniformMatrix4fv(mBoneWorldModelMatrixArrayLocation,
-            // How many matrices to pass
-                                vb->mBoneWorldModelMatrixArray.size(),
-            // Transpose the matrix? OpenGL uses column-major, so no.
-                                GL_FALSE,
-            // Pointer to the first element of the matrix
-                                &(vb->mBoneWorldModelMatrixArray[0][0][0]));
+    for (auto iter = mUniformVec4s.begin(); iter != mUniformVec4s.end(); ++iter)
+    {
+        glUniform4fv(iter->second->mLocation, 1, iter->second->v);
+    }
 
-    glUniformMatrix4fv(mBoneOffsetMatrixArrayLocation,
-            // How many matrices to pass
-                       vb->mBoneOffsetMatrixArray.size(),
-            // Transpose the matrix? OpenGL uses column-major, so no.
-                       GL_FALSE,
-            // Pointer to the first element of the matrix
-                       &(vb->mBoneOffsetMatrixArray[0][0][0]));
+    // 可能我们的shader代码中，不一定4个Attribute都有，但是OpenGL能够容错。
+    // 不存在的Attribute，相应的Location就是-1。
+    glEnableVertexAttribArray(mPositionLocation);
+    glVertexAttribPointer(mPositionLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)0);
+
+    glEnableVertexAttribArray(mColorLocation);
+    glVertexAttribPointer(mColorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 4));
+
+    glEnableVertexAttribArray(mTexcoordLocation);
+    glVertexAttribPointer(mTexcoordLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 8));
+
+    glEnableVertexAttribArray(mNormalLocation);
+    glVertexAttribPointer(mNormalLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 12));
+
+    glEnableVertexAttribArray(mMeshInfoIdLocation);
+    glVertexAttribPointer(mMeshInfoIdLocation, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 16));
 
 }
 

@@ -37,6 +37,8 @@ public:
     void SetSpecularMaterial(float r, float g, float b, float a);
 
     void SetTexure(const char *imagePath);
+
+    void SetVec4(const char *name, float x, float y, float z, float w);
 };
 
 

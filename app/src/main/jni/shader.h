@@ -53,7 +53,6 @@ public:
     bool Init(AAssetManager *assetManager, const char*vs, const char *fs);
     void Bind(float *M, float *V, float *P, VertexBuffer *vb);
     void BindMVP(float *M, float *V, float *P);
-    void BindBoneInfo(VertexBuffer *vb);
 
     void SetTexture(const char *name, const char *imagePath);
     void SetTexture(const char *name, GLuint texture);

@@ -108,7 +108,7 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
     // 因为绘制是以三角形面为基础，很多点会被复用，
     // 所以我们在统计总共要绘制的点的数量时，就应以三角形面数 x 3，也就是vertexes
     int vertexCounts = vertexes.size();
-    LOGI("vertexCounts = %d", vertexCounts);
+    LOGI("Model::Init: vertexCounts = %d", vertexCounts);
     mVertexBuffer = new VertexBuffer();
     mVertexBuffer->SetSize(vertexCounts);
     for (int i = 0; i < vertexCounts; ++i)
@@ -123,7 +123,7 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
         temp = normals[vertexes[i].normalIndex - 1].v;
         mVertexBuffer->SetNormal(i, temp[0], temp[1], temp[2]);
     }
-    LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
+    LOGI("Model::Init: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
 
     // 加载Shader
     mShader = new Shader;
@@ -215,4 +215,9 @@ void Model::SetSpecularMaterial(float r, float g, float b, float a)
 void Model::SetTexure(const char *imagePath)
 {
     mShader->SetTexture("U_Texture", imagePath);
+}
+
+void Model::SetVec4(const char *name, float x, float y, float z, float w)
+{
+    mShader->SetVec4(name, x, y, z, w);
 }

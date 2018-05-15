@@ -27,6 +27,7 @@ class Bone
 public:
 	Bone();
     void setPosition(float x, float y, float z);
+    void setPosition(glm::vec3 pos);
     void setRotation(float angle, float x, float y, float z);
 
     ~Bone(); 

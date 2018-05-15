@@ -70,7 +70,7 @@ void main()
     } else if (2.0 == U_LightOpt.w){
         color = (ambientColor + diffuseColor + GetPointLight()) * texture2D(U_Texture, V_Texcoord.xy);
     } else {
-        color = (ambientColor + diffuseColor) * vec4(1.0, 1.0, 0.0, 1.0);
+        color = (ambientColor + diffuseColor) * vec4(0.8, 0.6, 0.2, 1.0) + specularColor;
     }
 
     gl_FragColor = color;

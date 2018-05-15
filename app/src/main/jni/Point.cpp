@@ -32,7 +32,7 @@ void Point::Init(int pointCounts, AAssetManager *assetManager, const char *model
         mVertexBuffer->SetColor(i, 0.9f, 0.6f, 0.1f);
     }
 
-    LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
+    LOGI("Point::Init: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
 
     //=======================2===================
     // 加载Shader

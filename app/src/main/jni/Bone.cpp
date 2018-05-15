@@ -12,6 +12,11 @@ void Bone::setPosition(float x, float y, float z)
     mLocalTranslateMatrix = glm::translate(x, y, z);
 }
 
+void Bone::setPosition(glm::vec3 pos)
+{
+    mLocalTranslateMatrix = glm::translate(pos);
+}
+
 void Bone::setRotation(float angle, float x, float y, float z)
 {
     mLocalRotationMatrix = glm::rotate(angle, x, y, z);

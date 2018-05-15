@@ -21,8 +21,7 @@ glm::vec3 cameraPos(2.5f, 0.0f, 5.0f);
 
 Ground ground;
 
-Model sphere, niutou;
-Human man;
+Model sphere, niutou, man2;
 
 SkyBox skybox;
 
@@ -64,10 +63,9 @@ void InitGL(AAssetManager *assetManager)
     niutou.mModelMatrix = glm::translate(5.0f, -3.0f, 0.0f) * glm::scale(0.05f, 0.05f, 0.05f) * glm::rotate(-110.0f, 0.0f, 1.0f, 0.0f);
 
     // 人体
-    man.Init(assetManager, "Res/human_body.obj");
-//    man.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
-    man.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
-    man.ParseHumanBody();
+    man2.Init(assetManager, "Res/human_body.obj");
+    man2.mModelMatrix = glm::translate(1.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(20.0f, 0.0f, 1.0f, 0.0f);
+    man2.SetVec4("U_LightOpt", 32.0f, 0.0f, 0.0f, 0.0f);
 
     // 粒子系统
     ps.Init(assetManager, 0.0f, 0.0f, 0.0f);
@@ -111,7 +109,7 @@ void DrawGL()
     niutou.Draw(viewMatrix, projectionMatrix, cameraPos);
 
     // 绘制人体
-    man.Draw(viewMatrix, projectionMatrix, cameraPos);
+    man2.Draw(viewMatrix, projectionMatrix, cameraPos);
 
     // 绘制粒子
 //    ps.Update(frameTime);

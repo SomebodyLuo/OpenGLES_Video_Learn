@@ -42,7 +42,7 @@ void SkinMesh::DrawStaticMesh(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
     mShader->SetVec4("U_PointColor", 0.2f, 0.9f, 0.2f, 1.0f);
 //    mShader->SetVec4("U_Bool", 1.0f, 0.0f, 0.0f, 0.0f);
 
-    glm::mat4 identityMat = glm::mat4();//glm::translate(-0.1f, -0.1f, 0.0f);
+    glm::mat4 identityMat = glm::translate(-0.1f, -0.1f, 0.0f);
     mShader->BindMVP(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix),
                      glm::value_ptr(projectionMatrix));
 
@@ -53,10 +53,10 @@ void SkinMesh::DrawStaticMesh(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
     }
 
     // draw lines
-//    glLineWidth(2.0f);
-//    for (int i = 0; i < mVertexBuffer->mVertexCount - 1; ++i) {
-//        glDrawArrays(GL_LINES, i, 2);
-//    }
+    glLineWidth(2.0f);
+    for (int i = 0; i < mVertexBuffer->mVertexCount - 1; ++i) {
+        glDrawArrays(GL_LINES, i, 2);
+    }
 
     mVertexBuffer->Unbind();
 }
@@ -84,10 +84,10 @@ void SkinMesh::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec
 //    glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer->mVertexCount);
 
     // draw lines
-    glLineWidth(2.0f);
-    for (int i = 0; i < mVertexBuffer->mVertexCount - 1; ++i) {
-        glDrawArrays(GL_LINES, i, 2);
-    }
+//    glLineWidth(2.0f);
+//    for (int i = 0; i < mVertexBuffer->mVertexCount - 1; ++i) {
+//        glDrawArrays(GL_LINES, i, 2);
+//    }
 
     mVertexBuffer->Unbind();
 
@@ -207,17 +207,17 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
         mVertexBuffer->SetMeshInfoId(i);
     }
 
-    LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
+    LOGI("SkinMesh::Init: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
 
     //=======================2===================
     // 加载Shader
-    mShader = new Shader;
+    mShader = new Shader();
     mShader->Init(assetManager, "Res/skeleton.vs", "Res/skeleton.fs");
 
     // 光照
     mShader->SetVec4("U_PointColor", 0.6f, 0.6f, 0.6f, 1.0f);
 
-    mShaderDynamic = new Shader;
+    mShaderDynamic = new Shader();
     mShaderDynamic->Init(assetManager, "Res/skeleton_dynamic.vs", "Res/skeleton_dynamic.fs");
 
     // 光照
@@ -342,7 +342,7 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     mVertexBuffer->mBoneWorldModelMatrixArray.resize(5);
     mVertexBuffer->mBoneOffsetMatrixArray.resize(5);
 
-    LOGI("mVertexBuffer->mBoneIndexArray.size = %d\n", int(mVertexBuffer->mBoneIndexArray.size()));
+    LOGI("mVertexBuffer->mBoneIndexArray.size = %d\n", mVertexBuffer->mBoneIndexArray.size());
     LOGI("mVertexBuffer->mBoneIndexArray.capacity = %d\n", mVertexBuffer->mBoneIndexArray.capacity());
     LOGI("mVertexBuffer->mBoneIndexArray[0] = %d\n", mVertexBuffer->mBoneIndexArray[0]);
     LOGI("mVertexBuffer->mBoneIndexArray[1] = %d\n", mVertexBuffer->mBoneIndexArray[1]);

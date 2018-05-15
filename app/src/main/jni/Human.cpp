@@ -6,7 +6,12 @@
 #include "utils.h"
 
 Human::Human() {
+    mBoneRoot = nullptr;
+}
 
+Human::~Human()
+{
+    delete mBoneRoot;
 }
 
 void Human::Init(AAssetManager *assetManager, const char *modelPath)
@@ -121,8 +126,10 @@ void Human::Init(AAssetManager *assetManager, const char *modelPath)
 
         temp = normals[vertexes[i].normalIndex - 1].v;
         mVertexBuffer->SetNormal(i, temp[0], temp[1], temp[2]);
+
+        mVertexBuffer->SetMeshInfoId(i);
     }
-    LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
+    LOGI("Human::Init: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
 
     // 加载Shader
     mShader = new Shader;
@@ -130,11 +137,11 @@ void Human::Init(AAssetManager *assetManager, const char *modelPath)
 
     // 光照
     // 环境光
-    mShader->SetVec4("U_LightAmbient", 1.0f, 1.0f, 5.0f, 1.0f);
-    SetAmbientMaterial(0.3f, 0.3f, 0.3f, 1.0f);
+    mShader->SetVec4("U_LightAmbient", 1.0f, 1.0f, 1.0f, 1.0f);
+    SetAmbientMaterial(0.1f, 0.1f, 0.1f, 1.0f);
 
     // 漫反射光
-    mShader->SetVec4("U_LightPos", 1.0f, 1.0f, 3.0f, 0.0f);     //方向光！！！
+    mShader->SetVec4("U_LightPos", 1.0f, 1.0f, 0.0f, 0.0f);     //方向光！！！
     mShader->SetVec4("U_LightDiffuse", 1.0f, 1.0f, 1.0f, 1.0f);
     SetDiffuseMaterial(0.6f, 0.6f, 0.6f, 1.0f);
 
@@ -145,14 +152,14 @@ void Human::Init(AAssetManager *assetManager, const char *modelPath)
     mShader->SetVec4("U_CameraPos", 0.0f, 0.0f, 0.0f, 1.0f);
     mShader->SetVec4("U_LightOpt", 32.0f, 0.0f, 0.0f, 0.0f);
 
-    mKeyPoints.Init(5, assetManager, "");
+    mKeyPoints.Init(6, assetManager, "");
     mKeyPoints.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
 
 }
 
 void Human::ParseHumanBody()
 {
-    LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
+    LOGI("Human::ParseHumanBody: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
     float maxY = 0.0f, minY = 0.0f;
     int maxYIndex = 0, minYIndex = 0;
     float maxX = 0.0f, minX = 0.0f;
@@ -184,20 +191,20 @@ void Human::ParseHumanBody()
             minYIndex = i;
         }
     }
-    // mtopPoint
+    // 头顶 mtopPoint
     mKeyPoints.SetPointPosition(0, mVertexBuffer->mVertexes[maxYIndex].Position[0], mVertexBuffer->mVertexes[maxYIndex].Position[1], mVertexBuffer->mVertexes[maxYIndex].Position[2]);
     LOGI("\n\n---------------------------------\n");
     print_array(mVertexBuffer->mVertexes[maxYIndex].Position, 4);
 
-    // mbottomPoint
+    // 脚底 mbottomPoint
     mKeyPoints.SetPointPosition(1, mVertexBuffer->mVertexes[minYIndex].Position[0], mVertexBuffer->mVertexes[minYIndex].Position[1], mVertexBuffer->mVertexes[minYIndex].Position[2]);
     print_array(mVertexBuffer->mVertexes[minYIndex].Position, 4);
 
-    // mLeftPoint
+    // 左手 mLeftPoint
     mKeyPoints.SetPointPosition(2, mVertexBuffer->mVertexes[minXIndex].Position[0], mVertexBuffer->mVertexes[minXIndex].Position[1], mVertexBuffer->mVertexes[minXIndex].Position[2]);
     print_array(mVertexBuffer->mVertexes[minXIndex].Position, 4);
 
-    // mRightPoint
+    // 右手 mRightPoint
     mKeyPoints.SetPointPosition(3, mVertexBuffer->mVertexes[maxXIndex].Position[0], mVertexBuffer->mVertexes[maxXIndex].Position[1], mVertexBuffer->mVertexes[maxXIndex].Position[2]);
     print_array(mVertexBuffer->mVertexes[maxXIndex].Position, 4);
 
@@ -205,50 +212,188 @@ void Human::ParseHumanBody()
     mWidth = maxX - minX;
 
     float headHeight = mHeight * mHeadPercentage;
-    float jawY = maxY - headHeight;
+    float headPartMinY = maxY - headHeight;
     float noseZ = -1000.0f;
     int noseZIndex = 0;
 
+    float jawY = 1000.0f, jawZ = -1000.0f;
+    int jawIndex = 0;
+
     for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
 
-        if(mVertexBuffer->mVertexes[i].Position[1] > jawY)
+        if(mVertexBuffer->mVertexes[i].Position[1] > headPartMinY)
         {
+            // 鼻子是头部Z值最大的点
             if(mVertexBuffer->mVertexes[i].Position[2] > noseZ)
             {
                 noseZ = mVertexBuffer->mVertexes[i].Position[2];
                 noseZIndex = i;
             }
+
+            // 下巴是头部Y值最小或Z值最大的点
+            if((mVertexBuffer->mVertexes[i].Position[1] < jawY) || (mVertexBuffer->mVertexes[i].Position[2] > jawZ))
+            {
+                jawY = mVertexBuffer->mVertexes[i].Position[1];
+                jawZ = mVertexBuffer->mVertexes[i].Position[2];
+                jawIndex = i;
+            }
         }
+
     }
 
-    // nose
+    // 鼻子 mNosePoint
     mKeyPoints.SetPointPosition(4, mVertexBuffer->mVertexes[noseZIndex].Position[0], mVertexBuffer->mVertexes[noseZIndex].Position[1], mVertexBuffer->mVertexes[noseZIndex].Position[2]);
     print_array(mVertexBuffer->mVertexes[noseZIndex].Position, 4);
 
+    // 下巴 mJawPoint
+    mKeyPoints.SetPointPosition(5, mVertexBuffer->mVertexes[jawIndex].Position[0], mVertexBuffer->mVertexes[jawIndex].Position[1], mVertexBuffer->mVertexes[jawIndex].Position[2]);
+    print_array(mVertexBuffer->mVertexes[jawIndex].Position, 4);
+
     LOGI("---------------------------------\n\n\n");
+
+    // 下面开始计算头部的旋转中心
+    // 头部最高点与鼻子的各自垂直延长线的交点
+    glm::vec3 headRotateCenter = glm::vec3(mVertexBuffer->mVertexes[maxYIndex].Position[0], mVertexBuffer->mVertexes[noseZIndex].Position[1], mVertexBuffer->mVertexes[maxYIndex].Position[2]);
+
+    // 计算骨骼权重
+    mBoneRoot = new Bone();
+    mBoneRoot->setPosition(headRotateCenter);
+    mBoneRoot->setRotation(0.1f, 0.0f, 1.0f, 0.0f);
+
+    mVertexBuffer->mBoneCountsArray.resize(mVertexBuffer->mVertexCount);
+    mVertexBuffer->mBoneIdsArray.resize(mVertexBuffer->mVertexCount);
+    mVertexBuffer->mBoneWeightArray.resize(mVertexBuffer->mVertexCount);
+    for(int i = 0; i < mVertexBuffer->mVertexCount; ++i)
+    {
+        mVertexBuffer->mBoneCountsArray[i] = 1;
+
+        // 假设每个顶点拥有的骨骼数量不超过4个
+        for(int j = 0; j < mVertexBuffer->mBoneCountsArray[i]; ++j)
+        {
+            mVertexBuffer->mBoneIdsArray[i][j] = 99;
+
+            // 权重的分配
+            // 1. 头部旋转中心点和下巴的连线，构成“厂”形上部区域权重全部为1.0f
+            // 2. headPartMinY以上的其他区域，以Y = Z的函数关系分配权重
+            // 3. 身体其他部分权重为0
+            if(mVertexBuffer->mVertexes[i].Position[1] > headRotateCenter.y)
+            {
+                mVertexBuffer->mBoneWeightArray[i][j] = 1.0f;
+            }
+            else if((mVertexBuffer->mVertexes[i].Position[1] < headRotateCenter.y) && (mVertexBuffer->mVertexes[i].Position[2] > headRotateCenter.z) && (mVertexBuffer->mVertexes[i].Position[1] > mVertexBuffer->mVertexes[jawIndex].Position[1]))
+            {
+                mVertexBuffer->mBoneWeightArray[i][j] = 1.0f;
+            }
+            else if(mVertexBuffer->mVertexes[i].Position[1] > headPartMinY)
+            {
+                float dd = (headRotateCenter.y - headPartMinY) / 10.0f;
+                float Y = headRotateCenter.y, Z = headRotateCenter.z;
+                for (int i = 0; i < 10; ++i) {
+                    // 下面需要判断当前的顶点在Y = -Z直线的右边
+                    if(RightOfLine(mVertexBuffer->mVertexes[i].Position[1], mVertexBuffer->mVertexes[i].Position[2], \
+                        Y - dd, Z - dd, Y - dd - dd, Z))
+                    {
+                        mVertexBuffer->mBoneWeightArray[i][j] = (10 - i) * 0.1f;
+                    }
+                    Y -= dd;
+                    Z -= dd;
+                }
+            }
+            else
+            {
+                mVertexBuffer->mBoneWeightArray[i][j] = 0.0f;
+            }
+        }
+    }
+
+    mVertexBuffer->mBoneIndexArray.resize(1);
+    mVertexBuffer->mBoneIndexArray[0] = 99;
+
+    mVertexBuffer->mBoneWorldModelMatrixArray.resize(1);
+    mVertexBuffer->mBoneOffsetMatrixArray.resize(1);
+
+    ComputeWorldModelMatrix(glm::mat4());
+
+    mBoneRoot->ComputeBoneOffset();
+}
+
+bool Human::RightOfLine(float targetPointX, float targetPointY, float linePoint1X, float linePoint1Y, float linePoint2X, float linePoint2Y)
+{
+
+    float result = ((linePoint2Y - linePoint1Y) * targetPointX + (linePoint1X - linePoint2X) * targetPointY + (linePoint2X * linePoint1Y - linePoint1X * linePoint2Y));
+
+    return (result <= 0);
 }
 
 void Human::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos)
 {
-#if 1
     // 因为模型的specularLight跟camera的位置有关，所以必须更新
     mShader->SetVec4("U_CameraPos", cameraPos.x, cameraPos.y, cameraPos.z, 1.0f);
 
     glEnable(GL_DEPTH_TEST);
     mVertexBuffer->Bind();
 
-    // https://www.cnblogs.com/bigdudu/articles/4191042.html
+//    mShader->BindMVP(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+    mShader->Bind(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix), mVertexBuffer);
+	
+	// https://www.cnblogs.com/bigdudu/articles/4191042.html
     // 解决缩放不一致，导致法线不垂直的问题
     glm::mat4 it = glm::inverse(mModelMatrix);
-
-    mShader->BindMVP(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix),
-                     glm::value_ptr(projectionMatrix));
     glUniformMatrix4fv(glGetUniformLocation(mShader->mProgram, "IT_ModelMatrix"), 1, GL_FALSE, glm::value_ptr(it));
+
 
     glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer->mVertexCount);
 
+    // draw points
+    // add vertex shader: gl_PointSize = 8.0;
+//    for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
+//        glDrawArrays(GL_POINTS, i, 1);
+//    }
+
     mVertexBuffer->Unbind();
-#endif
 
     mKeyPoints.DrawStaticMesh(viewMatrix, projectionMatrix, cameraPos);
+}
+
+void Human::ComputeWorldModelMatrix(glm::mat4 fatherModelMatrix)
+{
+    mBoneRoot->ComputeWorldModelMatrix(fatherModelMatrix);
+}
+
+void Human::retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb)
+{
+    for (int i = 0; i < vb->mBoneIndexArray.size(); ++i) {
+        if(pBone->mBoneIndex == vb->mBoneIndexArray[i])
+        {
+            vb->mBoneWorldModelMatrixArray[i] = pBone->mWorldModelMatrix;
+            vb->mBoneOffsetMatrixArray[i] = pBone->m_boneOffset.mOffsetMatrix;
+        }
+    }
+
+    if(pBone->m_pSibling != NULL)
+        retrieveBoneMatrices(pBone->m_pSibling, vb);
+
+    if(pBone->m_pFirstChild != NULL)
+        retrieveBoneMatrices(pBone->m_pFirstChild, vb);
+}
+
+void Human::UpdateMatrices()
+{
+    retrieveBoneMatrices(mBoneRoot, mVertexBuffer);
+}
+
+
+void Human::animateBones()
+{
+    angle += df;
+    if(angle > 20.0f)
+    {
+        df = -0.001f;
+    }
+    if(angle < -20.0f)
+    {
+        df = 0.001f;
+    }
+    mBoneRoot->mLocalRotationMatrix = glm::mul(glm::rotate(angle, 0.0f, 1.0f, 0.0f), mBoneRoot->mLocalRotationMatrix);
+
 }
