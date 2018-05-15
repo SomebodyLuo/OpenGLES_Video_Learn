@@ -20,10 +20,9 @@ uniform mat4 ProjectionMatrix;
 
 varying vec4 V_Color;
 
-void main()
+vec4 getFinalPosition()
 {
     vec4 originPos = position;
-
     mat4 worldMat;
     mat4 offsetMat;
     mat4 combineMat;
@@ -46,6 +45,16 @@ void main()
             }
         }
     }
+
+    return finalPos;
+}
+
+void main()
+{
+
+    vec4 finalPos;
+
+    finalPos = getFinalPosition();
 
     vec4 origin = vec4(0.0, 0.0, 0.0, 0.0);
     //--------------------------------------
