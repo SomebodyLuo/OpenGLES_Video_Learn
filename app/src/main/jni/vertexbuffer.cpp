@@ -12,11 +12,11 @@ VertexBuffer::VertexBuffer()
     mVertexes = nullptr;
 
     mBoneCountsArray.clear();
-    mBoneCountsArray.reserve(100);
+    mBoneCountsArray.reserve(100000);
     mBoneIdsArray.clear();
-    mBoneIdsArray.reserve(100);
+    mBoneIdsArray.reserve(100000);
     mBoneWeightArray.clear();
-    mBoneWeightArray.reserve(100);
+    mBoneWeightArray.reserve(100000);
 
     mBoneIndexArray.clear();
     mBoneIndexArray.reserve(10);
