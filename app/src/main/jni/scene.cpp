@@ -64,7 +64,7 @@ void InitGL(AAssetManager *assetManager)
 
     // 人体
     man2.Init(assetManager, "Res/human_body.obj");
-    man2.mModelMatrix = glm::translate(1.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(20.0f, 0.0f, 1.0f, 0.0f);
+    man2.mModelMatrix = glm::translate(0.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(50.0f, 0.0f, 1.0f, 0.0f);
     man2.SetVec4("U_LightOpt", 32.0f, 0.0f, 0.0f, 0.0f);
 
     // 粒子系统

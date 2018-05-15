@@ -342,8 +342,8 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     mVertexBuffer->mBoneWorldModelMatrixArray.resize(5);
     mVertexBuffer->mBoneOffsetMatrixArray.resize(5);
 
-    LOGI("mVertexBuffer->mBoneIndexArray.size = %d\n", mVertexBuffer->mBoneIndexArray.size());
-    LOGI("mVertexBuffer->mBoneIndexArray.capacity = %d\n", mVertexBuffer->mBoneIndexArray.capacity());
+    LOGI("mVertexBuffer->mBoneIndexArray.size = %d\n", (int)mVertexBuffer->mBoneIndexArray.size());
+    LOGI("mVertexBuffer->mBoneIndexArray.capacity = %d\n", (int)mVertexBuffer->mBoneIndexArray.capacity());
     LOGI("mVertexBuffer->mBoneIndexArray[0] = %d\n", mVertexBuffer->mBoneIndexArray[0]);
     LOGI("mVertexBuffer->mBoneIndexArray[1] = %d\n", mVertexBuffer->mBoneIndexArray[1]);
     LOGI("mVertexBuffer->mBoneIndexArray[2] = %d\n", mVertexBuffer->mBoneIndexArray[2]);

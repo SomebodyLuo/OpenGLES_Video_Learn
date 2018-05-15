@@ -3,6 +3,7 @@
 #include "Bone.h"
 #include "SkinMesh.h"
 #include "Human.h"
+#include "Box.h"
 
 class skeleton_animation
 {
@@ -13,6 +14,8 @@ public:
 	SkinMesh mSkinMesh;
 
 	Human mMan;
+
+	Box mBox;
 
 	void Init(AAssetManager *assetManager, const char *modelPath);
 	void Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos, float frameTime);

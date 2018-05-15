@@ -23,6 +23,8 @@ varying vec4 V_Normal;
 varying vec4 V_WorldPos;
 varying vec4 V_Texcoord;
 
+varying vec4 tmp_Color;
+
 vec4  GetPointLight()
 {
     float distance = 0.0;
@@ -74,5 +76,5 @@ void main()
     }
 
     //gl_FragColor = color;
-    gl_FragColor = vec4(0.0, 0.9, 0.0, 1.0);
+    gl_FragColor = tmp_Color; //vec4(0.0, 0.9, 0.0, 1.0);
 }

@@ -215,8 +215,8 @@ void Human::ParseHumanBody()
 
     float headHeight = mHeight * mHeadPercentage;
     float headPartMinY = maxY - headHeight;
-    LOGI("thresholdPoint.y = %d\n", headPartMinY);
-    mShader->SetVec4("thresholdPoint", 0.0f, headPartMinY, 1.5f, 1.0f);
+    LOGI("thresholdPoint.y = %f\n", headPartMinY);
+    mShader->SetVec4("thresholdPoint", 0.0f, headPartMinY, 0.6f, 1.0f);
 
 
     float noseZ = -1000.0f;
@@ -265,6 +265,19 @@ void Human::ParseHumanBody()
     mBoneRoot = new Bone();
     mBoneRoot->setPosition(headRotateCenter);
     mBoneRoot->setRotation(0.1f, 0.0f, 1.0f, 0.0f);
+
+    for(int i=0; i < mVertexBuffer->mVertexCount; ++i)
+    {
+        mVertexBuffer->mBoneInfo[i].m_boneNum = 1;
+
+        for(int j=0; j < mVertexBuffer->mBoneInfo[i].m_boneNum; ++j)
+        {
+            Bone* pBone = mBoneRoot;
+            pBone->mBoneIndex = 99;
+
+            mVertexBuffer->mBoneInfo[i].SetBoneAndWeight(j, pBone, 0.0f);
+        }
+    }
 
     mVertexBuffer->mBoneCountsArray.resize(mVertexBuffer->mVertexCount);
     mVertexBuffer->mBoneIdsArray.resize(mVertexBuffer->mVertexCount);
@@ -316,11 +329,11 @@ void Human::ParseHumanBody()
         }
     }
 
-    mVertexBuffer->mBoneIndexArray.resize(1);
+    mVertexBuffer->mBoneIndexArray.resize(5);
     mVertexBuffer->mBoneIndexArray[0] = 99;
 
-    mVertexBuffer->mBoneWorldModelMatrixArray.resize(1);
-    mVertexBuffer->mBoneOffsetMatrixArray.resize(1);
+    mVertexBuffer->mBoneWorldModelMatrixArray.resize(5);
+    mVertexBuffer->mBoneOffsetMatrixArray.resize(5);
 
     ComputeWorldModelMatrix(glm::mat4());
 
@@ -337,7 +350,7 @@ bool Human::RightOfLine(float targetPointX, float targetPointY, float linePoint1
 
 void Human::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos)
 {
-#if 0
+#if 1
     // 1. 画人
     // 因为模型的specularLight跟camera的位置有关，所以必须更新
     mShader->SetVec4("U_CameraPos", cameraPos.x, cameraPos.y, cameraPos.z, 1.0f);
