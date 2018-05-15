@@ -152,6 +152,8 @@ void Human::Init(AAssetManager *assetManager, const char *modelPath)
     mShader->SetVec4("U_CameraPos", 0.0f, 0.0f, 0.0f, 1.0f);
     mShader->SetVec4("U_LightOpt", 32.0f, 0.0f, 0.0f, 0.0f);
 
+    mShader->SetVec4("thresholdPoint", 0.0f, 0.0f, 0.0f, 0.0f);
+
     mKeyPoints.Init(6, assetManager, "");
     mKeyPoints.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
 
@@ -213,6 +215,10 @@ void Human::ParseHumanBody()
 
     float headHeight = mHeight * mHeadPercentage;
     float headPartMinY = maxY - headHeight;
+    LOGI("thresholdPoint.y = %d\n", headPartMinY);
+    mShader->SetVec4("thresholdPoint", 0.0f, headPartMinY, 1.5f, 1.0f);
+
+
     float noseZ = -1000.0f;
     int noseZIndex = 0;
 
@@ -278,10 +284,12 @@ void Human::ParseHumanBody()
             // 3. 身体其他部分权重为0
             if(mVertexBuffer->mVertexes[i].Position[1] > headRotateCenter.y)
             {
+                LOGI("weight=1.0f -1-: point=%d\n", i);
                 mVertexBuffer->mBoneWeightArray[i][j] = 1.0f;
             }
             else if((mVertexBuffer->mVertexes[i].Position[1] < headRotateCenter.y) && (mVertexBuffer->mVertexes[i].Position[2] > headRotateCenter.z) && (mVertexBuffer->mVertexes[i].Position[1] > mVertexBuffer->mVertexes[jawIndex].Position[1]))
             {
+                LOGI("weight=1.0f -2-: point=%d\n", i);
                 mVertexBuffer->mBoneWeightArray[i][j] = 1.0f;
             }
             else if(mVertexBuffer->mVertexes[i].Position[1] > headPartMinY)
@@ -293,6 +301,7 @@ void Human::ParseHumanBody()
                     if(RightOfLine(mVertexBuffer->mVertexes[i].Position[1], mVertexBuffer->mVertexes[i].Position[2], \
                         Y - dd, Z - dd, Y - dd - dd, Z))
                     {
+                        LOGI("0.0f<weight<1.0f : point=%d\n", i);
                         mVertexBuffer->mBoneWeightArray[i][j] = (10 - i) * 0.1f;
                     }
                     Y -= dd;
@@ -301,6 +310,7 @@ void Human::ParseHumanBody()
             }
             else
             {
+                LOGI("weight=0.0f : point=%d\n", i);
                 mVertexBuffer->mBoneWeightArray[i][j] = 0.0f;
             }
         }
@@ -327,6 +337,8 @@ bool Human::RightOfLine(float targetPointX, float targetPointY, float linePoint1
 
 void Human::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos)
 {
+#if 0
+    // 1. 画人
     // 因为模型的specularLight跟camera的位置有关，所以必须更新
     mShader->SetVec4("U_CameraPos", cameraPos.x, cameraPos.y, cameraPos.z, 1.0f);
 
@@ -351,7 +363,8 @@ void Human::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &
 //    }
 
     mVertexBuffer->Unbind();
-
+#endif
+    // 2. 画点
     mKeyPoints.DrawStaticMesh(viewMatrix, projectionMatrix, cameraPos);
 }
 

@@ -1,0 +1,828 @@
+diff --git a/app/src/main/assets/Res/human.fs b/app/src/main/assets/Res/human.fs
+index 6074a1c..ce17c77 100644
+--- a/app/src/main/assets/Res/human.fs
++++ b/app/src/main/assets/Res/human.fs
+@@ -2,77 +2,13 @@
+ precision mediump float;
+ #endif
+ 
+-uniform sampler2D U_Texture;
+-
+-uniform vec4 U_LightPos;
+-
+-uniform vec4 U_LightAmbient;
+-uniform vec4 U_AmbientMaterial;
+-
+-uniform vec4 U_LightDiffuse;
+-uniform vec4 U_DiffuseMaterial;
+-
+-uniform vec4 U_LightSpecular;
+-uniform vec4 U_SpecularMaterial;
+-
+-uniform vec4 U_CameraPos;
+-uniform vec4 U_LightOpt;
++uniform vec4 U_PointColor;
+ 
+ varying vec4 V_Color;
+-varying vec4 V_Normal;
+-varying vec4 V_WorldPos;
+-varying vec4 V_Texcoord;
+-
+-vec4  GetPointLight()
+-{
+-    float distance = 0.0;
+-    float constantFactor = 1.0;
+-    float linearFactor = 0.0;
+-    float quadricFactor = 0.0;
+-    vec4 ambientColor = U_LightAmbient * U_AmbientMaterial;
+ 
+-    vec3 L = vec3(0.0, 1.0, 0.0) - V_WorldPos.xyz;
+-    distance = length(L);
+-    float attenuation = 1.0 / (constantFactor + linearFactor * distance + quadricFactor * quadricFactor * distance);
+ 
+-    L = normalize(L);
+-    vec3 n = normalize(V_Normal.xyz);
+-    float diffuseIntensity = max(0.0, dot(L, n));
+-    vec4 diffuseColor = vec4(1.0, 1.0, 1.0, 1.0) * vec4(0.1, 0.4, 0.6, 1.0) * diffuseIntensity * attenuation * 2.0;
+-
+-    return ambientColor + diffuseColor;
+-}
+ 
+ void main()
+ {
+-    vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
+-
+-    vec4 ambientColor = U_LightAmbient * U_AmbientMaterial;
+-
+-    vec3 lightPos = U_LightPos.xyz;
+-    vec3 L = lightPos;
+-    L = normalize(L);
+-    vec3 n = normalize(V_Normal.xyz);
+-    float diffuseIntensity = max(0.0, dot(L, n));
+-    vec4 diffuseColor = U_LightDiffuse * U_DiffuseMaterial * diffuseIntensity;
+-
+-    vec4 specularColor = vec4(0.0, 0.0, 0.0, 0.0);
+-    if(0.0 != diffuseIntensity)
+-    {
+-        vec3 reflectDir = normalize(reflect(-L, n));
+-        vec3 viewDir = normalize(U_CameraPos.xyz - V_WorldPos.xyz);
+-        specularColor = U_LightSpecular * U_SpecularMaterial * pow(max(0.0, dot(viewDir, reflectDir)), U_LightOpt.x);
+-    }
+-
+-    if(1.0 == U_LightOpt.w)
+-    {
+-        color = (ambientColor + diffuseColor) * texture2D(U_Texture, V_Texcoord.xy) + specularColor;
+-    } else if (2.0 == U_LightOpt.w){
+-        color = (ambientColor + diffuseColor + GetPointLight()) * texture2D(U_Texture, V_Texcoord.xy);
+-    } else {
+-        color = (ambientColor + diffuseColor) * vec4(1.0, 1.0, 0.0, 1.0);
+-    }
+-
+-    gl_FragColor = color;
+-
++    gl_FragColor = vec4(0.8, 0.6, 0.0, 1.0);
+ }
+\ No newline at end of file
+diff --git a/app/src/main/assets/Res/human.vs b/app/src/main/assets/Res/human.vs
+index 9184ae3..4838664 100644
+--- a/app/src/main/assets/Res/human.vs
++++ b/app/src/main/assets/Res/human.vs
+@@ -3,23 +3,51 @@ attribute vec4 color;
+ attribute vec4 texcoord;
+ attribute vec4 normal;
+ 
++attribute float meshInfoId;
++
++//--------------------------------------------
++// Skeleton Mesh Info
++uniform int boneCounts[100];
++uniform ivec4 boneIdsArray[100];
++uniform vec4 boneWeightArray[100];
++
++uniform int boneIndexArray[10];
++uniform mat4 boneWorldModelMatrixArray[10];
++uniform mat4 boneOffsetMatrixArray[10];
++//--------------------------------------------
++
+ uniform mat4 ModelMatrix;
+ uniform mat4 ViewMatrix;
+ uniform mat4 ProjectionMatrix;
+ 
+-uniform mat4 IT_ModelMatrix;
+-
+-varying vec4 V_Color;
+-varying vec4 V_Normal;
+-varying vec4 V_WorldPos;
+-varying vec4 V_Texcoord;
+ 
+ void main()
+ {
+-    V_Color = color;
+-    V_Normal = IT_ModelMatrix * normal;
+-    //V_Normal = ModelMatrix * normal;
+-    V_WorldPos = ModelMatrix * position;
+-    V_Texcoord = texcoord;
+-    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * position;
++
++    vec4 originPos = position;
++    mat4 worldMat;
++    mat4 offsetMat;
++    mat4 combineMat;
++    float weight = 0.0;
++    vec4 vc;
++    vec4 finalPos;
++
++    for(int j = 0; j < boneIndexArray.length; ++j)
++    {
++        for(int i = 0; i < boneCounts[int(meshInfoId + 0.5)]; ++i)
++        {
++            if(boneIdsArray[int(meshInfoId + 0.5)][i] == boneIndexArray[j])
++            {
++                combineMat =  boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j];
++                weight = boneWeightArray[int(meshInfoId + 0.5)][i];
++
++                vc = weight * combineMat * originPos;
++                //vc.w = 1.0;
++                finalPos = finalPos + vc;
++            }
++        }
++    }
++
++    gl_PointSize = 8.0;
++    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * finalPos;
+ }
+\ No newline at end of file
+diff --git a/app/src/main/assets/Res/skeleton_dynamic.fs b/app/src/main/assets/Res/skeleton_dynamic.fs
+index fbe0542..6200ead 100644
+--- a/app/src/main/assets/Res/skeleton_dynamic.fs
++++ b/app/src/main/assets/Res/skeleton_dynamic.fs
+@@ -6,9 +6,10 @@ uniform vec4 U_PointColor;
+ 
+ varying vec4 V_Color;
+ 
+-
++float angle = 0.0;
+ 
+ void main()
+ {
+-    gl_FragColor = U_PointColor;
++    angle += 1.0;
++    gl_FragColor = U_PointColor; //vec4((sin(angle) + 1.0) / 2.0, 0.6, 0.0, 1.0);
+ }
+\ No newline at end of file
+diff --git a/app/src/main/jni/Bone.cpp b/app/src/main/jni/Bone.cpp
+index 0aee7fe..d3b684b 100644
+--- a/app/src/main/jni/Bone.cpp
++++ b/app/src/main/jni/Bone.cpp
+@@ -12,6 +12,11 @@ void Bone::setPosition(float x, float y, float z)
+     mLocalTranslateMatrix = glm::translate(x, y, z);
+ }
+ 
++void Bone::setPosition(glm::vec3 pos)
++{
++    mLocalTranslateMatrix = glm::translate(pos);
++}
++
+ void Bone::setRotation(float angle, float x, float y, float z)
+ {
+     mLocalRotationMatrix = glm::rotate(angle, x, y, z);
+diff --git a/app/src/main/jni/Bone.h b/app/src/main/jni/Bone.h
+index 6142b31..8212484 100644
+--- a/app/src/main/jni/Bone.h
++++ b/app/src/main/jni/Bone.h
+@@ -27,6 +27,7 @@ class Bone
+ public:
+ 	Bone();
+     void setPosition(float x, float y, float z);
++    void setPosition(glm::vec3 pos);
+     void setRotation(float angle, float x, float y, float z);
+ 
+     ~Bone(); 
+diff --git a/app/src/main/jni/Human.cpp b/app/src/main/jni/Human.cpp
+index bf0dd12..49c9aa4 100644
+--- a/app/src/main/jni/Human.cpp
++++ b/app/src/main/jni/Human.cpp
+@@ -6,7 +6,12 @@
+ #include "utils.h"
+ 
+ Human::Human() {
++    mBoneRoot = nullptr;
++}
+ 
++Human::~Human()
++{
++    delete mBoneRoot;
+ }
+ 
+ void Human::Init(AAssetManager *assetManager, const char *modelPath)
+@@ -121,8 +126,10 @@ void Human::Init(AAssetManager *assetManager, const char *modelPath)
+ 
+         temp = normals[vertexes[i].normalIndex - 1].v;
+         mVertexBuffer->SetNormal(i, temp[0], temp[1], temp[2]);
++
++        mVertexBuffer->SetMeshInfoId(i);
+     }
+-    LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
++    LOGI("Human::Init: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
+ 
+     // 加载Shader
+     mShader = new Shader;
+@@ -145,14 +152,14 @@ void Human::Init(AAssetManager *assetManager, const char *modelPath)
+     mShader->SetVec4("U_CameraPos", 0.0f, 0.0f, 0.0f, 1.0f);
+     mShader->SetVec4("U_LightOpt", 32.0f, 0.0f, 0.0f, 0.0f);
+ 
+-    mKeyPoints.Init(5, assetManager, "");
++    mKeyPoints.Init(6, assetManager, "");
+     mKeyPoints.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
+ 
+ }
+ 
+ void Human::ParseHumanBody()
+ {
+-    LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
++    LOGI("Human::ParseHumanBody: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
+     float maxY = 0.0f, minY = 0.0f;
+     int maxYIndex = 0, minYIndex = 0;
+     float maxX = 0.0f, minX = 0.0f;
+@@ -184,20 +191,20 @@ void Human::ParseHumanBody()
+             minYIndex = i;
+         }
+     }
+-    // mtopPoint
++    // 头顶 mtopPoint
+     mKeyPoints.SetPointPosition(0, mVertexBuffer->mVertexes[maxYIndex].Position[0], mVertexBuffer->mVertexes[maxYIndex].Position[1], mVertexBuffer->mVertexes[maxYIndex].Position[2]);
+     LOGI("\n\n---------------------------------\n");
+     print_array(mVertexBuffer->mVertexes[maxYIndex].Position, 4);
+ 
+-    // mbottomPoint
++    // 脚底 mbottomPoint
+     mKeyPoints.SetPointPosition(1, mVertexBuffer->mVertexes[minYIndex].Position[0], mVertexBuffer->mVertexes[minYIndex].Position[1], mVertexBuffer->mVertexes[minYIndex].Position[2]);
+     print_array(mVertexBuffer->mVertexes[minYIndex].Position, 4);
+ 
+-    // mLeftPoint
++    // 左手 mLeftPoint
+     mKeyPoints.SetPointPosition(2, mVertexBuffer->mVertexes[minXIndex].Position[0], mVertexBuffer->mVertexes[minXIndex].Position[1], mVertexBuffer->mVertexes[minXIndex].Position[2]);
+     print_array(mVertexBuffer->mVertexes[minXIndex].Position, 4);
+ 
+-    // mRightPoint
++    // 右手 mRightPoint
+     mKeyPoints.SetPointPosition(3, mVertexBuffer->mVertexes[maxXIndex].Position[0], mVertexBuffer->mVertexes[maxXIndex].Position[1], mVertexBuffer->mVertexes[maxXIndex].Position[2]);
+     print_array(mVertexBuffer->mVertexes[maxXIndex].Position, 4);
+ 
+@@ -205,50 +212,183 @@ void Human::ParseHumanBody()
+     mWidth = maxX - minX;
+ 
+     float headHeight = mHeight * mHeadPercentage;
+-    float jawY = maxY - headHeight;
++    float headPartMinY = maxY - headHeight;
+     float noseZ = -1000.0f;
+     int noseZIndex = 0;
+ 
++    float jawY = 1000.0f, jawZ = -1000.0f;
++    int jawIndex = 0;
++
+     for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
+ 
+-        if(mVertexBuffer->mVertexes[i].Position[1] > jawY)
++        if(mVertexBuffer->mVertexes[i].Position[1] > headPartMinY)
+         {
++            // 鼻子是头部Z值最大的点
+             if(mVertexBuffer->mVertexes[i].Position[2] > noseZ)
+             {
+                 noseZ = mVertexBuffer->mVertexes[i].Position[2];
+                 noseZIndex = i;
+             }
++
++            // 下巴是头部Y值最小或Z值最大的点
++            if((mVertexBuffer->mVertexes[i].Position[1] < jawY) || (mVertexBuffer->mVertexes[i].Position[2] > jawZ))
++            {
++                jawY = mVertexBuffer->mVertexes[i].Position[1];
++                jawZ = mVertexBuffer->mVertexes[i].Position[2];
++                jawIndex = i;
++            }
+         }
++
+     }
+ 
+-    // nose
++    // 鼻子 mNosePoint
+     mKeyPoints.SetPointPosition(4, mVertexBuffer->mVertexes[noseZIndex].Position[0], mVertexBuffer->mVertexes[noseZIndex].Position[1], mVertexBuffer->mVertexes[noseZIndex].Position[2]);
+     print_array(mVertexBuffer->mVertexes[noseZIndex].Position, 4);
+ 
++    // 下巴 mJawPoint
++    mKeyPoints.SetPointPosition(5, mVertexBuffer->mVertexes[jawIndex].Position[0], mVertexBuffer->mVertexes[jawIndex].Position[1], mVertexBuffer->mVertexes[jawIndex].Position[2]);
++    print_array(mVertexBuffer->mVertexes[jawIndex].Position, 4);
++
+     LOGI("---------------------------------\n\n\n");
++
++    // 下面开始计算头部的旋转中心
++    // 头部最高点与鼻子的各自垂直延长线的交点
++    glm::vec3 headRotateCenter = glm::vec3(mVertexBuffer->mVertexes[maxYIndex].Position[0], mVertexBuffer->mVertexes[noseZIndex].Position[1], mVertexBuffer->mVertexes[maxYIndex].Position[2]);
++
++    // 计算骨骼权重
++    mBoneRoot = new Bone();
++    mBoneRoot->setPosition(headRotateCenter);
++    mBoneRoot->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
++
++    mVertexBuffer->mBoneCountsArray.resize(mVertexBuffer->mVertexCount);
++    mVertexBuffer->mBoneIdsArray.resize(mVertexBuffer->mVertexCount);
++    mVertexBuffer->mBoneWeightArray.resize(mVertexBuffer->mVertexCount);
++    for(int i = 0; i < mVertexBuffer->mVertexCount; ++i)
++    {
++        mVertexBuffer->mBoneCountsArray[i] = 1;
++
++        // 假设每个顶点拥有的骨骼数量不超过4个
++        for(int j = 0; j < mVertexBuffer->mBoneCountsArray[i]; ++j)
++        {
++            mVertexBuffer->mBoneIdsArray[i][j] = 99;
++
++            // 权重的分配
++            // 1. 头部旋转中心点和下巴的连线，构成“厂”形上部区域权重全部为1.0f
++            // 2. headPartMinY以上的其他区域，以Y = Z的函数关系分配权重
++            // 3. 身体其他部分权重为0
++            if(mVertexBuffer->mVertexes[i].Position[1] > headRotateCenter.y)
++            {
++                mVertexBuffer->mBoneWeightArray[i][j] = 1.0f;
++            }
++            else if((mVertexBuffer->mVertexes[i].Position[1] < headRotateCenter.y) && (mVertexBuffer->mVertexes[i].Position[2] > headRotateCenter.z) && (mVertexBuffer->mVertexes[i].Position[1] > mVertexBuffer->mVertexes[jawIndex].Position[1]))
++            {
++                mVertexBuffer->mBoneWeightArray[i][j] = 1.0f;
++            }
++            else if(mVertexBuffer->mVertexes[i].Position[1] > headPartMinY)
++            {
++                float dd = (headRotateCenter.y - headPartMinY) / 10.0f;
++                float Y = headRotateCenter.y, Z = headRotateCenter.z;
++                for (int i = 0; i < 10; ++i) {
++                    // 下面需要判断当前的顶点在Y = -Z直线的右边
++                    if(RightOfLine(mVertexBuffer->mVertexes[i].Position[1], mVertexBuffer->mVertexes[i].Position[2], \
++                        Y - dd, Z - dd, Y - dd - dd, Z))
++                    {
++                        mVertexBuffer->mBoneWeightArray[i][j] = (10 - i) * 0.1f;
++                    }
++                    Y -= dd;
++                    Z -= dd;
++                }
++            }
++            else
++            {
++                mVertexBuffer->mBoneWeightArray[i][j] = 0.0f;
++            }
++        }
++    }
++
++    mVertexBuffer->mBoneIndexArray.resize(1);
++    mVertexBuffer->mBoneIndexArray[0] = 99;
++
++    mVertexBuffer->mBoneWorldModelMatrixArray.resize(1);
++    mVertexBuffer->mBoneOffsetMatrixArray.resize(1);
++
++    ComputeWorldModelMatrix(glm::mat4());
++
++    mBoneRoot->ComputeBoneOffset();
++}
++
++bool Human::RightOfLine(float targetPointX, float targetPointY, float linePoint1X, float linePoint1Y, float linePoint2X, float linePoint2Y)
++{
++
++    float result = ((linePoint2Y - linePoint1Y) * targetPointX + (linePoint1X - linePoint2X) * targetPointY + (linePoint2X * linePoint1Y - linePoint1X * linePoint2Y));
++
++    return (result <= 0);
+ }
+ 
+ void Human::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos)
+ {
+ #if 1
+-    // 因为模型的specularLight跟camera的位置有关，所以必须更新
+-    mShader->SetVec4("U_CameraPos", cameraPos.x, cameraPos.y, cameraPos.z, 1.0f);
+ 
+     glEnable(GL_DEPTH_TEST);
+     mVertexBuffer->Bind();
+ 
+-    // https://www.cnblogs.com/bigdudu/articles/4191042.html
+-    // 解决缩放不一致，导致法线不垂直的问题
+-    glm::mat4 it = glm::inverse(mModelMatrix);
++//    mShader->BindMVP(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
++    mShader->Bind(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix), mVertexBuffer);
++
+ 
+-    mShader->BindMVP(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix),
+-                     glm::value_ptr(projectionMatrix));
+-    glUniformMatrix4fv(glGetUniformLocation(mShader->mProgram, "IT_ModelMatrix"), 1, GL_FALSE, glm::value_ptr(it));
++//    glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer->mVertexCount);
+ 
+-    glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer->mVertexCount);
++    // draw points
++    // add vertex shader: gl_PointSize = 8.0;
++    for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
++        glDrawArrays(GL_POINTS, i, 1);
++    }
+ 
+     mVertexBuffer->Unbind();
+ #endif
+ 
+     mKeyPoints.DrawStaticMesh(viewMatrix, projectionMatrix, cameraPos);
+ }
++
++void Human::ComputeWorldModelMatrix(glm::mat4 fatherModelMatrix)
++{
++    mBoneRoot->ComputeWorldModelMatrix(fatherModelMatrix);
++}
++
++void Human::retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb)
++{
++    for (int i = 0; i < vb->mBoneIndexArray.size(); ++i) {
++        if(pBone->mBoneIndex == vb->mBoneIndexArray[i])
++        {
++            vb->mBoneWorldModelMatrixArray[i] = pBone->mWorldModelMatrix;
++            vb->mBoneOffsetMatrixArray[i] = pBone->m_boneOffset.mOffsetMatrix;
++        }
++    }
++
++    if(pBone->m_pSibling != NULL)
++        retrieveBoneMatrices(pBone->m_pSibling, vb);
++
++    if(pBone->m_pFirstChild != NULL)
++        retrieveBoneMatrices(pBone->m_pFirstChild, vb);
++}
++
++void Human::UpdateMatrices()
++{
++    retrieveBoneMatrices(mBoneRoot, mVertexBuffer);
++}
++
++
++void Human::animateBones()
++{
++    angle += df;
++    if(angle > 20.0f)
++    {
++        df = -0.001f;
++    }
++    if(angle < -20.0f)
++    {
++        df = 0.001f;
++    }
++    mBoneRoot->mLocalRotationMatrix = glm::mul(glm::rotate(angle, 0.0f, 1.0f, 0.0f), mBoneRoot->mLocalRotationMatrix);
++
++}
+\ No newline at end of file
+diff --git a/app/src/main/jni/Human.h b/app/src/main/jni/Human.h
+index 8f7be25..f466aeb 100644
+--- a/app/src/main/jni/Human.h
++++ b/app/src/main/jni/Human.h
+@@ -4,6 +4,8 @@
+ 
+ #include "Model.h"
+ #include "Point.h"
++#include "Bone.h"
++
+ 
+ #ifndef GLDEMO_HUMAN_H
+ #define GLDEMO_HUMAN_H
+@@ -12,17 +14,33 @@
+ class Human: public Model{
+ public:
+     Human();
++    ~Human();
+ 
+-    glm::vec3 mtopPoint, mbottomPoint, mLeftPoint, mRightPoint, mJawPoint;
++    glm::vec3 mtopPoint, mbottomPoint, mLeftPoint, mRightPoint, mNosePoint, mJawPoint;
+     float mHeight, mWidth;
+     // 男性头身比是7，女性头身比是6
+     const float mHeadPercentage = 1.0f / 7.0f;
+ 
++    Bone *mBoneRoot;
++
+     Point mKeyPoints;
+ 
+     void Init(AAssetManager *assetManager, const char *modelPath);
+     void ParseHumanBody();
++    bool RightOfLine(float targetPointX, float targetPointY, float linePoint1X, float linePoint1Y, float linePoint2X, float linePoint2Y);
+     void Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos);
++    void ComputeWorldModelMatrix(glm::mat4 fatherModelMatrix);
++
++    void retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb);
++
++    void UpdateMatrices();
++
++    void animateBones();
++
++private:
++    float time1 = 0.0f;
++    float angle = 0.0f;
++    float df = 0.001f;
+ 
+ };
+ 
+diff --git a/app/src/main/jni/Model.cpp b/app/src/main/jni/Model.cpp
+index 677b5d8..4d87b43 100644
+--- a/app/src/main/jni/Model.cpp
++++ b/app/src/main/jni/Model.cpp
+@@ -108,7 +108,7 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
+     // 因为绘制是以三角形面为基础，很多点会被复用，
+     // 所以我们在统计总共要绘制的点的数量时，就应以三角形面数 x 3，也就是vertexes
+     int vertexCounts = vertexes.size();
+-    LOGI("vertexCounts = %d", vertexCounts);
++    LOGI("Model::Init: vertexCounts = %d", vertexCounts);
+     mVertexBuffer = new VertexBuffer();
+     mVertexBuffer->SetSize(vertexCounts);
+     for (int i = 0; i < vertexCounts; ++i)
+@@ -123,7 +123,7 @@ void Model::Init(AAssetManager *assetManager, const char *modelPath)
+         temp = normals[vertexes[i].normalIndex - 1].v;
+         mVertexBuffer->SetNormal(i, temp[0], temp[1], temp[2]);
+     }
+-    LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
++    LOGI("Model::Init: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
+ 
+     // 加载Shader
+     mShader = new Shader;
+diff --git a/app/src/main/jni/Point.cpp b/app/src/main/jni/Point.cpp
+index 0a57b7e..b541a32 100644
+--- a/app/src/main/jni/Point.cpp
++++ b/app/src/main/jni/Point.cpp
+@@ -32,7 +32,7 @@ void Point::Init(int pointCounts, AAssetManager *assetManager, const char *model
+         mVertexBuffer->SetColor(i, 0.9f, 0.6f, 0.1f);
+     }
+ 
+-    LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
++    LOGI("Point::Init: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
+ 
+     //=======================2===================
+     // 加载Shader
+diff --git a/app/src/main/jni/SkinMesh.cpp b/app/src/main/jni/SkinMesh.cpp
+index 2852673..b7e7c44 100644
+--- a/app/src/main/jni/SkinMesh.cpp
++++ b/app/src/main/jni/SkinMesh.cpp
+@@ -42,7 +42,7 @@ void SkinMesh::DrawStaticMesh(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
+     mShader->SetVec4("U_PointColor", 0.2f, 0.9f, 0.2f, 1.0f);
+ //    mShader->SetVec4("U_Bool", 1.0f, 0.0f, 0.0f, 0.0f);
+ 
+-    glm::mat4 identityMat = glm::mat4();//glm::translate(-0.1f, -0.1f, 0.0f);
++    glm::mat4 identityMat = glm::translate(-0.1f, -0.1f, 0.0f);
+     mShader->BindMVP(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix),
+                      glm::value_ptr(projectionMatrix));
+ 
+@@ -53,10 +53,10 @@ void SkinMesh::DrawStaticMesh(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
+     }
+ 
+     // draw lines
+-//    glLineWidth(2.0f);
+-//    for (int i = 0; i < mVertexBuffer->mVertexCount - 1; ++i) {
+-//        glDrawArrays(GL_LINES, i, 2);
+-//    }
++    glLineWidth(2.0f);
++    for (int i = 0; i < mVertexBuffer->mVertexCount - 1; ++i) {
++        glDrawArrays(GL_LINES, i, 2);
++    }
+ 
+     mVertexBuffer->Unbind();
+ }
+@@ -93,8 +93,7 @@ void SkinMesh::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec
+ 
+ }
+ 
+-float time1 = 0.0f;
+-float angle = 0.0f;
++
+ void SkinMesh::animateBones()
+ {
+ 
+@@ -207,17 +206,17 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
+         mVertexBuffer->SetMeshInfoId(i);
+     }
+ 
+-    LOGI("mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
++    LOGI("SkinMesh::Init: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
+ 
+     //=======================2===================
+     // 加载Shader
+-    mShader = new Shader;
++    mShader = new Shader();
+     mShader->Init(assetManager, "Res/skeleton.vs", "Res/skeleton.fs");
+ 
+     // 光照
+     mShader->SetVec4("U_PointColor", 0.6f, 0.6f, 0.6f, 1.0f);
+ 
+-    mShaderDynamic = new Shader;
++    mShaderDynamic = new Shader();
+     mShaderDynamic->Init(assetManager, "Res/skeleton_dynamic.vs", "Res/skeleton_dynamic.fs");
+ 
+     // 光照
+@@ -342,7 +341,7 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
+     mVertexBuffer->mBoneWorldModelMatrixArray.resize(5);
+     mVertexBuffer->mBoneOffsetMatrixArray.resize(5);
+ 
+-    LOGI("mVertexBuffer->mBoneIndexArray.size = %d\n", int(mVertexBuffer->mBoneIndexArray.size()));
++    LOGI("mVertexBuffer->mBoneIndexArray.size = %d\n", mVertexBuffer->mBoneIndexArray.size());
+     LOGI("mVertexBuffer->mBoneIndexArray.capacity = %d\n", mVertexBuffer->mBoneIndexArray.capacity());
+     LOGI("mVertexBuffer->mBoneIndexArray[0] = %d\n", mVertexBuffer->mBoneIndexArray[0]);
+     LOGI("mVertexBuffer->mBoneIndexArray[1] = %d\n", mVertexBuffer->mBoneIndexArray[1]);
+diff --git a/app/src/main/jni/SkinMesh.h b/app/src/main/jni/SkinMesh.h
+index 6050725..823b97c 100644
+--- a/app/src/main/jni/SkinMesh.h
++++ b/app/src/main/jni/SkinMesh.h
+@@ -42,5 +42,9 @@ public:
+ 
+ 	void animateBones();
+ 	int dir, dir2;
++
++private:
++	float time1 = 0.0f;
++	float angle = 0.0f;
+ };
+ 
+diff --git a/app/src/main/jni/scene.cpp b/app/src/main/jni/scene.cpp
+index 3d297c6..0ff4a4c 100644
+--- a/app/src/main/jni/scene.cpp
++++ b/app/src/main/jni/scene.cpp
+@@ -11,7 +11,6 @@
+ #include "SkyBox.h"
+ #include "ParticleSystem.h"
+ #include "skeleton_animation.h"
+-#include "Human.h"
+ 
+ // 矩阵默认是单位矩阵
+ glm::mat4 tempMatrix, viewMatrix, projectionMatrix;
+@@ -22,7 +21,6 @@ glm::vec3 cameraPos(2.5f, 0.0f, 5.0f);
+ Ground ground;
+ 
+ Model sphere, niutou;
+-Human man;
+ 
+ SkyBox skybox;
+ 
+@@ -51,27 +49,20 @@ void InitGL(AAssetManager *assetManager)
+     ground.SetPosition(0.0f, -30.0f, 0.0f);
+     LOGI("------InitGL2-------");
+     // 球
+-    sphere.Init(assetManager, "Res/Sphere.obj");
+-    sphere.SetPosition(0.0f, 0.0f, -2.0f);
+-    sphere.SetTexure("Res/earth.bmp");
++//    sphere.Init(assetManager, "Res/Sphere.obj");
++//    sphere.SetPosition(0.0f, 0.0f, -2.0f);
++//    sphere.SetTexure("Res/earth.bmp");
+ 
+     // 天空盒
+-    skybox.Init(assetManager, "Res/");
++//    skybox.Init(assetManager, "Res/");
+ 
+     // 牛头
+-    niutou.Init(assetManager, "Res/niutou.obj");
+-    niutou.SetTexure("Res/niutou.bmp");
+-    niutou.mModelMatrix = glm::translate(5.0f, -3.0f, 0.0f) * glm::scale(0.05f, 0.05f, 0.05f) * glm::rotate(-110.0f, 0.0f, 1.0f, 0.0f);
+-
+-    // 人体
+-    man.Init(assetManager, "Res/human_body.obj");
+-//    man.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
+-    man.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
+-    man.ParseHumanBody();
++//    niutou.Init(assetManager, "Res/niutou.obj");
++//    niutou.SetTexure("Res/niutou.bmp");
++//    niutou.mModelMatrix = glm::translate(5.0f, -3.0f, 0.0f) * glm::scale(0.05f, 0.05f, 0.05f) * glm::rotate(-110.0f, 0.0f, 1.0f, 0.0f);
+ 
+     // 粒子系统
+-    ps.Init(assetManager, 0.0f, 0.0f, 0.0f);
+-
++//    ps.Init(assetManager, 0.0f, 0.0f, 0.0f);
+ 
+     // 骨骼动画
+     skeleton.Init(assetManager, "");
+@@ -108,10 +99,9 @@ void DrawGL()
+ //    sphere.Draw(viewMatrix, projectionMatrix, cameraPos);
+ 
+     // 绘制牛头
+-    niutou.Draw(viewMatrix, projectionMatrix, cameraPos);
++//    niutou.Draw(viewMatrix, projectionMatrix, cameraPos);
++
+ 
+-    // 绘制人体
+-    man.Draw(viewMatrix, projectionMatrix, cameraPos);
+ 
+     // 绘制粒子
+ //    ps.Update(frameTime);
+diff --git a/app/src/main/jni/shader.cpp b/app/src/main/jni/shader.cpp
+index 7d03fbd..3fa07cb 100644
+--- a/app/src/main/jni/shader.cpp
++++ b/app/src/main/jni/shader.cpp
+@@ -66,6 +66,8 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
+     glDeleteShader(vsShader);
+     glDeleteShader(fsShader);
+ 
++    LOGI("Shader::Init mProgram = %d\n", mProgram);
++
+     if (0 == mProgram)
+     {
+         return false;
+@@ -105,7 +107,7 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
+ void Shader::Bind(float *M, float *V, float *P, VertexBuffer *vb)
+ {
+     BindMVP(M, V, P);
+-    BindBoneInfo(vb);
++//    BindBoneInfo(vb);
+ }
+ 
+ void Shader::BindMVP(float *M, float *V, float *P)
+@@ -114,14 +116,13 @@ void Shader::BindMVP(float *M, float *V, float *P)
+     {
+         return ;
+     }
+-
++#if 1
+     glUseProgram(mProgram);
+-
++#endif
+     glUniformMatrix4fv(mModelMatrixLocation, 1, GL_FALSE, M);
+     glUniformMatrix4fv(mViewMatrixLocation, 1, GL_FALSE, V);
+     glUniformMatrix4fv(mProjectionMatrixLocation, 1, GL_FALSE, P);
+ 
+-//    glUniformMatrix4fv(mVertexMoveMatrixLocation, 1, GL_FALSE, VM);
+ 
+ //    LOGI("mUniformTextures.size = %d", mUniformTextures.size());
+     // 启用多重纹理
+@@ -162,7 +163,7 @@ void Shader::BindMVP(float *M, float *V, float *P)
+ 
+ void Shader::BindBoneInfo(VertexBuffer *vb)
+ {
+-
++#if 1
+     //----------------------------------------------
+     // 每个顶点拥有的骨骼数量、骨骼ID、骨骼权重
+     glUniform1iv(mBoneCountsLocation,
+@@ -182,15 +183,15 @@ void Shader::BindBoneInfo(VertexBuffer *vb)
+                  vb->mBoneWeightArray.size(),
+             // Pointer to the first element of the matrix
+                  &(vb->mBoneWeightArray[0][0]));
+-
++#endif
+     //----------------------------------------------
+     // 所有骨骼的信息：ID、worldMatrix、OffsetMatrix
+-//    LOGI("mBoneIndexArrayLocation = %d\n", mBoneIndexArrayLocation);
+-//    LOGI("vb->mBoneIndexArray[0] = %d\n", vb->mBoneIndexArray[0]);
+-//    LOGI("vb->mBoneIndexArray[1] = %d\n", vb->mBoneIndexArray[1]);
+-//    LOGI("vb->mBoneIndexArray[2] = %d\n", vb->mBoneIndexArray[2]);
+-//    LOGI("vb->mBoneIndexArray[3] = %d\n", vb->mBoneIndexArray[3]);
+-//    LOGI("vb->mBoneIndexArray[4] = %d\n", vb->mBoneIndexArray[4]);
++    LOGI("mBoneWeightArrayLocation = %d\n", mBoneWeightArrayLocation);
++    LOGI("vb->mBoneWeightArray[0][0] = %f\n", vb->mBoneWeightArray[0][0]);
++    LOGI("vb->mBoneWeightArray[1][0] = %f\n", vb->mBoneWeightArray[1][0]);
++    LOGI("vb->mBoneWeightArray[2][0] = %f\n", vb->mBoneWeightArray[2][0]);
++    LOGI("vb->mBoneWeightArray[3][0] = %f\n", vb->mBoneWeightArray[3][0]);
++    LOGI("vb->mBoneWeightArray[4][0] = %f\n", vb->mBoneWeightArray[4][0]);
+     glUniform1iv(mBoneIndexArrayLocation,
+             // How many matrices to pass
+                  vb->mBoneIndexArray.size(),
+diff --git a/app/src/main/jni/skeleton_animation.cpp b/app/src/main/jni/skeleton_animation.cpp
+index 66810d3..dda243d 100644
+--- a/app/src/main/jni/skeleton_animation.cpp
++++ b/app/src/main/jni/skeleton_animation.cpp
+@@ -15,6 +15,12 @@ skeleton_animation::~skeleton_animation(void)
+ void skeleton_animation::Init(AAssetManager *assetManager, const char *modelPath)
+ {
+     mSkinMesh.Init(assetManager, modelPath);
++
++    // 人体
++//    mMan.Init(assetManager, "Res/human_body.obj");
++//    man.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
++//    mMan.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
++//    mMan.ParseHumanBody();
+ }
+ 
+ 
+@@ -35,6 +41,16 @@ void skeleton_animation::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
+ 
+     //draw deformed mesh
+     mSkinMesh.Draw(viewMatrix, projectionMatrix, cameraPos);
++
++
++
++    // 绘制人体
++//    mMan.animateBones();
++//    mMan.ComputeWorldModelMatrix(glm::mat4());
++//    mMan.UpdateMatrices();
++//    mMan.Draw(viewMatrix, projectionMatrix, cameraPos);
++
++
+ #if 0
+     //draw bone
+     mSkinMesh.g_boneRoot->Draw();
+diff --git a/app/src/main/jni/skeleton_animation.h b/app/src/main/jni/skeleton_animation.h
+index 231db41..7ed4e04 100644
+--- a/app/src/main/jni/skeleton_animation.h
++++ b/app/src/main/jni/skeleton_animation.h
+@@ -2,6 +2,7 @@
+ #include "ggl.h"
+ #include "Bone.h"
+ #include "SkinMesh.h"
++#include "Human.h"
+ 
+ class skeleton_animation
+ {
+@@ -11,6 +12,8 @@ public:
+ 
+ 	SkinMesh mSkinMesh;
+ 
++	Human mMan;
++
+ 	void Init(AAssetManager *assetManager, const char *modelPath);
+ 	void Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &cameraPos, float frameTime);
+ };

@@ -33,7 +33,7 @@ class MyGLSurface extends GLSurfaceView {
     public MyGLSurface(Context context){
         super(context);
 
-        setEGLContextClientVersion(2);  //使用OpenGL 2.0的渲染环境
+        setEGLContextClientVersion(3);  //使用OpenGL 2.0的渲染环境
 
         mRenderer = new MyGLRenderer();
         setRenderer(mRenderer);           //将渲染器Render关联给SurfaceView

@@ -43,9 +43,9 @@ void skeleton_animation::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
 
 
 
-    mMan.animateBones();
-    mMan.ComputeWorldModelMatrix(glm::mat4());
-    mMan.UpdateMatrices();
+    //mMan.animateBones();
+    //mMan.ComputeWorldModelMatrix(glm::mat4());
+    //mMan.UpdateMatrices();
     mMan.Draw(viewMatrix, projectionMatrix, cameraPos);
 
 

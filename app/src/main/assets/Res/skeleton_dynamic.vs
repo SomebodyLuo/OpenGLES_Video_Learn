@@ -30,16 +30,16 @@ vec4 getFinalPosition()
     vec4 vc;
     vec4 finalPos;
 
-    for(int j = 0; j < boneIndexArray.length; ++j)
+    for(int j = 0; j < boneIndexArray.length(); ++j)
     {
-        for(int i = 0; i < boneCounts[int(meshInfoId + 0.5)]; ++i)
+        for(int i = 0; i < boneCounts[int(meshInfoId)]; ++i)
         {
-            if(boneIdsArray[int(meshInfoId + 0.5)][i] == boneIndexArray[j])
+            if(boneIdsArray[int(meshInfoId)][i] == boneIndexArray[j])
             {
-                combineMat =  boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j];
-                weight = boneWeightArray[int(meshInfoId + 0.5)][i];
+                //combineMat =  boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j];
+                //weight = boneWeightArray[int(meshInfoId)][i];
 
-                vc = weight * combineMat * originPos;
+                vc = boneWeightArray[int(meshInfoId)][i] * boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j] * originPos;
                 //vc.w = 1.0;
                 finalPos = finalPos + vc;
             }
