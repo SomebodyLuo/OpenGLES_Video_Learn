@@ -10,5 +10,5 @@ varying vec4 V_Color;
 
 void main()
 {
-    gl_FragColor = V_Color; //vec4(0.1, 0.9, 0.0, 1.0);
+    gl_FragColor = U_PointColor; //vec4(0.1, 0.9, 0.0, 1.0);
 }

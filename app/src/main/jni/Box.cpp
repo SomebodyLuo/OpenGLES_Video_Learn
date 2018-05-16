@@ -85,20 +85,18 @@ void Box::Init(AAssetManager *assetManager, const char *modelPath)
     {
         mVertexBuffer->mBoneInfo[i].m_boneNum = 1;
 
+        mVertexBuffer->mVertexes[i].boneCounts = 1;
+
         for(int j=0; j < mVertexBuffer->mBoneInfo[i].m_boneNum; ++j)
         {
             Bone* pBone = g_boneRoot;
             pBone->mBoneIndex = 78;
 
             mVertexBuffer->mBoneInfo[i].SetBoneAndWeight(j, pBone, 1.0f);
-        }
-    }
 
-    for(int i = 0; i < m_vertexNum; ++i)
-    {
-        // 先测试一个骨骼
-        mVertexBuffer->mVertexes->boneIds[0] = 78;
-        mVertexBuffer->mVertexes->boneWeights[0] = 1.0f;
+            mVertexBuffer->mVertexes[i].boneIds[0] = 78;
+            mVertexBuffer->mVertexes[i].boneWeights[0] = 1.0f;
+        }
     }
 
 

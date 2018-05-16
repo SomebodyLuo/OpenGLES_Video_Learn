@@ -1,8 +1,9 @@
 attribute vec4 position;
 attribute vec4 color;
 attribute vec4 normal;
-attribute float boneIdsArray[4];
-attribute float boneWeightArray[4];
+attribute float boneCounts;
+attribute vec4 boneIdsArray;
+attribute vec4 boneWeightArray;
 
 //--------------------------------------------
 // Skeleton Info
@@ -29,15 +30,15 @@ vec4 getFinalPosition()
 
     for(int j = 0; j < boneIndexArray.length(); ++j)
     {
-        for(int i = 0; i < boneIdsArray.length(); ++i)
+        for(int i = 0; i < int(boneCounts); ++i)
         {
-            if(boneIdsArray[i] == boneIndexArray[j])
+            if((int(boneIdsArray[i])) == boneIndexArray[j])
             {
                 //combineMat =  boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j];
                 //weight = boneWeightArray[int(meshInfoId)][i];
 
                 vc = boneWeightArray[i] * boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j] * originPos;
-                //vc.w = 1.0;
+
                 finalPos = finalPos + vc;
             }
         }

@@ -15,10 +15,10 @@ skeleton_animation::~skeleton_animation(void)
 void skeleton_animation::Init(AAssetManager *assetManager, const char *modelPath)
 {
     mSkinMesh.Init(assetManager, modelPath);
-#if 0
+
     mBox.Init(assetManager, "");
     mBox.SetPosition(0.0f, 0.0f, 0.0f);
-
+#if 1
     mMan.Init(assetManager, "Res/human_body.obj");
 //    man.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
     mMan.mModelMatrix = glm::translate(3.0f, -8.0f, 2.5f) * glm::scale(0.5f, 0.5f, 0.5f) * glm::rotate(-20.0f, 0.0f, 1.0f, 0.0f);
@@ -41,14 +41,14 @@ void skeleton_animation::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
     //draw deformed mesh
     mSkinMesh.Draw(viewMatrix, projectionMatrix, cameraPos);
 
-#if 0
+
     mBox.animateBones();
     mBox.ComputeWorldModelMatrix(glm::mat4());
     mBox.UpdateMatrices();
     mBox.Draw(viewMatrix, projectionMatrix, cameraPos);
+#if 1
 
-
-    //mMan.animateBones();
+    mMan.animateBones();
     mMan.ComputeWorldModelMatrix(glm::mat4());
     mMan.UpdateMatrices();
     mMan.Draw(viewMatrix, projectionMatrix, cameraPos);
