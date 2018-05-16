@@ -64,7 +64,6 @@ void Box::Init(AAssetManager *assetManager, const char *modelPath)
     for (int i = 0; i < m_vertexNum; ++i) {
         mVertexBuffer->SetPosition(i, boxData[i*3 + 0], boxData[i*3 + 1], boxData[i*3 + 2]);
         mVertexBuffer->SetColor(i, 0.9f, 0.6f, 0.1f);
-        mVertexBuffer->SetMeshInfoId(i);
     }
 
     LOGI("Box::Init: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
@@ -95,19 +94,11 @@ void Box::Init(AAssetManager *assetManager, const char *modelPath)
         }
     }
 
-    mVertexBuffer->mBoneCountsArray.resize(m_vertexNum);
-    mVertexBuffer->mBoneIdsArray.resize(m_vertexNum);
-    mVertexBuffer->mBoneWeightArray.resize(m_vertexNum);
     for(int i = 0; i < m_vertexNum; ++i)
     {
-        mVertexBuffer->mBoneCountsArray[i] = 1;
-
-        // 假设每个顶点拥有的骨骼数量不超过4个
-        for(int j = 0; j < mVertexBuffer->mBoneCountsArray[i]; ++j)
-        {
-            mVertexBuffer->mBoneIdsArray[i][j] = 78;
-            mVertexBuffer->mBoneWeightArray[i][j] = 1.0f;
-        }
+        // 先测试一个骨骼
+        mVertexBuffer->mVertexes->boneIds[0] = 78;
+        mVertexBuffer->mVertexes->boneWeights[0] = 1.0f;
     }
 
 

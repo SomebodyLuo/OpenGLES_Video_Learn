@@ -127,7 +127,7 @@ void Human::Init(AAssetManager *assetManager, const char *modelPath)
         temp = normals[vertexes[i].normalIndex - 1].v;
         mVertexBuffer->SetNormal(i, temp[0], temp[1], temp[2]);
 
-        mVertexBuffer->SetMeshInfoId(i);
+//        mVertexBuffer->SetMeshInfoId(i);
     }
     LOGI("Human::Init: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
 
@@ -279,55 +279,55 @@ void Human::ParseHumanBody()
         }
     }
 
-    mVertexBuffer->mBoneCountsArray.resize(mVertexBuffer->mVertexCount);
-    mVertexBuffer->mBoneIdsArray.resize(mVertexBuffer->mVertexCount);
-    mVertexBuffer->mBoneWeightArray.resize(mVertexBuffer->mVertexCount);
-    for(int i = 0; i < mVertexBuffer->mVertexCount; ++i)
-    {
-        mVertexBuffer->mBoneCountsArray[i] = 1;
-
-        // 假设每个顶点拥有的骨骼数量不超过4个
-        for(int j = 0; j < mVertexBuffer->mBoneCountsArray[i]; ++j)
-        {
-            mVertexBuffer->mBoneIdsArray[i][j] = 99;
-
-            // 权重的分配
-            // 1. 头部旋转中心点和下巴的连线，构成“厂”形上部区域权重全部为1.0f
-            // 2. headPartMinY以上的其他区域，以Y = Z的函数关系分配权重
-            // 3. 身体其他部分权重为0
-            if(mVertexBuffer->mVertexes[i].Position[1] > headRotateCenter.y)
-            {
-                LOGI("weight=1.0f -1-: point=%d\n", i);
-                mVertexBuffer->mBoneWeightArray[i][j] = 1.0f;
-            }
-            else if((mVertexBuffer->mVertexes[i].Position[1] < headRotateCenter.y) && (mVertexBuffer->mVertexes[i].Position[2] > headRotateCenter.z) && (mVertexBuffer->mVertexes[i].Position[1] > mVertexBuffer->mVertexes[jawIndex].Position[1]))
-            {
-                LOGI("weight=1.0f -2-: point=%d\n", i);
-                mVertexBuffer->mBoneWeightArray[i][j] = 1.0f;
-            }
-            else if(mVertexBuffer->mVertexes[i].Position[1] > headPartMinY)
-            {
-                float dd = (headRotateCenter.y - headPartMinY) / 10.0f;
-                float Y = headRotateCenter.y, Z = headRotateCenter.z;
-                for (int i = 0; i < 10; ++i) {
-                    // 下面需要判断当前的顶点在Y = -Z直线的右边
-                    if(RightOfLine(mVertexBuffer->mVertexes[i].Position[1], mVertexBuffer->mVertexes[i].Position[2], \
-                        Y - dd, Z - dd, Y - dd - dd, Z))
-                    {
-                        LOGI("0.0f<weight<1.0f : point=%d\n", i);
-                        mVertexBuffer->mBoneWeightArray[i][j] = (10 - i) * 0.1f;
-                    }
-                    Y -= dd;
-                    Z -= dd;
-                }
-            }
-            else
-            {
-                LOGI("weight=0.0f : point=%d\n", i);
-                mVertexBuffer->mBoneWeightArray[i][j] = 0.0f;
-            }
-        }
-    }
+//    mVertexBuffer->mBoneCountsArray.resize(mVertexBuffer->mVertexCount);
+//    mVertexBuffer->mBoneIdsArray.resize(mVertexBuffer->mVertexCount);
+//    mVertexBuffer->mBoneWeightArray.resize(mVertexBuffer->mVertexCount);
+//    for(int i = 0; i < mVertexBuffer->mVertexCount; ++i)
+//    {
+//        mVertexBuffer->mBoneCountsArray[i] = 1;
+//
+//        // 假设每个顶点拥有的骨骼数量不超过4个
+//        for(int j = 0; j < mVertexBuffer->mBoneCountsArray[i]; ++j)
+//        {
+//            mVertexBuffer->mBoneIdsArray[i][j] = 99;
+//
+//            // 权重的分配
+//            // 1. 头部旋转中心点和下巴的连线，构成“厂”形上部区域权重全部为1.0f
+//            // 2. headPartMinY以上的其他区域，以Y = Z的函数关系分配权重
+//            // 3. 身体其他部分权重为0
+//            if(mVertexBuffer->mVertexes[i].Position[1] > headRotateCenter.y)
+//            {
+//                LOGI("weight=1.0f -1-: point=%d\n", i);
+//                mVertexBuffer->mBoneWeightArray[i][j] = 1.0f;
+//            }
+//            else if((mVertexBuffer->mVertexes[i].Position[1] < headRotateCenter.y) && (mVertexBuffer->mVertexes[i].Position[2] > headRotateCenter.z) && (mVertexBuffer->mVertexes[i].Position[1] > mVertexBuffer->mVertexes[jawIndex].Position[1]))
+//            {
+//                LOGI("weight=1.0f -2-: point=%d\n", i);
+//                mVertexBuffer->mBoneWeightArray[i][j] = 1.0f;
+//            }
+//            else if(mVertexBuffer->mVertexes[i].Position[1] > headPartMinY)
+//            {
+//                float dd = (headRotateCenter.y - headPartMinY) / 10.0f;
+//                float Y = headRotateCenter.y, Z = headRotateCenter.z;
+//                for (int i = 0; i < 10; ++i) {
+//                    // 下面需要判断当前的顶点在Y = -Z直线的右边
+//                    if(RightOfLine(mVertexBuffer->mVertexes[i].Position[1], mVertexBuffer->mVertexes[i].Position[2], \
+//                        Y - dd, Z - dd, Y - dd - dd, Z))
+//                    {
+//                        LOGI("0.0f<weight<1.0f : point=%d\n", i);
+//                        mVertexBuffer->mBoneWeightArray[i][j] = (10 - i) * 0.1f;
+//                    }
+//                    Y -= dd;
+//                    Z -= dd;
+//                }
+//            }
+//            else
+//            {
+//                LOGI("weight=0.0f : point=%d\n", i);
+//                mVertexBuffer->mBoneWeightArray[i][j] = 0.0f;
+//            }
+//        }
+//    }
 
     mVertexBuffer->mBoneIndexArray.resize(5);
     mVertexBuffer->mBoneIndexArray[0] = 99;

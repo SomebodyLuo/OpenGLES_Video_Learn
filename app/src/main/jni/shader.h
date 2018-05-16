@@ -44,10 +44,9 @@ public:
     std::map<std::string, UniformTexture *> mUniformTextures;
     std::map<std::string, UniformVector4f *> mUniformVec4s;
 
-    GLint mPositionLocation, mColorLocation, mTexcoordLocation, mNormalLocation, mMeshInfoIdLocation;
+    GLint mPositionLocation, mColorLocation, mTexcoordLocation, mNormalLocation, mBoneCountsLocation, mBoneIdsArrayLocation, mBoneWeightArrayLocation;
     GLint mModelMatrixLocation, mViewMatrixLocation, mProjectionMatrixLocation;
 
-    GLint mBoneCountsLocation, mBoneIdsArrayLocation, mBoneWeightArrayLocation;
     GLint mBoneIndexArrayLocation, mBoneWorldModelMatrixArrayLocation, mBoneOffsetMatrixArrayLocation;
 
     bool Init(AAssetManager *assetManager, const char*vs, const char *fs);

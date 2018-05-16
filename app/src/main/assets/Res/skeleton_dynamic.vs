@@ -1,17 +1,15 @@
 attribute vec4 position;
 attribute vec4 color;
 attribute vec4 normal;
-attribute float meshInfoId;
+attribute float boneCounts;
+attribute vec4 boneIdsArray;
+attribute vec4 boneWeightArray;
 
 //--------------------------------------------
-// Skeleton Mesh Info
-uniform int boneCounts[100];
-uniform ivec4 boneIdsArray[100];
-uniform vec4 boneWeightArray[100];
-
-uniform int boneIndexArray[10];
-uniform mat4 boneWorldModelMatrixArray[10];
-uniform mat4 boneOffsetMatrixArray[10];
+// Skeleton Info
+uniform int boneIndexArray[100];
+uniform mat4 boneWorldModelMatrixArray[100];
+uniform mat4 boneOffsetMatrixArray[100];
 //--------------------------------------------
 
 uniform mat4 ModelMatrix;
@@ -32,15 +30,15 @@ vec4 getFinalPosition()
 
     for(int j = 0; j < boneIndexArray.length(); ++j)
     {
-        for(int i = 0; i < boneCounts[int(meshInfoId)]; ++i)
+        for(int i = 0; i < int(boneCounts); ++i)
         {
-            if(boneIdsArray[int(meshInfoId)][i] == boneIndexArray[j])
+            if((int(boneIdsArray[i])) == boneIndexArray[j])
             {
                 //combineMat =  boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j];
                 //weight = boneWeightArray[int(meshInfoId)][i];
 
-                vc = boneWeightArray[int(meshInfoId)][i] * boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j] * originPos;
-                //vc.w = 1.0;
+                vc = boneWeightArray[i] * boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j] * originPos;
+
                 finalPos = finalPos + vc;
             }
         }
@@ -55,6 +53,8 @@ void main()
     vec4 finalPos;
 
     finalPos = getFinalPosition();
+
+    //V_Color = boneWeightArray;
 
     vec4 origin = vec4(0.0, 0.0, 0.0, 0.0);
     //--------------------------------------

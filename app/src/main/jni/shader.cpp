@@ -14,7 +14,10 @@ Shader::Shader()
     mColorLocation = -1;
     mNormalLocation = -1;
     mTexcoordLocation = -1;
-    mMeshInfoIdLocation = -1;
+
+    mBoneCountsLocation = -1;
+    mBoneIdsArrayLocation = -1;
+    mBoneWeightArrayLocation = -1;
 
     mModelMatrixLocation = -1;
     mViewMatrixLocation = -1;
@@ -79,19 +82,16 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     mColorLocation = glGetAttribLocation(mProgram, "color");
     mTexcoordLocation = glGetAttribLocation(mProgram, "texcoord");
     mNormalLocation = glGetAttribLocation(mProgram, "normal");
-    mMeshInfoIdLocation = glGetAttribLocation(mProgram, "meshInfoId");
-    LOGI("mMeshInfoIdLocation = %d\n", mMeshInfoIdLocation);
+    mBoneCountsLocation = glGetAttribLocation(mProgram, "boneCounts");
+    LOGI("mBoneCountsLocation = %d\n", mBoneCountsLocation);
+    mBoneIdsArrayLocation = glGetAttribLocation(mProgram, "boneIdsArray");
+    LOGI("mBoneIdsArrayLocation = %d\n", mBoneIdsArrayLocation);
+    mBoneWeightArrayLocation = glGetAttribLocation(mProgram, "boneWeightArray");
+    LOGI("mBoneWeightArrayLocation = %d\n", mBoneWeightArrayLocation);
 
     mModelMatrixLocation = glGetUniformLocation(mProgram, "ModelMatrix");
     mViewMatrixLocation = glGetUniformLocation(mProgram, "ViewMatrix");
     mProjectionMatrixLocation = glGetUniformLocation(mProgram, "ProjectionMatrix");
-
-    mBoneCountsLocation = glGetUniformLocation(mProgram, "boneCounts");
-    mBoneIdsArrayLocation = glGetUniformLocation(mProgram, "boneIdsArray");
-    mBoneWeightArrayLocation = glGetUniformLocation(mProgram, "boneWeightArray");
-    LOGI("mBoneCountsLocation = %d\n", mBoneCountsLocation);
-    LOGI("mBoneIdsArrayLocation = %d\n", mBoneIdsArrayLocation);
-    LOGI("mBoneWeightArrayLocation = %d\n", mBoneWeightArrayLocation);
 
     mBoneIndexArrayLocation = glGetUniformLocation(mProgram, "boneIndexArray");
     mBoneWorldModelMatrixArrayLocation = glGetUniformLocation(mProgram, "boneWorldModelMatrixArray");
@@ -117,6 +117,7 @@ void Shader::Bind(float *M, float *V, float *P, VertexBuffer *vb)
     glUniformMatrix4fv(mViewMatrixLocation, 1, GL_FALSE, V);
     glUniformMatrix4fv(mProjectionMatrixLocation, 1, GL_FALSE, P);
 
+#if 0
     //----------------------------------------------
     // 每个顶点拥有的骨骼数量、骨骼ID、骨骼权重
     glUniform1iv(mBoneCountsLocation,
@@ -145,6 +146,8 @@ void Shader::Bind(float *M, float *V, float *P, VertexBuffer *vb)
     LOGI("vb->mBoneWeightArray[2][0] = %f\n", vb->mBoneWeightArray[2][0]);
     LOGI("vb->mBoneWeightArray[3][0] = %f\n", vb->mBoneWeightArray[3][0]);
     LOGI("vb->mBoneWeightArray[4][0] = %f\n", vb->mBoneWeightArray[4][0]);
+#endif
+
     glUniform1iv(mBoneIndexArrayLocation,
             // How many matrices to pass
                  vb->mBoneIndexArray.size(),
@@ -200,8 +203,14 @@ void Shader::Bind(float *M, float *V, float *P, VertexBuffer *vb)
     glEnableVertexAttribArray(mNormalLocation);
     glVertexAttribPointer(mNormalLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 12));
 
-    glEnableVertexAttribArray(mMeshInfoIdLocation);
-    glVertexAttribPointer(mMeshInfoIdLocation, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 16));
+    glEnableVertexAttribArray(mBoneCountsLocation);
+    glVertexAttribPointer(mBoneCountsLocation, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 16));
+
+    glEnableVertexAttribArray(mBoneIdsArrayLocation);
+    glVertexAttribPointer(mBoneIdsArrayLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 17));
+
+    glEnableVertexAttribArray(mBoneWeightArrayLocation);
+    glVertexAttribPointer(mBoneWeightArrayLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 21));
 }
 
 void Shader::BindMVP(float *M, float *V, float *P)
@@ -250,9 +259,11 @@ void Shader::BindMVP(float *M, float *V, float *P)
     glEnableVertexAttribArray(mNormalLocation);
     glVertexAttribPointer(mNormalLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 12));
 
-    glEnableVertexAttribArray(mMeshInfoIdLocation);
-    glVertexAttribPointer(mMeshInfoIdLocation, 1, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 16));
+    glEnableVertexAttribArray(mBoneIdsArrayLocation);
+    glVertexAttribPointer(mBoneIdsArrayLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 16));
 
+    glEnableVertexAttribArray(mBoneWeightArrayLocation);
+    glVertexAttribPointer(mBoneWeightArrayLocation, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (void *)(sizeof(float) * 20));
 }
 
 void Shader::SetTexture(const char *name, const char *imagePath)

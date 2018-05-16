@@ -53,10 +53,10 @@ void SkinMesh::DrawStaticMesh(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
     }
 
     // draw lines
-    glLineWidth(2.0f);
-    for (int i = 0; i < mVertexBuffer->mVertexCount - 1; ++i) {
-        glDrawArrays(GL_LINES, i, 2);
-    }
+//    glLineWidth(2.0f);
+//    for (int i = 0; i < mVertexBuffer->mVertexCount - 1; ++i) {
+//        glDrawArrays(GL_LINES, i, 2);
+//    }
 
     mVertexBuffer->Unbind();
 }
@@ -204,7 +204,7 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     for (int i = 0; i < m_vertexNum; ++i) {
         mVertexBuffer->SetPosition(i, _meshData[i*3], _meshData[i*3 + 1], _meshData[i*3 + 2]);
         mVertexBuffer->SetColor(i, 0.9f, 0.6f, 0.1f);
-        mVertexBuffer->SetMeshInfoId(i);
+//        mVertexBuffer->SetMeshInfoId(i);
     }
 
     LOGI("SkinMesh::Init: mVertexBuffer->mVertexCount = %d", mVertexBuffer->mVertexCount);
@@ -289,6 +289,8 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     {
         mVertexBuffer->mBoneInfo[i].m_boneNum = _skinInfo[i*9];
 
+        mVertexBuffer->mVertexes[i].boneCounts = _skinInfo[i*9];
+
         for(int j=0; j < mVertexBuffer->mBoneInfo[i].m_boneNum; ++j)
         {
             Bone* pBone = g_boneRoot;
@@ -316,23 +318,13 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
             }
 
             mVertexBuffer->mBoneInfo[i].SetBoneAndWeight(j, pBone, _skinInfo[i*9 + 5 + j]);
+
+            // 给与骨骼权重
+            mVertexBuffer->mVertexes[i].boneIds[j] = _skinInfo[ i*9 + 1 + j];
+            mVertexBuffer->mVertexes[i].boneWeights[j] = _skinInfo[i*9 + 5 + j];
         }
     }
 
-    mVertexBuffer->mBoneCountsArray.resize(m_vertexNum);
-    mVertexBuffer->mBoneIdsArray.resize(m_vertexNum);
-    mVertexBuffer->mBoneWeightArray.resize(m_vertexNum);
-    for(int i = 0; i < m_vertexNum; ++i)
-    {
-        mVertexBuffer->mBoneCountsArray[i] = _skinInfo[i*9];
-
-        // 假设每个顶点拥有的骨骼数量不超过4个
-        for(int j = 0; j < mVertexBuffer->mBoneCountsArray[i]; ++j)
-        {
-            mVertexBuffer->mBoneIdsArray[i][j] = _skinInfo[i*9 + 1 + j];
-            mVertexBuffer->mBoneWeightArray[i][j] = _skinInfo[i*9 + 5 + j];
-        }
-    }
     mVertexBuffer->mBoneIndexArray.resize(5);
     mVertexBuffer->mBoneIndexArray[0] = 0;
     mVertexBuffer->mBoneIndexArray[1] = 1;

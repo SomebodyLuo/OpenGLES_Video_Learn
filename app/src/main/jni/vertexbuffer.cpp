@@ -11,19 +11,12 @@ VertexBuffer::VertexBuffer()
     mVertexCount = 0;
     mVertexes = nullptr;
 
-    mBoneCountsArray.clear();
-    mBoneCountsArray.reserve(100000);
-    mBoneIdsArray.clear();
-    mBoneIdsArray.reserve(100000);
-    mBoneWeightArray.clear();
-    mBoneWeightArray.reserve(100000);
-
     mBoneIndexArray.clear();
-    mBoneIndexArray.reserve(10);
+    mBoneIndexArray.reserve(100);
     mBoneWorldModelMatrixArray.clear();
-    mBoneWorldModelMatrixArray.reserve(10);
+    mBoneWorldModelMatrixArray.reserve(100);
     mBoneOffsetMatrixArray.clear();
-    mBoneOffsetMatrixArray.reserve(10);
+    mBoneOffsetMatrixArray.reserve(100);
 
 }
 
@@ -96,16 +89,7 @@ void VertexBuffer::SetNormal(int index, float x, float y, float z)
     mVertexes[index].Normal[2] = z;
 }
 
-void VertexBuffer::SetMeshInfoId(int index)
-{
-    if (index < 0 || index >= mVertexCount)
-    {
-        return;
-    }
 
-    mVertexes[index].meshId = index;
-
-}
 
 int VertexBuffer::GetByteSize()
 {
