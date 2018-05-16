@@ -73,7 +73,7 @@ void SkinMesh::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec
     mShaderDynamic->SetVec4("U_PointColor", 0.9f, 0.2f, 0.2f, 1.0f);
 
     glm::mat4 identityMat = glm::mat4();
-    mShaderDynamic->Bind(glm::value_ptr(identityMat), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix), mVertexBuffer);
+    mShaderDynamic->Bind(glm::value_ptr(identityMat), glm::value_ptr(identityMat), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix), mVertexBuffer);
 
     // draw points
     // add vertex shader: gl_PointSize = 8.0;
@@ -131,6 +131,8 @@ void SkinMesh::retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb)
     for (int i = 0; i < vb->mBoneIndexArray.size(); ++i) {
         if(pBone->mBoneIndex == vb->mBoneIndexArray[i])
         {
+            vb->mBoneWorldTranslateMatrixArray[i] = pBone->mLocalTranslateMatrix;
+            vb->mBoneWorldRotationMatrixArray[i] = pBone->mLocalRotationMatrix;
             vb->mBoneWorldModelMatrixArray[i] = pBone->mWorldModelMatrix;
             vb->mBoneOffsetMatrixArray[i] = pBone->m_boneOffset.mOffsetMatrix;
         }
@@ -336,6 +338,8 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     mVertexBuffer->mBoneIndexArray[2] = 2;
     mVertexBuffer->mBoneIndexArray[3] = 31;
     mVertexBuffer->mBoneIndexArray[4] = 32;
+    mVertexBuffer->mBoneWorldTranslateMatrixArray.resize(5);
+    mVertexBuffer->mBoneWorldRotationMatrixArray.resize(5);
     mVertexBuffer->mBoneWorldModelMatrixArray.resize(5);
     mVertexBuffer->mBoneOffsetMatrixArray.resize(5);
 

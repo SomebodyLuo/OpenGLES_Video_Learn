@@ -44,6 +44,7 @@ public:
     glm::mat4 mLocalTranslateMatrix;
 //    glm::mat4 mWorldTranslateMatrix;
 
+    glm::quat mRotation;
     glm::mat4 mLocalRotationMatrix;
 //    glm::mat4 mWorldRotationMatrix;
 

@@ -330,6 +330,8 @@ void Human::ParseHumanBody()
     mVertexBuffer->mBoneIndexArray.resize(5);
     mVertexBuffer->mBoneIndexArray[0] = 99;
 
+    mVertexBuffer->mBoneWorldTranslateMatrixArray.resize(5);
+    mVertexBuffer->mBoneWorldRotationMatrixArray.resize(5);
     mVertexBuffer->mBoneWorldModelMatrixArray.resize(5);
     mVertexBuffer->mBoneOffsetMatrixArray.resize(5);
 
@@ -355,13 +357,14 @@ void Human::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &
 
     glEnable(GL_DEPTH_TEST);
     mVertexBuffer->Bind();
-
-//    mShader->BindMVP(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
-    mShader->Bind(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix), mVertexBuffer);
 	
 	// https://www.cnblogs.com/bigdudu/articles/4191042.html
     // 解决缩放不一致，导致法线不垂直的问题
     glm::mat4 it = glm::inverse(mModelMatrix);
+
+//    mShader->BindMVP(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+    mShader->Bind(glm::value_ptr(it), glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix), mVertexBuffer);
+
     glUniformMatrix4fv(glGetUniformLocation(mShader->mProgram, "IT_ModelMatrix"), 1, GL_FALSE, glm::value_ptr(it));
 
 
@@ -389,6 +392,8 @@ void Human::retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb)
     for (int i = 0; i < vb->mBoneIndexArray.size(); ++i) {
         if(pBone->mBoneIndex == vb->mBoneIndexArray[i])
         {
+            vb->mBoneWorldTranslateMatrixArray[i] = pBone->mLocalTranslateMatrix;
+            vb->mBoneWorldRotationMatrixArray[i] = pBone->mLocalRotationMatrix;
             vb->mBoneWorldModelMatrixArray[i] = pBone->mWorldModelMatrix;
             vb->mBoneOffsetMatrixArray[i] = pBone->m_boneOffset.mOffsetMatrix;
         }
@@ -409,15 +414,15 @@ void Human::UpdateMatrices()
 
 void Human::animateBones()
 {
-    angle += df;
-    if(angle > 20.0f)
-    {
-        df = -0.001f;
-    }
-    if(angle < -20.0f)
-    {
-        df = 0.001f;
-    }
-    mBoneRoot->mLocalRotationMatrix =  mBoneRoot->mLocalRotationMatrix * glm::rotate(angle, 0.0f, 1.0f, 0.0f);
+    angle += 0.001;
+    //if(angle > 20.0f)
+    //{
+    //    df = -0.001f;
+    //}
+    //if(angle < -20.0f)
+    //{
+    //    df = 0.001f;
+    //}
+    mBoneRoot->setRotation(angle, 0.0f, 1.0f, 0.0f);
 
 }

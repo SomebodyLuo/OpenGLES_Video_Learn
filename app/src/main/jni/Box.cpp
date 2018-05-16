@@ -91,31 +91,45 @@ void Box::Init(AAssetManager *assetManager, const char *modelPath)
     //=======================3===================
     g_boneRoot = new Bone();
     g_boneRoot->setPosition(0, 0, 0);
-    g_boneRoot->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
+    g_boneRoot->setRotation(0.0f, 0.0f, 0.0f, 1.0f);
     g_boneRoot->setScale(1.0f, 1.0f, 1.0f);
+
+    g_boneVertex = new Bone();
+    g_boneVertex->setPosition(0.0, 0.0, 0);
+    g_boneVertex->setRotation(0.0f, 0.0f, 0.0f, 1.0f);
+    g_boneVertex->setScale(1.0f, 1.0f, 1.0f);
+
+    g_boneRoot->SetFirstChild(g_boneVertex);
+
+    Bone* pBone = g_boneRoot;
+    pBone->mBoneIndex = 0;
 
     for(int i=0; i<m_vertexNum; ++i)
     {
-        mVertexBuffer->mBoneInfo[i].m_boneNum = 1;
+//        mVertexBuffer->mBoneInfo[i].m_boneNum = 1;
 
         mVertexBuffer->mVertexes[i].boneCounts = 1;
 
-        for(int j=0; j < mVertexBuffer->mBoneInfo[i].m_boneNum; ++j)
+        for(int j=0; j < mVertexBuffer->mVertexes[i].boneCounts; ++j)
         {
-            Bone* pBone = g_boneRoot;
+            Bone* pBone = g_boneVertex;
             pBone->mBoneIndex = 78;
 
-            mVertexBuffer->mBoneInfo[i].SetBoneAndWeight(j, pBone, 1.0f);
+//            mVertexBuffer->mBoneInfo[i].SetBoneAndWeight(j, pBone, 1.0f);
 
-            mVertexBuffer->mVertexes[i].boneIds[0] = 78;
-            mVertexBuffer->mVertexes[i].boneWeights[0] = 1.0f;
+            mVertexBuffer->mVertexes[i].boneIds[j] = 78;
+            mVertexBuffer->mVertexes[i].boneWeights[j] = 1.0f;
         }
     }
 
 
     mVertexBuffer->mBoneIndexArray.resize(5);
+    // 莫名其妙的问题！
     mVertexBuffer->mBoneIndexArray[0] = 78;
+//    mVertexBuffer->mBoneIndexArray[1] = 78;
 
+    mVertexBuffer->mBoneWorldTranslateMatrixArray.resize(5);
+    mVertexBuffer->mBoneWorldRotationMatrixArray.resize(5);
     mVertexBuffer->mBoneWorldModelMatrixArray.resize(5);
     mVertexBuffer->mBoneOffsetMatrixArray.resize(5);
 
@@ -153,12 +167,12 @@ void Box::animateBones()
         //g_boneRoot->mLocalTranslateMatrix = glm::mul(glm::translate(-0.01f,0.0f,0.0f), g_boneRoot->mLocalTranslateMatrix);
     }
 
-    angle2 += 0.002f;
-    if(angle2 == 360.0f)
-    {
-        angle2 = 0.0f;
-    }
-    g_boneRoot->mLocalRotationMatrix = glm::mul(glm::rotate(angle2, 0.0f, 0.0f, 1.0f), g_boneRoot->mLocalRotationMatrix);
+    angle2 += 0.009f;
+    //if(angle2 == 360.0f)
+    //{
+    //    angle2 = 0.0f;
+    //}
+    g_boneVertex->setRotation(angle2, 0.0f, 1.0f, 0.0f);
 
 }
 
@@ -173,6 +187,8 @@ void Box::retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb)
     for (int i = 0; i < vb->mBoneIndexArray.size(); ++i) {
         if(pBone->mBoneIndex == vb->mBoneIndexArray[i])
         {
+            vb->mBoneWorldTranslateMatrixArray[i] = pBone->mLocalTranslateMatrix;
+            vb->mBoneWorldRotationMatrixArray[i] = pBone->mLocalRotationMatrix;
             vb->mBoneWorldModelMatrixArray[i] = pBone->mWorldModelMatrix;
             vb->mBoneOffsetMatrixArray[i] = pBone->m_boneOffset.mOffsetMatrix;
         }
@@ -198,12 +214,13 @@ void Box::Draw(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix, glm::vec3 &ca
     glEnable(GL_DEPTH_TEST);
     mVertexBuffer->Bind();
 
-//    mShader->BindMVP(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
-    mShader->Bind(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix), mVertexBuffer);
-
     // https://www.cnblogs.com/bigdudu/articles/4191042.html
     // 解决缩放不一致，导致法线不垂直的问题
     glm::mat4 it = glm::inverse(mModelMatrix);
+
+//    mShader->BindMVP(glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix));
+    mShader->Bind(glm::value_ptr(it), glm::value_ptr(mModelMatrix), glm::value_ptr(viewMatrix), glm::value_ptr(projectionMatrix), mVertexBuffer);
+
     glUniformMatrix4fv(glGetUniformLocation(mShader->mProgram, "IT_ModelMatrix"), 1, GL_FALSE, glm::value_ptr(it));
 
     glDrawArrays(GL_TRIANGLES, 0, mVertexBuffer->mVertexCount);

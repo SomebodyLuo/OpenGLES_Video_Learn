@@ -13,6 +13,10 @@ VertexBuffer::VertexBuffer()
 
     mBoneIndexArray.clear();
     mBoneIndexArray.reserve(100);
+    mBoneWorldTranslateMatrixArray.clear();
+    mBoneWorldTranslateMatrixArray.reserve(100);
+    mBoneWorldRotationMatrixArray.clear();
+    mBoneWorldRotationMatrixArray.reserve(100);
     mBoneWorldModelMatrixArray.clear();
     mBoneWorldModelMatrixArray.reserve(100);
     mBoneOffsetMatrixArray.clear();

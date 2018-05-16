@@ -14,7 +14,7 @@ void Bone::setPosition(float x, float y, float z)
 
 void Bone::setPosition(glm::vec3 pos)
 {
-#if 0
+#if 1
     mLocalTranslateMatrix = glm::translate(pos);
 #else
 
@@ -25,7 +25,19 @@ void Bone::setPosition(glm::vec3 pos)
 
 void Bone::setRotation(float angle, float x, float y, float z)
 {
+#if 0
     mLocalRotationMatrix = glm::rotate(angle, x, y, z);
+#else
+    double theta = angle / M_PI * 180;
+    glm::vec3 axis(x, y, z);
+    glm::normalize(axis);
+    mRotation.w = (cos(theta/2));
+    mRotation.x = (sin(theta/2) * axis[0]);
+    mRotation.y = (sin(theta/2) * axis[1]);
+    mRotation.z = (sin(theta/2) * axis[2]);
+
+    mLocalRotationMatrix = glm::toMat4(mRotation);
+#endif
 }
 
 void Bone::setScale(float x, float y, float z)
@@ -115,11 +127,9 @@ void Bone::ComputeBoneOffset()
 #endif
 
     if(m_pSibling!=NULL)
-
         m_pSibling->ComputeBoneOffset();
 
     if(m_pFirstChild!=NULL)
-
         m_pFirstChild->ComputeBoneOffset();
 }
 

@@ -19,6 +19,7 @@ Shader::Shader()
     mBoneIdsArrayLocation = -1;
     mBoneWeightArrayLocation = -1;
 
+    mInvModelMatrixLocation = -1;
     mModelMatrixLocation = -1;
     mViewMatrixLocation = -1;
     mProjectionMatrixLocation = -1;
@@ -89,11 +90,15 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     mBoneWeightArrayLocation = glGetAttribLocation(mProgram, "boneWeightArray");
     LOGI("mBoneWeightArrayLocation = %d\n", mBoneWeightArrayLocation);
 
+    mInvModelMatrixLocation = glGetUniformLocation(mProgram, "invModelMatrix");
     mModelMatrixLocation = glGetUniformLocation(mProgram, "ModelMatrix");
     mViewMatrixLocation = glGetUniformLocation(mProgram, "ViewMatrix");
     mProjectionMatrixLocation = glGetUniformLocation(mProgram, "ProjectionMatrix");
 
+
     mBoneIndexArrayLocation = glGetUniformLocation(mProgram, "boneIndexArray");
+    mBoneWorldTranslateMatrixArrayLocation = glGetUniformLocation(mProgram, "boneWorldTranslateMatrixArray");
+    mBoneWorldRotationMatrixArrayLocation = glGetUniformLocation(mProgram, "boneWorldRotationMatrixArray");
     mBoneWorldModelMatrixArrayLocation = glGetUniformLocation(mProgram, "boneWorldModelMatrixArray");
     mBoneOffsetMatrixArrayLocation = glGetUniformLocation(mProgram, "boneOffsetMatrixArray");
     LOGI("mBoneIndexArrayLocation = %d\n", mBoneIndexArrayLocation);
@@ -104,7 +109,7 @@ bool Shader::Init(AAssetManager *assetManager, const char *vs, const char *fs)
     return true;
 }
 
-void Shader::Bind(float *M, float *V, float *P, VertexBuffer *vb)
+void Shader::Bind(float *InvM, float *M, float *V, float *P, VertexBuffer *vb)
 {
     if (0 == mProgram)
     {
@@ -113,6 +118,7 @@ void Shader::Bind(float *M, float *V, float *P, VertexBuffer *vb)
 
     glUseProgram(mProgram);
 
+    glUniformMatrix4fv(mInvModelMatrixLocation, 1, GL_FALSE, InvM);
     glUniformMatrix4fv(mModelMatrixLocation, 1, GL_FALSE, M);
     glUniformMatrix4fv(mViewMatrixLocation, 1, GL_FALSE, V);
     glUniformMatrix4fv(mProjectionMatrixLocation, 1, GL_FALSE, P);
@@ -153,6 +159,22 @@ void Shader::Bind(float *M, float *V, float *P, VertexBuffer *vb)
                  vb->mBoneIndexArray.size(),
             // Pointer to the first element of the matrix
                  &(vb->mBoneIndexArray[0]));
+
+    glUniformMatrix4fv(mBoneWorldTranslateMatrixArrayLocation,
+            // How many matrices to pass
+                       vb->mBoneWorldTranslateMatrixArray.size(),
+            // Transpose the matrix? OpenGL uses column-major, so no.
+                       GL_FALSE,
+            // Pointer to the first element of the matrix
+                       &(vb->mBoneWorldTranslateMatrixArray[0][0][0]));
+
+    glUniformMatrix4fv(mBoneWorldRotationMatrixArrayLocation,
+            // How many matrices to pass
+                       vb->mBoneWorldRotationMatrixArray.size(),
+            // Transpose the matrix? OpenGL uses column-major, so no.
+                       GL_FALSE,
+            // Pointer to the first element of the matrix
+                       &(vb->mBoneWorldRotationMatrixArray[0][0][0]));
 
     glUniformMatrix4fv(mBoneWorldModelMatrixArrayLocation,
             // How many matrices to pass

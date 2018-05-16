@@ -45,12 +45,12 @@ public:
     std::map<std::string, UniformVector4f *> mUniformVec4s;
 
     GLint mPositionLocation, mColorLocation, mTexcoordLocation, mNormalLocation, mBoneCountsLocation, mBoneIdsArrayLocation, mBoneWeightArrayLocation;
-    GLint mModelMatrixLocation, mViewMatrixLocation, mProjectionMatrixLocation;
+    GLint mInvModelMatrixLocation, mModelMatrixLocation, mViewMatrixLocation, mProjectionMatrixLocation;
 
-    GLint mBoneIndexArrayLocation, mBoneWorldModelMatrixArrayLocation, mBoneOffsetMatrixArrayLocation;
+    GLint mBoneIndexArrayLocation, mBoneWorldTranslateMatrixArrayLocation, mBoneWorldRotationMatrixArrayLocation, mBoneWorldModelMatrixArrayLocation, mBoneOffsetMatrixArrayLocation;
 
     bool Init(AAssetManager *assetManager, const char*vs, const char *fs);
-    void Bind(float *M, float *V, float *P, VertexBuffer *vb);
+    void Bind(float *InvM, float *M, float *V, float *P, VertexBuffer *vb);
     void BindMVP(float *M, float *V, float *P);
 
     void SetTexture(const char *name, const char *imagePath);

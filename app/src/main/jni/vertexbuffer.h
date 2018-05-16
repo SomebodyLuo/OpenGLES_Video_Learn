@@ -34,6 +34,8 @@ public:
     //----------------------------------------------------------------------------------------------
     // 所有骨骼的信息：ID、worldMatrix、OffsetMatrix
     std::vector<int> mBoneIndexArray;
+    std::vector<glm::mat4> mBoneWorldTranslateMatrixArray;
+    std::vector<glm::mat4> mBoneWorldRotationMatrixArray;
     std::vector<glm::mat4> mBoneWorldModelMatrixArray;
     std::vector<glm::mat4> mBoneOffsetMatrixArray;
     //----------------------------------------------------------------------------------------------

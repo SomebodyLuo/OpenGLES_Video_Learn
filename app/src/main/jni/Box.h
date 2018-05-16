@@ -48,7 +48,7 @@ public:
 
     void SetVec4(const char *name, float x, float y, float z, float w);
 
-    Bone* g_boneRoot;
+    Bone* g_boneRoot, *g_boneVertex;
 };
 
 

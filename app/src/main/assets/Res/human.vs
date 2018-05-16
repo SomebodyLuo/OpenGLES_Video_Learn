@@ -13,6 +13,7 @@ uniform mat4 boneWorldModelMatrixArray[100];
 uniform mat4 boneOffsetMatrixArray[100];
 //--------------------------------------------
 
+uniform mat4 invModelMatrix;
 uniform mat4 ModelMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ProjectionMatrix;
@@ -48,8 +49,7 @@ vec4 getFinalPosition()
                     //combineMat =  boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j];
                     //weight = boneWeightArray[int(meshInfoId)][i];
 
-                    vc = boneWeightArray[i] * boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j] * originPos;
-
+                    vc = boneWeightArray[i] * invModelMatrix * boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j] * originPos;
                     finalPos = finalPos + vc;
                 }
             }
@@ -90,5 +90,5 @@ void main()
     V_WorldPos = ModelMatrix * finalPos;
     V_Texcoord = texcoord;
     //gl_PointSize = 8.0;
-    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * finalPos;
+    gl_Position = ProjectionMatrix * ViewMatrix  * ModelMatrix * finalPos;
 }
