@@ -46,13 +46,25 @@ void Box::Init(AAssetManager *assetManager, const char *modelPath)
                     //|        |
                     //|        |
                     //0--------1(5)
-                    -0.5f, -0.5f, 0.5f,
-                    0.5f, -0.5f, 0.5f,
-                    -0.5f, 0.5f, -0.5f,
+//                    -0.5f, -0.5f, 0.5f,
+//                    0.5f, -0.5f, 0.5f,
+//                    -0.5f, 0.5f, -0.5f,
+//
+//                    -0.5f, 0.5f, -0.5f,
+//                    0.5f, 0.5f, -0.5f,
+//                    0.5f, -0.5f, 0.5f,
 
-                    -0.5f, 0.5f, -0.5f,
-                    0.5f, 0.5f, -0.5f,
-                    0.5f, -0.5f, 0.5f,
+                    //2(3)-----4
+                    //|        |
+                    //|        |
+                    //0--------1(5)
+                    -0.5f, -0.5f, 0.0f,
+                    0.5f, -0.5f, 0.0f,
+                    -0.5f, 0.5f, 0.0f,
+
+                    -0.5f, 0.5f, 0.0f,
+                    0.5f, 0.5f, 0.0f,
+                    0.5f, -0.5f, 0.0f,
 
             };
 
@@ -80,6 +92,7 @@ void Box::Init(AAssetManager *assetManager, const char *modelPath)
     g_boneRoot = new Bone();
     g_boneRoot->setPosition(0, 0, 0);
     g_boneRoot->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
+    g_boneRoot->setScale(1.0f, 1.0f, 1.0f);
 
     for(int i=0; i<m_vertexNum; ++i)
     {
@@ -141,11 +154,11 @@ void Box::animateBones()
     }
 
     angle2 += 0.002f;
-//    if(angle2 == 360.0f)
-//    {
-//        angle2 = 0.0f;
-//    }
-    g_boneRoot->mLocalRotationMatrix = glm::mul(glm::rotate(angle2, 0.0f, 1.0f, 0.0f), g_boneRoot->mLocalRotationMatrix);
+    if(angle2 == 360.0f)
+    {
+        angle2 = 0.0f;
+    }
+    g_boneRoot->mLocalRotationMatrix = glm::mul(glm::rotate(angle2, 0.0f, 0.0f, 1.0f), g_boneRoot->mLocalRotationMatrix);
 
 }
 

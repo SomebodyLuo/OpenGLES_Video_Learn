@@ -14,12 +14,23 @@ void Bone::setPosition(float x, float y, float z)
 
 void Bone::setPosition(glm::vec3 pos)
 {
+#if 0
     mLocalTranslateMatrix = glm::translate(pos);
+#else
+
+    mLocalTranslateMatrix = glm::translate(glm::mat4(), pos);
+#endif
+
 }
 
 void Bone::setRotation(float angle, float x, float y, float z)
 {
     mLocalRotationMatrix = glm::rotate(angle, x, y, z);
+}
+
+void Bone::setScale(float x, float y, float z)
+{
+    mLocalScaleMatrix = glm::scale(x, y, z);
 }
 
 
@@ -60,7 +71,7 @@ void Bone::ComputeWorldModelMatrix(glm::mat4 &fatherModelMatrix)
 
 glm::mat4 &Bone::GetLocalModelMatrix()
 {
-    mLocalModelMatrix = mLocalTranslateMatrix * mLocalRotationMatrix;
+    mLocalModelMatrix = mLocalTranslateMatrix * mLocalScaleMatrix * mLocalRotationMatrix;
 
     return mLocalModelMatrix;
 }
@@ -70,7 +81,38 @@ glm::mat4 &Bone::GetLocalModelMatrix()
 //called after compute world pos when bone loaded but not animated
 void Bone::ComputeBoneOffset()
 {
+
+#if 0
     m_boneOffset.mOffsetMatrix = glm::inverse(mWorldModelMatrix);
+
+#else
+    //-----------------------------------------------------------
+    m_boneOffset.mOffsetMatrix = mWorldModelMatrix;
+
+    // transpose 重要！
+    glm::mat3 R_Transpose;
+    glm::vec3 pos;
+    for(int i=0;i<3;i++)
+        for(int j=0;j<3;j++)
+            R_Transpose[i][j]=m_boneOffset.mOffsetMatrix[j][i];
+
+    for(int i=0;i<3;i++)
+        pos[i]=m_boneOffset.mOffsetMatrix[3][i];
+
+    pos = -R_Transpose * pos;
+    for(int i=0;i<3;i++)
+        for(int j=0;j<3;j++)
+            m_boneOffset.mOffsetMatrix[i][j] = R_Transpose[i][j];
+
+    for(int i=0;i<3;i++)
+    {
+        m_boneOffset.mOffsetMatrix[3][i] = pos[i];
+        m_boneOffset.mOffsetMatrix[i][3] = 0;
+    }
+
+    m_boneOffset.mOffsetMatrix[3][3] = 1;
+    //-----------------------------------------------------------
+#endif
 
     if(m_pSibling!=NULL)
 

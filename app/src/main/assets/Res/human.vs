@@ -87,7 +87,7 @@ void main()
     V_Color = color;
     V_Normal = IT_ModelMatrix * normal;
     //V_Normal = ModelMatrix * normal;
-    V_WorldPos = ModelMatrix * tmpPos;
+    V_WorldPos = ModelMatrix * finalPos;
     V_Texcoord = texcoord;
     //gl_PointSize = 8.0;
     gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * finalPos;

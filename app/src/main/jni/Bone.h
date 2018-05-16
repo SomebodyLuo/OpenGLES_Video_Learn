@@ -29,6 +29,7 @@ public:
     void setPosition(float x, float y, float z);
     void setPosition(glm::vec3 pos);
     void setRotation(float angle, float x, float y, float z);
+    void setScale(float x, float y, float z);
 
     ~Bone(); 
 
@@ -45,6 +46,8 @@ public:
 
     glm::mat4 mLocalRotationMatrix;
 //    glm::mat4 mWorldRotationMatrix;
+
+    glm::mat4 mLocalScaleMatrix;
 
     glm::mat4 mLocalModelMatrix;
     glm::mat4 mWorldModelMatrix;

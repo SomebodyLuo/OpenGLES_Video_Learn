@@ -227,22 +227,27 @@ void SkinMesh::Init(AAssetManager *assetManager, const char *modelPath)
     g_boneRoot = new Bone();
     g_boneRoot->setPosition(0, 0, 0);
     g_boneRoot->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
+    g_boneRoot->setScale(1.0f, 1.0f, 1.0f);
 
     g_bone1 = new Bone();
     g_bone1->setPosition(0.2, 0, 0);
     g_bone1->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
+    g_bone1->setScale(1.0f, 1.0f, 1.0f);
 
     g_bone2 = new Bone();
     g_bone2->setPosition(0.2, 0, 0);
     g_bone2->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
+    g_bone2->setScale(1.0f, 1.0f, 1.0f);
 
     g_bone31 = new Bone();
     g_bone31->setPosition(0.2, 0.1, 0);
     g_bone31->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
+    g_bone31->setScale(1.0f, 1.0f, 1.0f);
 
     g_bone32 = new Bone();
     g_bone32->setPosition(0.2, -0.1, 0);
     g_bone32->setRotation(0.1f, 0.0f, 0.0f, 1.0f);
+    g_bone32->setScale(1.0f, 1.0f, 1.0f);
 
     g_boneRoot->SetFirstChild(g_bone1);
     g_bone1->SetFirstChild(g_bone2);

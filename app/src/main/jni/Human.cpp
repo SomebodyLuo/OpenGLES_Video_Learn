@@ -264,6 +264,7 @@ void Human::ParseHumanBody()
     mBoneRoot = new Bone();
     mBoneRoot->setPosition(headRotateCenter);
     mBoneRoot->setRotation(0.1f, 0.0f, 1.0f, 0.0f);
+    mBoneRoot->setScale(1.0f, 1.0f, 1.0f);
 
     for(int i=0; i < mVertexBuffer->mVertexCount; ++i)
     {
