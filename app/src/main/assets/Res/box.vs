@@ -27,34 +27,10 @@ vec4 getFinalPosition()
     mat4 offsetMat;
     mat4 combineMat;
     float weight = 0.0;
-    vec4 vc;
+    vec4 vc1, vc2;
     vec4 finalPos;
 
-    for(int j = 0; j < boneIndexArray.length(); ++j)
-    {
-        if(int(boneCounts) > 0)
-        {
-            for(int i = 0; i < int(boneCounts); ++i)
-            {
-                if((int(boneIdsArray[i])) == boneIndexArray[j])
-                {
-                    //combineMat =  boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j];
-                    //weight = boneWeightArray[int(meshInfoId)][i];
-
-                    //vc = boneWeightArray[i] * boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j] * originPos;
-                    vc = boneWorldRotationMatrixArray[j] * originPos * boneWorldTranslateMatrixArray[j] * boneWeightArray[i];
-
-                    finalPos = finalPos + vc;
-                }
-            }
-            V_Color = vec4(0.6, 0.1, 0.9, 1.0);
-        }
-        else
-        {
-            V_Color = vec4(0.8, 0.1, 0.4, 1.0);
-            return originPos;
-        }
-    }
+    finalPos = boneWeightArray[0] * boneWorldModelMatrixArray[int(boneIdsArray[0])] * boneOffsetMatrixArray[int(boneIdsArray[0])] * originPos;
 
     return finalPos;
 }
@@ -64,9 +40,10 @@ void main()
 
     vec4 finalPos;
 
+    V_Color = vec4(0.8, 0.2, 0.9, 1.0);
+
     finalPos = getFinalPosition();
 
-    //V_Color = vec4(finalPos.xyz, 1.0);
 
     vec4 origin = vec4(0.0, 0.0, 0.0, 0.0);
     //--------------------------------------

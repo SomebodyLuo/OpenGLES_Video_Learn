@@ -23,6 +23,16 @@ void Bone::setPosition(glm::vec3 pos)
 
 }
 
+void Bone::SetRotation(glm::quat q)
+{
+    mRotation = q;
+}
+
+glm::quat Bone::GetRotation()
+{
+    return mRotation;
+}
+
 void Bone::setRotation(float angle, float x, float y, float z)
 {
 #if 0
@@ -35,8 +45,6 @@ void Bone::setRotation(float angle, float x, float y, float z)
     mRotation.x = (sin(theta/2) * axis[0]);
     mRotation.y = (sin(theta/2) * axis[1]);
     mRotation.z = (sin(theta/2) * axis[2]);
-
-    mLocalRotationMatrix = glm::toMat4(mRotation);
 #endif
 }
 
@@ -83,6 +91,8 @@ void Bone::ComputeWorldModelMatrix(glm::mat4 &fatherModelMatrix)
 
 glm::mat4 &Bone::GetLocalModelMatrix()
 {
+    mLocalRotationMatrix = glm::toMat4(mRotation);
+
     mLocalModelMatrix = mLocalTranslateMatrix * mLocalScaleMatrix * mLocalRotationMatrix;
 
     return mLocalModelMatrix;

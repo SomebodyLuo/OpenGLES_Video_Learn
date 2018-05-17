@@ -262,20 +262,48 @@ void Human::ParseHumanBody()
 
     // 计算骨骼权重
     mBoneRoot = new Bone();
-    mBoneRoot->setPosition(headRotateCenter);
-    mBoneRoot->setRotation(0.1f, 0.0f, 1.0f, 0.0f);
+    mBoneRoot->setPosition(0, 0, 0);
+    mBoneRoot->setRotation(0.0f, 0.0f, 0.0f, 1.0f);
     mBoneRoot->setScale(1.0f, 1.0f, 1.0f);
 
+    g_boneVertex = new Bone();
+    g_boneVertex->setPosition(0.0, 0.0, 0);
+    g_boneVertex->setRotation(0.0f, 0.0f, 0.0f, 1.0f);
+    g_boneVertex->setScale(1.0f, 1.0f, 1.0f);
+
+    mBoneRoot->SetFirstChild(g_boneVertex);
+
+    Bone* pBone = mBoneRoot;
+    pBone->mBoneIndex = 0;
+#if 0
+    for(int i=0; i<mVertexBuffer->mVertexCount; ++i)
+    {
+//        mVertexBuffer->mBoneInfo[i].m_boneNum = 1;
+
+        mVertexBuffer->mVertexes[i].boneCounts = 1;
+
+        for(int j=0; j < mVertexBuffer->mVertexes[i].boneCounts; ++j)
+        {
+            Bone* pBone = g_boneVertex;
+            pBone->mBoneIndex = 1;
+
+//            mVertexBuffer->mBoneInfo[i].SetBoneAndWeight(j, pBone, 1.0f);
+
+            mVertexBuffer->mVertexes[i].boneIds[j] = 1;
+            mVertexBuffer->mVertexes[i].boneWeights[j] = 0.9f;
+        }
+    }
+#else
     for(int i=0; i < mVertexBuffer->mVertexCount; ++i)
     {
         mVertexBuffer->mBoneInfo[i].m_boneNum = 1;
 
         for(int j=0; j < mVertexBuffer->mBoneInfo[i].m_boneNum; ++j)
         {
-            Bone* pBone = mBoneRoot;
-            pBone->mBoneIndex = 99;
+            Bone* pBone = g_boneVertex;
+            pBone->mBoneIndex = 1;
 
-            mVertexBuffer->mBoneInfo[i].SetBoneAndWeight(j, pBone, 0.0f);
+            mVertexBuffer->mBoneInfo[i].SetBoneAndWeight(j, pBone, 1.0f);
         }
     }
 
@@ -286,7 +314,7 @@ void Human::ParseHumanBody()
         // 假设每个顶点拥有的骨骼数量不超过4个
         for(int j = 0; j < mVertexBuffer->mVertexes[i].boneCounts; ++j)
         {
-            mVertexBuffer->mVertexes[i].boneIds[j] = 99;
+            mVertexBuffer->mVertexes[i].boneIds[j] = 1;
 
             // 权重的分配
             // 1. 头部旋转中心点和下巴的连线，构成“厂”形上部区域权重全部为1.0f
@@ -326,14 +354,16 @@ void Human::ParseHumanBody()
             }
         }
     }
+#endif
 
-    mVertexBuffer->mBoneIndexArray.resize(5);
-    mVertexBuffer->mBoneIndexArray[0] = 99;
+    mVertexBuffer->mBoneIndexArray.resize(2);
+    mVertexBuffer->mBoneIndexArray[0] = 0;
+    mVertexBuffer->mBoneIndexArray[1] = 1;
 
-    mVertexBuffer->mBoneWorldTranslateMatrixArray.resize(5);
-    mVertexBuffer->mBoneWorldRotationMatrixArray.resize(5);
-    mVertexBuffer->mBoneWorldModelMatrixArray.resize(5);
-    mVertexBuffer->mBoneOffsetMatrixArray.resize(5);
+    mVertexBuffer->mBoneWorldTranslateMatrixArray.resize(2);
+    mVertexBuffer->mBoneWorldRotationMatrixArray.resize(2);
+    mVertexBuffer->mBoneWorldModelMatrixArray.resize(2);
+    mVertexBuffer->mBoneOffsetMatrixArray.resize(2);
 
     ComputeWorldModelMatrix(glm::mat4());
 
@@ -392,6 +422,7 @@ void Human::retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb)
     for (int i = 0; i < vb->mBoneIndexArray.size(); ++i) {
         if(pBone->mBoneIndex == vb->mBoneIndexArray[i])
         {
+            LOGI("Human::retrieveBoneMatrices: i = %d; pBone->mBoneIndex = %d\n", i, pBone->mBoneIndex );
             vb->mBoneWorldTranslateMatrixArray[i] = pBone->mLocalTranslateMatrix;
             vb->mBoneWorldRotationMatrixArray[i] = pBone->mLocalRotationMatrix;
             vb->mBoneWorldModelMatrixArray[i] = pBone->mWorldModelMatrix;
@@ -415,14 +446,24 @@ void Human::UpdateMatrices()
 void Human::animateBones()
 {
     angle += 0.001;
-    //if(angle > 20.0f)
-    //{
-    //    df = -0.001f;
-    //}
-    //if(angle < -20.0f)
-    //{
-    //    df = 0.001f;
-    //}
+    if(angle > 20.0f)
+    {
+        df = -0.001f;
+    }
+    if(angle < -20.0f)
+    {
+        df = 0.001f;
+    }
+
+
+#if 0
     mBoneRoot->setRotation(angle, 0.0f, 1.0f, 0.0f);
+#else
+    glm::quat q0 = g_boneVertex->GetRotation();
+    glm::quat q_Y(cos(angle/360*M_PI),0,sin(angle/360*M_PI),0);//local
+    glm::quat q_total = q0 * q_Y;
+    g_boneVertex->SetRotation(q_total);
+
+#endif
 
 }

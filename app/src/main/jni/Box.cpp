@@ -113,25 +113,25 @@ void Box::Init(AAssetManager *assetManager, const char *modelPath)
         for(int j=0; j < mVertexBuffer->mVertexes[i].boneCounts; ++j)
         {
             Bone* pBone = g_boneVertex;
-            pBone->mBoneIndex = 78;
+            pBone->mBoneIndex = 1;
 
 //            mVertexBuffer->mBoneInfo[i].SetBoneAndWeight(j, pBone, 1.0f);
 
-            mVertexBuffer->mVertexes[i].boneIds[j] = 78;
-            mVertexBuffer->mVertexes[i].boneWeights[j] = 1.0f;
+            mVertexBuffer->mVertexes[i].boneIds[j] = 1;
+            mVertexBuffer->mVertexes[i].boneWeights[j] = 0.9f;
         }
     }
 
 
-    mVertexBuffer->mBoneIndexArray.resize(5);
+    mVertexBuffer->mBoneIndexArray.resize(2);
     // 莫名其妙的问题！
-    mVertexBuffer->mBoneIndexArray[0] = 78;
-//    mVertexBuffer->mBoneIndexArray[1] = 78;
+    mVertexBuffer->mBoneIndexArray[0] = 0;
+    mVertexBuffer->mBoneIndexArray[1] = 1;
 
-    mVertexBuffer->mBoneWorldTranslateMatrixArray.resize(5);
-    mVertexBuffer->mBoneWorldRotationMatrixArray.resize(5);
-    mVertexBuffer->mBoneWorldModelMatrixArray.resize(5);
-    mVertexBuffer->mBoneOffsetMatrixArray.resize(5);
+    mVertexBuffer->mBoneWorldTranslateMatrixArray.resize(2);
+    mVertexBuffer->mBoneWorldRotationMatrixArray.resize(2);
+    mVertexBuffer->mBoneWorldModelMatrixArray.resize(2);
+    mVertexBuffer->mBoneOffsetMatrixArray.resize(2);
 
     LOGI("mVertexBuffer->mBoneIndexArray.size = %d\n", (int)mVertexBuffer->mBoneIndexArray.size());
     LOGI("mVertexBuffer->mBoneIndexArray.capacity = %d\n", (int)mVertexBuffer->mBoneIndexArray.capacity());
@@ -172,7 +172,15 @@ void Box::animateBones()
     //{
     //    angle2 = 0.0f;
     //}
+
+#if 0
     g_boneVertex->setRotation(angle2, 0.0f, 1.0f, 0.0f);
+#else
+    glm::quat q0 = g_boneVertex->GetRotation();
+    glm::quat q_Z(cos(-2.5/360*M_PI),0,0,sin(-2.5/360*M_PI));//local
+    glm::quat q_total = q0 * q_Z;
+    g_boneVertex->SetRotation(q_total);
+#endif
 
 }
 
@@ -187,6 +195,7 @@ void Box::retrieveBoneMatrices(Bone *pBone, VertexBuffer *vb)
     for (int i = 0; i < vb->mBoneIndexArray.size(); ++i) {
         if(pBone->mBoneIndex == vb->mBoneIndexArray[i])
         {
+            LOGI("Box::retrieveBoneMatrices: i = %d; pBone->mBoneIndex = %d\n", i, pBone->mBoneIndex );
             vb->mBoneWorldTranslateMatrixArray[i] = pBone->mLocalTranslateMatrix;
             vb->mBoneWorldRotationMatrixArray[i] = pBone->mLocalRotationMatrix;
             vb->mBoneWorldModelMatrixArray[i] = pBone->mWorldModelMatrix;

@@ -21,7 +21,7 @@ public:
     // 男性头身比是7，女性头身比是6
     const float mHeadPercentage = 1.0f / 7.0f;
 
-    Bone *mBoneRoot;
+    Bone *mBoneRoot, *g_boneVertex;
 
     Point mKeyPoints;
 

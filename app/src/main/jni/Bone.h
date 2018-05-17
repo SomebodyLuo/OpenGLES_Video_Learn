@@ -28,6 +28,10 @@ public:
 	Bone();
     void setPosition(float x, float y, float z);
     void setPosition(glm::vec3 pos);
+
+    void SetRotation(glm::quat q);
+    glm::quat GetRotation();
+
     void setRotation(float angle, float x, float y, float z);
     void setScale(float x, float y, float z);
 

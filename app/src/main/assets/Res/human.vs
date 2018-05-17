@@ -37,27 +37,15 @@ vec4 getFinalPosition()
     float weight = 0.0;
     vec4 vc;
     vec4 finalPos;
+    mat4 result;
 
-    for(int j = 0; j < boneIndexArray.length(); ++j)
+    if(int(boneCounts) > 0)
     {
-        if(int(boneCounts) > 0)
-        {
-            for(int i = 0; i < int(boneCounts); ++i)
-            {
-                if((int(boneIdsArray[i])) == boneIndexArray[j])
-                {
-                    //combineMat =  boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j];
-                    //weight = boneWeightArray[int(meshInfoId)][i];
-
-                    vc = boneWeightArray[i] * invModelMatrix * boneWorldModelMatrixArray[j] * boneOffsetMatrixArray[j] * originPos;
-                    finalPos = finalPos + vc;
-                }
-            }
-        }
-        else
-        {
-            return originPos;
-        }
+        finalPos = boneWeightArray[0] * boneWorldModelMatrixArray[int(boneIdsArray[0])] * boneOffsetMatrixArray[int(boneIdsArray[0])] * originPos;
+    }
+    else
+    {
+        finalPos = position;
     }
 
     return finalPos;
