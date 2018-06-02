@@ -48,9 +48,13 @@ void SkinMesh::DrawStaticMesh(glm::mat4 &viewMatrix, glm::mat4 &projectionMatrix
 
     // draw points
     // add vertex shader: gl_PointSize = 8.0;
+#if 0
     for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
         glDrawArrays(GL_POINTS, i, 1);
     }
+#else
+    glDrawArrays(GL_POINTS, 0, mVertexBuffer->mVertexCount);
+#endif
 
     // draw lines
 //    glLineWidth(2.0f);
@@ -110,13 +114,20 @@ void SkinMesh::animateBones()
 //        g_bone1->mLocalTranslateMatrix = glm::mul(glm::translate(0.0f,-0.01f,0.0f), g_bone1->mLocalTranslateMatrix);
         //g_boneRoot->mLocalTranslateMatrix = glm::mul(glm::translate(-0.01f,0.0f,0.0f), g_boneRoot->mLocalTranslateMatrix);
     }
-
+#if 0
     angle += 0.001f;
     if(angle == 360.0f)
     {
         angle = 0.0f;
     }
     g_boneRoot->mLocalRotationMatrix = glm::mul(glm::rotate(angle, 0.0f, 0.0f, 1.0f), g_boneRoot->mLocalRotationMatrix);
+#else
+    glm::quat q0 = g_boneRoot->GetRotation();
+    glm::quat q_Z(cos(-2.5/360*M_PI),0,0,sin(-2.5/360*M_PI));//local
+    glm::quat q_total = q0 * q_Z;
+    g_boneRoot->SetRotation(q_total);
+
+#endif
 
 }
 

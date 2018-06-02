@@ -168,30 +168,36 @@ void Human::ParseHumanBody()
 
     for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
 
+        // 右手
         if(mVertexBuffer->mVertexes[i].Position[0] > maxX)
         {
             maxX = mVertexBuffer->mVertexes[i].Position[0];
             maxXIndex = i;
         }
 
+        // 左手
         if(mVertexBuffer->mVertexes[i].Position[0] < minX)
         {
             minX = mVertexBuffer->mVertexes[i].Position[0];
             minXIndex = i;
         }
 
+        // 头顶
         if(mVertexBuffer->mVertexes[i].Position[1] > maxY)
         {
             maxY = mVertexBuffer->mVertexes[i].Position[1];
             maxYIndex = i;
         }
 
+        // 脚底
         if(mVertexBuffer->mVertexes[i].Position[1] < minY)
         {
             minY = mVertexBuffer->mVertexes[i].Position[1];
             minYIndex = i;
         }
     }
+
+
     // 头顶 mtopPoint
     mKeyPoints.SetPointPosition(0, mVertexBuffer->mVertexes[maxYIndex].Position[0], mVertexBuffer->mVertexes[maxYIndex].Position[1], mVertexBuffer->mVertexes[maxYIndex].Position[2]);
     LOGI("\n\n---------------------------------\n");
@@ -212,6 +218,7 @@ void Human::ParseHumanBody()
     mHeight = maxY - minY;
     mWidth = maxX - minX;
 
+    // 根据头身比，得到一个头部的最低Y值——简称“头底点”
     float headHeight = mHeight * mHeadPercentage;
     float headPartMinY = maxY - headHeight;
     LOGI("thresholdPoint.y = %f\n", headPartMinY);
@@ -226,6 +233,7 @@ void Human::ParseHumanBody()
 
     for (int i = 0; i < mVertexBuffer->mVertexCount; ++i) {
 
+        // 在整个人体所有顶点中，寻找高于“头底点”的顶点
         if(mVertexBuffer->mVertexes[i].Position[1] > headPartMinY)
         {
             // 鼻子是头部Z值最大的点
@@ -298,7 +306,7 @@ void Human::ParseHumanBody()
     {
         mVertexBuffer->mBoneInfo[i].m_boneNum = 1;
 
-        for(int j=0; j < mVertexBuffer->mBoneInfo[i].m_boneNum; ++j)
+        for(int j = 0; j < mVertexBuffer->mBoneInfo[i].m_boneNum; ++j)
         {
             Bone* pBone = g_boneVertex;
             pBone->mBoneIndex = 1;
@@ -320,7 +328,7 @@ void Human::ParseHumanBody()
             // 1. 头部旋转中心点和下巴的连线，构成“厂”形上部区域权重全部为1.0f
             // 2. headPartMinY以上的其他区域，以Y = Z的函数关系分配权重
             // 3. 身体其他部分权重为0
-            if(mVertexBuffer->mVertexes[i].Position[1] > headRotateCenter.y)
+            if(mVertexBuffer->mVertexes[i].Position[1] >= headRotateCenter.y)
             {
                 LOGI("weight=1.0f -1-: point=%d\n", i);
                 mVertexBuffer->mVertexes[i].boneWeights[j] = 1.0f;
@@ -332,19 +340,36 @@ void Human::ParseHumanBody()
             }
             else if(mVertexBuffer->mVertexes[i].Position[1] > headPartMinY)
             {
+#if 1
+                float dd = (headRotateCenter.y - headPartMinY) / 50.0f;
+                float Y = headRotateCenter.y;
+                // 共打印373次，所以这里有373个顶点
+                LOGI("hhhhh : dd=%f, headRotateCenter.y=%f, headPartMinY=%f, point=%d, vertex.y=%f\n", dd, headRotateCenter.y, headPartMinY, i, mVertexBuffer->mVertexes[i].Position[1]);
+                for (int m = 0; m < 50; ++m) {
+                    float newY = Y - dd;
+                    if((mVertexBuffer->mVertexes[i].Position[1] < Y) && (mVertexBuffer->mVertexes[i].Position[1] >= newY))
+                    {
+                        LOGI("0.0f<weight<1.0f : point=%d, weight=%f\n", i, (50 - m) * 0.02f);
+                        mVertexBuffer->mVertexes[i].boneWeights[j] = (50 - m) * 0.02f;
+                    }
+                    Y = newY;
+                }
+#else
                 float dd = (headRotateCenter.y - headPartMinY) / 10.0f;
                 float Y = headRotateCenter.y, Z = headRotateCenter.z;
-                for (int i = 0; i < 10; ++i) {
+                for (int m = 0; m < 10; ++m) {
                     // 下面需要判断当前的顶点在Y = -Z直线的右边
                     if(RightOfLine(mVertexBuffer->mVertexes[i].Position[1], mVertexBuffer->mVertexes[i].Position[2], \
                         Y - dd, Z - dd, Y - dd - dd, Z))
                     {
                         LOGI("0.0f<weight<1.0f : point=%d\n", i);
-                        mVertexBuffer->mVertexes[i].boneWeights[j] = (10 - i) * 0.1f;
+                        mVertexBuffer->mVertexes[i].boneWeights[j] = (10 - m) * 0.1f;
                     }
                     Y -= dd;
                     Z -= dd;
                 }
+#endif
+
             }
             else
             {
@@ -445,14 +470,14 @@ void Human::UpdateMatrices()
 
 void Human::animateBones()
 {
-    angle += 0.001;
+    angle += df;
     if(angle > 20.0f)
     {
-        df = -0.001f;
+        df = -1.0f;
     }
     if(angle < -20.0f)
     {
-        df = 0.001f;
+        df = 1.0f;
     }
 
 
@@ -460,7 +485,7 @@ void Human::animateBones()
     mBoneRoot->setRotation(angle, 0.0f, 1.0f, 0.0f);
 #else
     glm::quat q0 = g_boneVertex->GetRotation();
-    glm::quat q_Y(cos(angle/360*M_PI),0,sin(angle/360*M_PI),0);//local
+    glm::quat q_Y(cos(0.5f * df / 360 * M_PI), 0, sin(0.5f * df / 360 * M_PI), 0);//local
     glm::quat q_total = q0 * q_Y;
     g_boneVertex->SetRotation(q_total);
 

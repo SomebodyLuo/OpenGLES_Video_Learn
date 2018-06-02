@@ -58,19 +58,19 @@ void main()
 
     finalPos = getFinalPosition();
 
-    tmp_Color = finalPos;
+    //tmp_Color = finalPos;
 
     vec4 origin = vec4(0.0, 0.0, 0.0, 0.0);
     //--------------------------------------
     //if(0.9 == color.x)
-    //if(32 == boneIndexArray[4])
-    //{
-    //    tmp_Color = vec4(0.6, 0.1, 0.9, 1.0);
-    //}
-    //else
-    //{
-    //    tmp_Color = vec4(0.1, 0.1, 0.9, 1.0);
-    //}
+    if(1 == int(boneCounts))
+    {
+        tmp_Color = vec4(0.9, 0.1, 0.1, 1.0);
+    }
+    else
+    {
+        tmp_Color = vec4(0.1, 0.1, 0.9, 1.0);
+    }
 
     V_Color = color;
     V_Normal = IT_ModelMatrix * normal;

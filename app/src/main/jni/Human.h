@@ -40,7 +40,7 @@ public:
 private:
     float time1 = 0.0f;
     float angle = 0.0f;
-    float df = 0.001f;
+    float df = 1.0f;
 
 };
 
